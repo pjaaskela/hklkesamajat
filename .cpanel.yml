@@ -1,0 +1,16 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/hklkesam/public_html/
+    - /bin/cp -f index.html $DEPLOYPATH
+    - /bin/cp -f vierailija.html $DEPLOYPATH
+    - /bin/cp -f mokki.html $DEPLOYPATH
+    - /bin/cp -f hkl-base.css $DEPLOYPATH
+    - /bin/cp -f hkl-laituri.jpg $DEPLOYPATH
+    - /bin/cp -f hkl-hero.jpg $DEPLOYPATH
+    - /bin/cp -f hkl-ranta.jpg $DEPLOYPATH
+    - /bin/cp -f hkl-uinti.jpg $DEPLOYPATH
+    - /bin/cp -f hkl-ilta.jpg $DEPLOYPATH
+    - /bin/cp -f hkl-talvi.jpg $DEPLOYPATH
+    - /bin/cp -f hkl-myrsky.jpg $DEPLOYPATH
+    - /bin/cp -f hkl-lumi.jpg $DEPLOYPATH
