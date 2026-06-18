@@ -1,0 +1,20 @@
+/* hkl-base.css — HKL Kesämajat yhteinen tyyli */
+:root {
+  --green: #0e5c3a; --green-light: #52b788; --green-pale: #d8f3dc;
+  --blue: #0a4a6e; --blue-light: #48b5d3; --sand: #f8f4e8;
+  --wood: #8b6914; --text: #1a2e22; --text-muted: #5a7060;
+  --radius: 18px;
+  --shadow: 0 4px 28px rgba(0,0,0,0.10);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.15);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+/* Skeleton loader — shared across all pages */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }

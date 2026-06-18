@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oma Mökki – HKL-Kesämajat</title>
+<link rel="stylesheet" href="hkl-base.css">
+<style>
+/* :root, * moved to hkl-base.css */
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--sand); color: var(--text); min-height: 100svh; }
+
+/* ========== LOGIN ========== */
+#login-screen {
+  position: fixed; inset: 0; z-index: 100;
+  background: linear-gradient(145deg, rgba(8,61,42,0.82) 0%, rgba(14,92,70,0.78) 50%, rgba(10,74,110,0.80) 100%), url('hkl-laituri.jpg') center/cover no-repeat;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.login-orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18;
+  animation: drift 10s ease-in-out infinite alternate;
+}
+.login-orb-1 { width: 400px; height: 400px; background: #52b788; top: -100px; left: -80px; }
+.login-orb-2 { width: 300px; height: 300px; background: #48b5d3; bottom: 20px; right: -60px; animation-delay: -5s; }
+@keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(30px,20px) scale(1.06); } }
+.login-card {
+  position: relative; z-index: 1;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 24px;
+  padding: 40px 36px;
+  width: min(380px, 100%);
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.login-icon { font-size: 3rem; margin-bottom: 12px; display: block; }
+.login-card h1 { color: #fff; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
+.login-card p { color: rgba(255,255,255,0.55); font-size: 0.85rem; margin-bottom: 28px; }
+.login-input {
+  width: 100%; padding: 13px 16px; border-radius: 10px;
+  border: 1.5px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.08); color: #fff;
+  font-size: 1rem; margin-bottom: 12px; outline: none;
+  transition: border .2s;
+}
+.login-input::placeholder { color: rgba(255,255,255,0.4); }
+.login-input:focus { border-color: var(--green-light); }
+.login-btn {
+  width: 100%; padding: 14px; border-radius: 10px;
+  background: var(--green-light); color: #0d1a12;
+  font-weight: 800; font-size: 1rem; border: none; cursor: pointer;
+  transition: transform .1s, background .2s; margin-top: 4px;
+}
+.login-btn:active { transform: scale(0.98); }
+.login-btn:hover { background: #6dd5a2; }
+.login-error { color: #fca5a5; font-size: 0.82rem; margin-bottom: 10px; min-height: 1.2em; }
+.login-hint { margin-top: 18px; font-size: 0.75rem; color: rgba(255,255,255,0.35); }
+
+/* ========== DASHBOARD ========== */
+#dashboard { display: none; min-height: 100svh; }
+
+.dash-header {
+  position: sticky; top: 0; z-index: 50;
+  background: #0a2e1c;
+  padding: 0 16px;
+  height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+.dash-header-left { display: flex; align-items: center; gap: 10px; }
+.dash-header h2 { color: #fff; font-size: 1rem; font-weight: 700; }
+.dash-header-mokki {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(82,183,136,0.18); border: 1px solid rgba(82,183,136,0.35);
+  border-radius: 20px; padding: 3px 12px; color: var(--green-light); font-size: 0.8rem; font-weight: 700;
+}
+.dash-logout {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7); font-size: 0.78rem; padding: 6px 14px;
+  border-radius: 20px; cursor: pointer;
+}
+
+.dash-main { padding: 16px; max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+
+/* Cards */
+.card {
+  background: #fff; border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.card-header {
+  padding: 14px 18px 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title {
+  font-size: 0.82rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--text-muted);
+  display: flex; align-items: center; gap: 6px;
+}
+.card-body { padding: 14px 18px 18px; }
+
+/* Sensor grid */
+.sensor-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-top: 2px;
+}
+.sensor-item { background: var(--sand); border-radius: 10px; padding: 12px 14px; }
+.sensor-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 3px; }
+.sensor-value { font-size: 1.3rem; font-weight: 800; color: var(--text); line-height: 1; }
+.sensor-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+.motion-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.8rem; font-weight: 700; padding: 4px 12px;
+  border-radius: 20px;
+}
+.motion-active { background: #dcfce7; color: #166534; }
+.motion-idle { background: #f1f5f9; color: #475569; }
+.motion-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* Thermostat card */
+.thermo-display {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 14px 0;
+}
+.thermo-current {
+  text-align: center; flex: 1;
+}
+.thermo-current .val { font-size: 2.6rem; font-weight: 900; color: var(--text); line-height: 1; }
+.thermo-current .lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-top: 3px; }
+.thermo-arrow { font-size: 1.4rem; color: #ccc; }
+.thermo-target { text-align: center; flex: 1; }
+.thermo-target .val { font-size: 2.6rem; font-weight: 900; color: var(--green); line-height: 1; }
+.thermo-target .lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-top: 3px; }
+.thermo-controls { display: flex; align-items: center; gap: 10px; }
+.thermo-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--sand); border: none; cursor: pointer;
+  font-size: 1.5rem; font-weight: 700; color: var(--green);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.thermo-btn:hover { background: var(--green-pale); }
+.thermo-save {
+  flex: 1; padding: 11px; border-radius: 10px;
+  background: var(--green); color: #fff; font-weight: 700;
+  font-size: 0.88rem; border: none; cursor: pointer; transition: background .2s;
+}
+.thermo-save:hover { background: #0d4d30; }
+.thermo-msg { font-size: 0.78rem; color: var(--green); text-align: center; min-height: 1em; margin-top: 6px; }
+
+/* Away mode toggle */
+.away-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 4px 0; }
+.away-label h3 { font-size: 1rem; font-weight: 700; color: var(--text); }
+.away-label p { font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; }
+.toggle-wrap { flex-shrink: 0; }
+.toggle-input { display: none; }
+.toggle-label {
+  display: block; width: 52px; height: 28px; border-radius: 14px;
+  background: #e2e8f0; cursor: pointer; position: relative;
+  transition: background .25s;
+}
+.toggle-label::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: left .25s;
+}
+.toggle-input:checked + .toggle-label { background: var(--green); }
+.toggle-input:checked + .toggle-label::after { left: 27px; }
+.away-status {
+  margin-top: 10px; padding: 10px 14px; border-radius: 10px;
+  font-size: 0.8rem; font-weight: 600;
+}
+.away-on { background: #fef3c7; color: #92400e; }
+.away-off { background: var(--sand); color: var(--text-muted); }
+
+/* Sauna card */
+.sauna-live-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.75rem; font-weight: 700; padding: 3px 10px;
+  border-radius: 10px;
+}
+.sauna-active { background: #fef3c7; color: #92400e; }
+.sauna-inactive { background: #f1f5f9; color: #475569; }
+.sauna-slots { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.sauna-slot {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: 10px; background: var(--sand);
+  font-size: 0.82rem;
+}
+.sauna-slot-time { font-weight: 700; min-width: 70px; }
+.sauna-slot-type { color: var(--text-muted); }
+.sauna-slot.active-slot {
+  background: #fef3c7; border: 1.5px solid #f59e0b;
+}
+.sauna-slot.active-slot .sauna-slot-time { color: #92400e; }
+.sauna-slot.active-slot .sauna-slot-type { color: #92400e; }
+.sauna-remainder {
+  margin-left: auto; font-size: 0.7rem; font-weight: 700;
+  background: #f59e0b; color: #fff; padding: 2px 7px; border-radius: 6px;
+}
+
+/* Photos section */
+.photos-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 8px; margin-top: 2px;
+}
+.photo-item {
+  aspect-ratio: 1; border-radius: 10px; overflow: hidden;
+  background: var(--sand); position: relative;
+}
+.photo-item img { width: 100%; height: 100%; object-fit: cover; }
+.photo-delete {
+  position: absolute; top: 4px; right: 4px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(0,0,0,0.55); border: none; cursor: pointer;
+  color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center;
+}
+.photo-add {
+  aspect-ratio: 1; border-radius: 10px;
+  background: var(--sand); border: 2px dashed #cbd5e1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; cursor: pointer; transition: border-color .2s, background .2s;
+}
+.photo-add:hover { border-color: var(--green-light); background: var(--green-pale); }
+.photo-add span { font-size: 1.4rem; }
+.photo-add p { font-size: 0.65rem; color: var(--text-muted); text-align: center; font-weight: 600; }
+.photo-input { display: none; }
+.photos-empty { text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.85rem; }
+
+/* Camera section */
+.cam-wrap {
+  position: relative; border-radius: 12px; overflow: hidden;
+  background: #000; aspect-ratio: 16/9; margin-top: 2px;
+}
+.cam-wrap video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cam-overlay {
+  position: absolute; inset: 0; pointer-events: none;
+  display: flex; flex-direction: column; justify-content: space-between; padding: 10px 12px;
+}
+.cam-top { display: flex; align-items: center; justify-content: space-between; }
+.cam-rec {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(0,0,0,0.5); border-radius: 6px; padding: 3px 8px;
+  font-size: 0.7rem; color: #fff; font-weight: 700;
+}
+.cam-rec-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #ef4444;
+  animation: recBlink 1.5s ease-in-out infinite;
+}
+@keyframes recBlink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.cam-ts {
+  background: rgba(0,0,0,0.5); border-radius: 6px; padding: 3px 8px;
+  font-size: 0.67rem; color: rgba(255,255,255,0.85); font-family: monospace;
+}
+.cam-bottom { display: flex; align-items: flex-end; justify-content: space-between; }
+.cam-label {
+  background: rgba(0,0,0,0.5); border-radius: 6px; padding: 3px 8px;
+  font-size: 0.67rem; color: rgba(255,255,255,0.85); font-weight: 600;
+}
+.cam-motion {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(0,0,0,0.5); border-radius: 6px; padding: 3px 8px;
+  font-size: 0.67rem; color: rgba(255,255,255,0.85);
+}
+.cam-controls { display: flex; gap: 8px; margin-top: 10px; }
+.cam-ctrl-btn {
+  flex: 1; padding: 9px; border-radius: 9px; font-size: 0.8rem; font-weight: 600;
+  border: none; cursor: pointer; transition: background .15s;
+}
+.cam-ctrl-btn.primary { background: var(--green); color: #fff; }
+.cam-ctrl-btn.primary:hover { background: #0d4d30; }
+.cam-ctrl-btn.secondary { background: var(--sand); color: var(--text); border: 1px solid #e2e8f0; }
+.cam-ctrl-btn.secondary:hover { background: #e8edeb; }
+.cam-info {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px;
+  background: var(--sand); font-size: 0.78rem; color: var(--text-muted);
+  display: flex; align-items: center; gap: 8px;
+}
+.cam-offline {
+  margin-top: 8px; padding: 10px 12px; border-radius: 10px;
+  background: #fef2f2; color: #991b1b; font-size: 0.78rem;
+  font-weight: 600; text-align: center; display: none;
+}
+
+/* Footer link */
+.page-footer {
+  text-align: center; padding: 28px 16px; font-size: 0.78rem; color: var(--text-muted);
+}
+.page-footer a { color: var(--green); text-decoration: none; }
+
+#ann-mokki .ann-item { background: rgba(82,183,136,0.08); border: 1px solid rgba(82,183,136,0.2); border-radius: 8px; padding: 9px 14px; }
+#ann-mokki .ann-title { font-weight: 700; font-size: 0.85rem; color: #e6f5ec; margin-bottom: 2px; }
+#ann-mokki .ann-body { font-size: 0.8rem; color: rgba(255,255,255,0.65); line-height: 1.5; }
+#ann-mokki .ann-date { font-size: 0.68rem; color: rgba(255,255,255,0.4); margin-top: 3px; }
+.mn { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #e2e8f0; height: 48px; display: flex; align-items: center; padding: 0 16px; gap: 8px; }
+.mn-back { display: inline-flex; align-items: center; gap: 5px; font-size: 0.82rem; font-weight: 600; color: #16a34a; text-decoration: none; padding: 5px 10px; border-radius: 8px; transition: background .15s; }
+.mn-back:hover { background: #f0fdf4; }
+.mn-title { font-size: 0.85rem; font-weight: 700; color: #1e293b; margin-left: 4px; }
+body { padding-top: 48px; }
+.skel { display:inline-block;height:1.3rem;border-radius:5px;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite; }
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+#ai-hero {
+  display:none;
+  background: linear-gradient(145deg, rgba(8,61,42,0.82) 0%, rgba(14,92,70,0.78) 50%, rgba(10,74,110,0.80) 100%), url('hkl-laituri.jpg') center/cover no-repeat;
+  border-radius:16px; margin:0 16px 16px; padding:28px 24px 20px; position:relative; overflow:hidden;
+}
+#ai-hero .ai-orb {
+  position:absolute; border-radius:50%; filter:blur(60px); opacity:0.15;
+}
+#ai-hero .ai-orb-1 { width:200px; height:200px; background:#52b788; top:-60px; left:-40px; }
+#ai-hero .ai-orb-2 { width:150px; height:150px; background:#48b5d3; bottom:-30px; right:-30px; }
+#ai-hero .ai-inner { position:relative; z-index:1; }
+#ai-hero .ai-label { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin-bottom:8px; display:flex; align-items:center; gap:5px; }
+#ai-hero .ai-text { font-size:0.95rem; line-height:1.65; color:white; font-weight:500; }
+#ai-hero .ai-stats {
+  display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; padding-top:14px;
+  border-top:1px solid rgba(255,255,255,0.15);
+}
+#ai-hero .ai-stat {
+  background:rgba(255,255,255,0.12); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.2); border-radius:10px; padding:8px 14px; text-align:center; min-width:80px;
+}
+#ai-hero .ai-stat-val { font-size:1.1rem; font-weight:800; color:white; line-height:1.1; }
+#ai-hero .ai-stat-lbl { font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:rgba(255,255,255,0.6); margin-top:2px; }
+#ai-hero .ai-time { font-size:0.6rem; color:rgba(255,255,255,0.4); margin-top:10px; }
+.sauna-ring-wrap { display:flex;align-items:center;gap:16px;margin:10px 0 14px; }
+.sauna-ring { position:relative;width:80px;height:80px;flex-shrink:0; }
+.sauna-ring svg { transform:rotate(-90deg); }
+.sauna-ring-text { position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:var(--text); }
+.sauna-ring-min { font-size:1.1rem;font-weight:900;color:#92400e;line-height:1; }
+.sauna-ring-info { flex:1; }
+.sauna-ring-slot { font-size:1rem;font-weight:800;color:#92400e;margin-bottom:3px; }
+.sauna-ring-type { font-size:0.82rem;color:var(--text-muted); }
+@keyframes ring-pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+.sauna-ring-active circle.ring-progress { animation:ring-pulse 2s ease-in-out infinite; }
+
+/* ========== ONBOARDING ========== */
+#onboarding-screen {
+  position: fixed; inset: 0; z-index: 100;
+  background: linear-gradient(145deg, rgba(8,61,42,0.82) 0%, rgba(14,92,70,0.78) 50%, rgba(10,74,110,0.80) 100%), url('hkl-laituri.jpg') center/cover no-repeat;
+  display: none; align-items: center; justify-content: center; padding: 20px;
+  overflow-y: auto;
+}
+.onboard-card {
+  position: relative; z-index: 1;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 24px;
+  padding: 32px 36px 36px;
+  width: min(420px, 100%);
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.onboard-card h1 { color: #fff; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
+.onboard-card > .onboard-page > p { color: rgba(255,255,255,0.55); font-size: 0.85rem; margin-bottom: 16px; }
+.onboard-progress {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; margin-bottom: 24px;
+}
+.onboard-step {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.5); font-size: 0.8rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+}
+.onboard-step.active { background: var(--green-light); border-color: var(--green-light); color: #0d1a12; }
+.onboard-step.done { background: var(--green); border-color: var(--green); color: #fff; }
+.onboard-step-line { width: 40px; height: 2px; background: rgba(255,255,255,0.2); margin: 0 4px; }
+.onboard-photo-area {
+  width: 100%; aspect-ratio: 16/10; border-radius: 14px;
+  border: 2px dashed rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; overflow: hidden; position: relative;
+  transition: border-color 0.2s, background 0.2s; margin-top: 8px;
+}
+.onboard-photo-area:hover { border-color: var(--green-light); background: rgba(82,183,136,0.08); }
+.onboard-photo-area.has-photo { border-style: solid; border-color: var(--green-light); }
+#ob-photo-placeholder { text-align: center; color: rgba(255,255,255,0.5); }
+#ob-photo-placeholder span { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+#ob-photo-placeholder p { font-size: 0.82rem; margin: 0; color: rgba(255,255,255,0.5); }
+.onboard-photo-hint { font-size: 0.7rem !important; opacity: 0.6; margin-top: 4px !important; }
+#ob-photo-preview { position: absolute; inset: 0; }
+#ob-photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+.onboard-summary {
+  background: rgba(255,255,255,0.08); border-radius: 12px;
+  padding: 12px 16px; text-align: left; margin: 12px 0;
+}
+.onboard-summary-row {
+  display: flex; justify-content: space-between; padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.85rem;
+}
+.onboard-summary-row:last-child { border-bottom: none; }
+.onboard-summary-label { color: rgba(255,255,255,0.5); }
+.onboard-summary-value { color: #fff; font-weight: 600; }
+.onboard-back-btn {
+  padding: 14px 18px; border-radius: 10px;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.7); font-weight: 600; font-size: 0.9rem;
+  cursor: pointer; transition: background 0.2s;
+}
+.onboard-back-btn:hover { background: rgba(255,255,255,0.18); }
+.login-divider { width: 100%; height: 1px; background: rgba(255,255,255,0.12); margin: 20px 0 16px; }
+.login-onboard p { color: rgba(255,255,255,0.5); font-size: 0.82rem; margin-bottom: 8px; }
+.login-onboard-btn {
+  background: transparent; border: 1.5px solid rgba(255,255,255,0.25);
+  color: var(--green-light); font-size: 0.88rem; font-weight: 700;
+  padding: 10px 20px; border-radius: 10px; cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.login-onboard-btn:hover { background: rgba(82,183,136,0.12); border-color: var(--green-light); }
+
+/* ========== DASHBOARD BACKGROUND ========== */
+.dash-bg {
+  position: fixed; inset: 0; z-index: 0; background-size: cover; background-position: center; display: none;
+}
+.dash-bg::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(248,244,232,0.92) 0%, rgba(248,244,232,0.85) 30%, rgba(248,244,232,0.80) 100%);
+}
+.dash-bg.active { display: block; }
+#dashboard { position: relative; z-index: 1; }
+
+/* ========== SETTINGS CARD ========== */
+.settings-field { margin-bottom: 10px; text-align: left; }
+.settings-field label {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-muted); display: block; margin-bottom: 4px;
+}
+.settings-input {
+  width: 100%; padding: 10px 14px; border-radius: 10px;
+  border: 1.5px solid #e0e7ef; background: #f8fafc;
+  font-size: 0.9rem; color: var(--text); outline: none; transition: border-color 0.2s;
+}
+.settings-input:focus { border-color: var(--green-light); }
+.settings-bg-section { margin-top: 14px; text-align: left; }
+.settings-bg-section > label {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-muted); display: block; margin-bottom: 6px;
+}
+.settings-bg-preview {
+  width: 100%; height: 100px; border-radius: 10px; overflow: hidden;
+  background: var(--sand); border: 1px solid #e0e7ef;
+}
+.settings-bg-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+@media (max-width: 380px) {
+  .onboard-card { padding: 24px 20px 28px; }
+  .onboard-card h1 { font-size: 1.4rem; }
+  .onboard-step { width: 28px; height: 28px; font-size: 0.72rem; }
+  .onboard-step-line { width: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="mn">
+  <a href="/" class="mn-back">← Etusivu</a>
+  <span class="mn-title">🏡 Oma mökki</span>
+</nav>
+
+<!-- ========== LOGIN SCREEN ========== -->
+<div id="login-screen">
+  <div class="login-orb login-orb-1"></div>
+  <div class="login-orb login-orb-2"></div>
+  <div class="login-card">
+    <span class="login-icon">🏡</span>
+    <h1>Oma mökki</h1>
+    <p>HKL-Kesämajat ry · Kirjaudu mökkisi tiedoilla</p>
+    <div id="login-error" class="login-error"></div>
+    <input type="text" id="login-num" class="login-input" placeholder="Mökin numero (esim. 484)"
+      inputmode="numeric" autocomplete="username" maxlength="6">
+    <input type="password" id="login-pass" class="login-input" placeholder="Salasana"
+      autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Kirjaudu sisään →</button>
+    <div class="login-hint">Kadonnut salasana? Ota yhteyttä sihteerin kautta.</div>
+    <div class="login-divider"></div>
+    <div class="login-onboard">
+      <p>Uusi mökkiläinen?</p>
+      <button class="login-onboard-btn" onclick="showOnboarding()">Luo mökkisivut →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ONBOARDING SCREEN ========== -->
+<div id="onboarding-screen">
+  <div class="login-orb login-orb-1"></div>
+  <div class="login-orb login-orb-2"></div>
+  <div class="onboard-card">
+    <div class="onboard-progress">
+      <div class="onboard-step active" data-step="1">1</div>
+      <div class="onboard-step-line"></div>
+      <div class="onboard-step" data-step="2">2</div>
+      <div class="onboard-step-line"></div>
+      <div class="onboard-step" data-step="3">3</div>
+    </div>
+
+    <!-- Step 1: Basic Info -->
+    <div class="onboard-page" id="onboard-step-1">
+      <span class="login-icon">🏡</span>
+      <h1>Luo mökkisivut</h1>
+      <p>Syötä mökkisi perustiedot</p>
+      <div id="onboard-error" class="login-error"></div>
+      <input type="text" id="ob-number" class="login-input" placeholder="Mökin numero (esim. 123)" inputmode="numeric" maxlength="6">
+      <input type="text" id="ob-name" class="login-input" placeholder="Nimi (esim. Matti Meikäläinen)">
+      <input type="tel" id="ob-phone" class="login-input" placeholder="Puhelin (esim. 040-1234567)">
+      <input type="email" id="ob-email" class="login-input" placeholder="Sähköposti">
+      <button class="login-btn" onclick="onboardNext(1)">Seuraava →</button>
+      <div class="login-hint" style="cursor:pointer;" onclick="hideOnboarding()">← Takaisin kirjautumiseen</div>
+    </div>
+
+    <!-- Step 2: Photo Upload -->
+    <div class="onboard-page" id="onboard-step-2" style="display:none;">
+      <span class="login-icon">📷</span>
+      <h1>Mökkikuva</h1>
+      <p>Lisää kuva mökistäsi — se näkyy taustakuvana mökkisivullasi</p>
+      <div class="onboard-photo-area" id="ob-photo-area" onclick="document.getElementById('ob-photo-input').click()">
+        <div id="ob-photo-preview" style="display:none;">
+          <img id="ob-photo-img" alt="Esikatselu">
+          <button class="photo-delete" onclick="event.stopPropagation();clearOnboardPhoto()" title="Poista">✕</button>
+        </div>
+        <div id="ob-photo-placeholder">
+          <span>📷</span>
+          <p>Klikkaa tai raahaa kuva tähän</p>
+          <p class="onboard-photo-hint">JPG tai PNG, max 5 MB</p>
+        </div>
+      </div>
+      <input type="file" id="ob-photo-input" accept="image/*" style="display:none;" onchange="handleOnboardPhoto(this)">
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button class="onboard-back-btn" onclick="onboardBack(2)">← Takaisin</button>
+        <button class="login-btn" style="flex:1;" onclick="onboardNext(2)">Seuraava →</button>
+      </div>
+      <div class="login-hint">Kuvan voi myös lisätä myöhemmin asetuksista.</div>
+    </div>
+
+    <!-- Step 3: Confirmation -->
+    <div class="onboard-page" id="onboard-step-3" style="display:none;">
+      <span class="login-icon">✅</span>
+      <h1>Vahvista tiedot</h1>
+      <p>Tarkista tietosi ennen tallennusta</p>
+      <div class="onboard-summary">
+        <div class="onboard-summary-row">
+          <span class="onboard-summary-label">Mökki</span>
+          <span class="onboard-summary-value" id="ob-sum-number"></span>
+        </div>
+        <div class="onboard-summary-row">
+          <span class="onboard-summary-label">Nimi</span>
+          <span class="onboard-summary-value" id="ob-sum-name"></span>
+        </div>
+        <div class="onboard-summary-row">
+          <span class="onboard-summary-label">Puhelin</span>
+          <span class="onboard-summary-value" id="ob-sum-phone"></span>
+        </div>
+        <div class="onboard-summary-row">
+          <span class="onboard-summary-label">Sähköposti</span>
+          <span class="onboard-summary-value" id="ob-sum-email"></span>
+        </div>
+        <div class="onboard-summary-row">
+          <span class="onboard-summary-label">Taustakuva</span>
+          <span class="onboard-summary-value" id="ob-sum-photo"></span>
+        </div>
+      </div>
+      <div id="ob-photo-summary-preview" style="display:none;">
+        <img id="ob-sum-photo-img" alt="Kuva" style="width:100%;border-radius:10px;margin-top:10px;max-height:180px;object-fit:cover;">
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button class="onboard-back-btn" onclick="onboardBack(3)">← Takaisin</button>
+        <button class="login-btn" style="flex:1;" onclick="completeOnboarding()">Luo mökkisivut ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== DASHBOARD ========== -->
+<div id="dashboard">
+  <div id="dash-bg" class="dash-bg"></div>
+  <div class="dash-header">
+    <div class="dash-header-left">
+      <span style="font-size:1.2rem">🏡</span>
+      <h2>Oma mökki</h2>
+      <span class="dash-header-mokki" id="dash-mokki-badge">484</span>
+    </div>
+    <button class="dash-logout" onclick="doLogout()">Kirjaudu ulos</button>
+  </div>
+
+  <!-- TIEDOTTEET BANNER -->
+  <div id="ann-mokki" style="display:none;background:#1a3522;border-bottom:2px solid #52b788;border-radius:10px;margin-bottom:12px;padding:12px 16px;">
+    <div style="font-size:0.7rem;font-weight:700;color:#52b788;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">📢 Tiedotteet</div>
+    <div id="ann-mokki-items" style="display:flex;flex-direction:column;gap:6px;"></div>
+  </div>
+
+  <!-- AI PÄIVÄNKUVAUS + LIVE SNAPSHOT -->
+  <div id="ai-hero">
+    <div class="ai-orb ai-orb-1"></div>
+    <div class="ai-orb ai-orb-2"></div>
+    <div class="ai-inner">
+      <div class="ai-label">✨ Päivän kuvaus · <span id="ai-date"></span></div>
+      <div class="ai-text" id="ai-text"></div>
+      <div class="ai-stats">
+        <div class="ai-stat"><div class="ai-stat-val" id="ai-temp">–</div><div class="ai-stat-lbl">Sisälämpö</div></div>
+        <div class="ai-stat"><div class="ai-stat-val" id="ai-outdoor">–</div><div class="ai-stat-lbl">Ulkolämpö</div></div>
+        <div class="ai-stat"><div class="ai-stat-val" id="ai-water">–</div><div class="ai-stat-lbl">Vesi</div></div>
+        <div class="ai-stat"><div class="ai-stat-val" id="ai-wind">–</div><div class="ai-stat-lbl">Tuuli</div></div>
+      </div>
+      <div class="ai-time" id="ai-time"></div>
+    </div>
+  </div>
+
+  <div class="dash-main">
+
+    <!-- 1. MÖKKI STATUS CARD -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📡 Mökki <span id="status-mokki-num">484</span> · Live-tila</div>
+        <div id="motion-badge" class="motion-badge motion-idle">
+          <div class="motion-dot" style="background:#94a3b8"></div>
+          <span id="motion-text">Ladataan…</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="sensor-grid">
+          <div class="sensor-item">
+            <div class="sensor-label">🌡️ Sisälämpö</div>
+            <div class="sensor-value" id="s-temp"><span class="skel" style="width:70px"></span></div>
+            <div class="sensor-sub" id="s-temp-sub">–</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-label">💧 Kosteus</div>
+            <div class="sensor-value" id="s-hum"><span class="skel" style="width:60px"></span></div>
+            <div class="sensor-sub">Sisätila</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-label">🔆 Valaistus</div>
+            <div class="sensor-value" id="s-lux"><span class="skel" style="width:65px"></span></div>
+            <div class="sensor-sub">lx</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-label">🌿 Ulkolämpö</div>
+            <div class="sensor-value" id="s-out"><span class="skel" style="width:70px"></span></div>
+            <div class="sensor-sub">Piha-anturi</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-label">🚶 Liiketunnistin</div>
+            <div class="sensor-value" id="s-motion-val"><span class="skel" style="width:80px"></span></div>
+            <div class="sensor-sub" id="s-motion-time">–</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. SÄHKÖNKULUTUS CARD -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">⚡ Sähkönkulutus</div>
+        <span style="font-size:0.72rem;color:var(--text-muted);">Helen + laitemittarit</span>
+      </div>
+      <div class="card-body">
+        <div class="sensor-grid">
+          <div class="sensor-item">
+            <div class="sensor-label">📅 Tämä kuukausi</div>
+            <div class="sensor-value" id="e-monthly"><span class="skel" style="width:70px"></span></div>
+            <div class="sensor-sub">kWh · Helen</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-label">🔌 Laitteet nyt</div>
+            <div class="sensor-value" id="e-power"><span class="skel" style="width:65px"></span></div>
+            <div class="sensor-sub">W yhteensä</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-label">♨️ Lämmitys / muu</div>
+            <div class="sensor-value" id="e-heat"><span class="skel" style="width:70px"></span></div>
+            <div class="sensor-sub">kWh (arvio)</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-label">📊 Laiteenergia</div>
+            <div class="sensor-value" id="e-device-total"><span class="skel" style="width:75px"></span></div>
+            <div class="sensor-sub">kWh mitattu</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:0.75rem;color:var(--text-muted);">
+          <span>🖨️ Canon: <strong id="e-canon">–</strong> W</span>
+          <span>❄️ Jk/Kasvi: <strong id="e-fridge">–</strong> W</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. LÄMPÖTILASÄÄTÖ CARD -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🌡️ Lämpötilasäätö</div>
+        <span style="font-size:0.72rem;color:var(--text-muted);">Tavoitelämpötila</span>
+      </div>
+      <div class="card-body">
+        <div class="thermo-display">
+          <div class="thermo-current">
+            <div class="val" id="thermo-current">–</div>
+            <div class="lbl">Nyt sisällä</div>
+          </div>
+          <div class="thermo-arrow">→</div>
+          <div class="thermo-target">
+            <div class="val" id="thermo-target-display">20°C</div>
+            <div class="lbl">Tavoite</div>
+          </div>
+        </div>
+        <div class="thermo-controls">
+          <button class="thermo-btn" onclick="adjustTemp(-1)">−</button>
+          <button class="thermo-save" onclick="saveTemp()">Aseta lämpötila</button>
+          <button class="thermo-btn" onclick="adjustTemp(+1)">+</button>
+        </div>
+        <div class="thermo-msg" id="thermo-msg"></div>
+      </div>
+    </div>
+
+    <!-- 4. POISSA-TILA CARD -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🌙 Poissa-tila</div>
+      </div>
+      <div class="card-body">
+        <div class="away-row">
+          <div class="away-label">
+            <h3 id="away-title">Kotona</h3>
+            <p>Poissa-tilassa kameravalvonta aktivoituu ja lämmitys laskee automaattisesti.</p>
+          </div>
+          <div class="toggle-wrap">
+            <input type="checkbox" id="away-toggle" class="toggle-input" onchange="toggleAway()">
+            <label for="away-toggle" class="toggle-label"></label>
+          </div>
+        </div>
+        <div id="away-status-bar" class="away-status away-off">
+          Mökki on aktiivikäytössä. Kamera tallentaa normaalisti.
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. AURINKOPANEELI CARD -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">☀️ Aurinkopaneeli</div>
+        <span style="font-size:0.72rem;color:var(--text-muted);">2 m² arvio</span>
+      </div>
+      <div class="card-body">
+        <div class="sensor-grid">
+          <div class="sensor-item">
+            <div class="sensor-label">⚡ Teho nyt</div>
+            <div class="sensor-value" id="sol-power"><span class="skel" style="width:70px"></span></div>
+            <div class="sensor-sub">W (arvio)</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-label">📅 Tänään</div>
+            <div class="sensor-value" id="sol-today"><span class="skel" style="width:60px"></span></div>
+            <div class="sensor-sub">Wh tuotto</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-label">☀️ Säteily nyt</div>
+            <div class="sensor-value" id="sol-irr"><span class="skel" style="width:65px"></span></div>
+            <div class="sensor-sub">W/m²</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-label">📊 Vuosiarvio</div>
+            <div class="sensor-value" id="sol-annual">~380</div>
+            <div class="sensor-sub">kWh/vuosi</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:0.72rem;color:var(--text-muted);">
+          2 m² · 20% hyötysuhde · etelä-suunta · Open-Meteo säteily ·
+          <a href="solar.html" style="color:var(--green);font-weight:600;">Tarkempi analyysi →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. SAUNA CARD -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🛁 Yhteissauna</div>
+        <div id="sauna-live" class="sauna-live-badge sauna-inactive">–</div>
+      </div>
+      <div class="card-body">
+        <div id="sauna-day-info" style="font-size:0.82rem;color:var(--text-muted);margin-bottom:2px;"></div>
+        <div id="sauna-slots-list" class="sauna-slots"></div>
+        <div style="margin-top:12px;font-size:0.72rem;color:var(--text-muted);">
+          Pre-kausi (touko–18.6.): <strong>ti + la</strong> &nbsp;·&nbsp;
+          Huippukausi (19.6.–31.8.): <strong>pe + la</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6b. JÄTTEET & TYHJENNYKSET -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">♻️ Jätteet & tyhjennykset</div>
+      </div>
+      <div class="card-body">
+        <div id="waste-schedule">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="background:#f5f5f5;border-radius:10px;padding:10px 12px;">
+              <div style="font-weight:700;font-size:0.85rem;margin-bottom:4px;">🗑️ Sekajäte</div>
+              <div style="font-size:0.82rem;color:var(--text-muted);" id="w-seka">Joka toinen viikko · ti</div>
+            </div>
+            <div style="background:#efebe9;border-radius:10px;padding:10px 12px;">
+              <div style="font-weight:700;font-size:0.85rem;margin-bottom:4px;">🟤 Biojäte</div>
+              <div style="font-size:0.82rem;color:var(--text-muted);" id="w-bio">Viikoittain · ti</div>
+            </div>
+            <div style="background:#e8f5e9;border-radius:10px;padding:10px 12px;">
+              <div style="font-weight:700;font-size:0.85rem;margin-bottom:4px;">🟢 Lasi</div>
+              <div style="font-size:0.82rem;color:var(--text-muted);" id="w-lasi">Joka 4. viikko</div>
+            </div>
+            <div style="background:#fffde7;border-radius:10px;padding:10px 12px;">
+              <div style="font-weight:700;font-size:0.85rem;margin-bottom:4px;">🟡 Metalli</div>
+              <div style="font-size:0.82rem;color:var(--text-muted);" id="w-metalli">Joka 4. viikko</div>
+            </div>
+            <div style="background:#e3f2fd;border-radius:10px;padding:10px 12px;">
+              <div style="font-weight:700;font-size:0.85rem;margin-bottom:4px;">🔵 Kartonki</div>
+              <div style="font-size:0.82rem;color:var(--text-muted);" id="w-kartonki">Joka 2. viikko</div>
+            </div>
+            <div style="background:#fce4ec;border-radius:10px;padding:10px 12px;">
+              <div style="font-weight:700;font-size:0.85rem;margin-bottom:4px;">🔴 Paperi</div>
+              <div style="font-size:0.82rem;color:var(--text-muted);" id="w-paperi">Joka 4. viikko</div>
+            </div>
+          </div>
+          <div id="waste-next" style="margin-top:12px;background:var(--green-pale);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:1.4rem;">📅</span>
+            <div>
+              <div style="font-weight:700;font-size:0.88rem;color:var(--green);" id="waste-next-label">Seuraava tyhjennys</div>
+              <div style="font-size:0.82rem;color:var(--text-muted);" id="waste-next-date"></div>
+            </div>
+          </div>
+          <div style="font-size:0.68rem;color:var(--text-muted);margin-top:8px;">HSY · Lounaisväylänpolku, Helsinki</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. KUVAGALLERIA CARD -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📷 Omat kuvat</div>
+        <span id="photos-count" style="font-size:0.72rem;color:var(--text-muted);"></span>
+      </div>
+      <div class="card-body">
+        <div id="photos-grid" class="photos-grid"></div>
+        <input type="file" id="photo-input" class="photo-input" accept="image/*" multiple onchange="handlePhotoUpload(this)">
+        <div id="photos-empty" class="photos-empty" style="display:none;">
+          Ei kuvia vielä. Lisää ensimmäinen kuva mökkisi muistoksi.
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. LAITURILÄMPÖTILA CARD -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🌊 Laiturilämpötila</div>
+        <span style="font-size:0.72rem;color:var(--text-muted);">Manuaalinen mittaus</span>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+          <div style="flex:0 0 90px;">
+            <label style="font-size:0.7rem;color:var(--text-muted);font-weight:700;letter-spacing:.05em;display:block;margin-bottom:4px;">LÄMPÖTILA (°C)</label>
+            <input type="number" id="laituri-temp" step="0.1" min="-5" max="35" placeholder="18.5" style="width:100%;padding:8px 10px;border:1.5px solid #e0e7ef;border-radius:8px;font-size:1rem;font-weight:600;background:#f8fafc;">
+          </div>
+          <div style="flex:1;min-width:120px;">
+            <label style="font-size:0.7rem;color:var(--text-muted);font-weight:700;letter-spacing:.05em;display:block;margin-bottom:4px;">MITTAAJAN NIMI</label>
+            <input type="text" id="laituri-name" placeholder="Oma nimesi" style="width:100%;padding:8px 10px;border:1.5px solid #e0e7ef;border-radius:8px;font-size:0.9rem;background:#f8fafc;">
+          </div>
+        </div>
+        <button onclick="submitLaituri()" style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:700;font-size:0.95rem;cursor:pointer;width:100%;">💧 Tallenna mittaus</button>
+        <div id="laituri-msg" style="margin-top:8px;font-size:0.85rem;text-align:center;min-height:20px;"></div>
+        <div id="laituri-last" style="margin-top:10px;font-size:0.82rem;color:var(--text-muted);"></div>
+      </div>
+    </div>
+
+    <!-- 8. KAMERAVALVONTA CARD -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📹 Kameravalvonta</div>
+        <span style="font-size:0.72rem;color:var(--text-muted);">Esee C2 Pro · Alue</span>
+      </div>
+      <div class="card-body">
+        <div class="cam-wrap">
+          <video id="cam-video" muted playsinline loop preload="metadata"
+            poster="" style="background:#111;display:block;">
+            Selaimesi ei tue videoita.
+          </video>
+          <div class="cam-overlay">
+            <div class="cam-top">
+              <div class="cam-rec">
+                <div class="cam-rec-dot"></div> REC
+              </div>
+              <div class="cam-ts" id="cam-ts">–</div>
+            </div>
+            <div class="cam-bottom">
+              <div class="cam-label">CH1 · Esee C2 Pro · Alue</div>
+              <div class="cam-motion" id="cam-motion-indicator">⚪ Ei liikettä</div>
+            </div>
+          </div>
+        </div>
+        <div class="cam-offline" id="cam-offline">
+          ⚠️ Kamera ei saatavilla – vaatii lähiverkkoyhteyden (192.168.86.x)
+        </div>
+        <div class="cam-controls">
+          <button class="cam-ctrl-btn secondary" onclick="camPrev()">◀ Edellinen</button>
+          <button class="cam-ctrl-btn primary" onclick="camPlay()">▶ Toista</button>
+          <button class="cam-ctrl-btn secondary" onclick="camNext()">Seuraava ▶</button>
+        </div>
+        <div class="cam-info" id="cam-info">
+          <span>📂</span>
+          <span id="cam-filename">Ladataan…</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. ASETUKSET CARD -->
+    <div class="card" id="settings-card" style="display:none;">
+      <div class="card-header">
+        <div class="card-title">⚙️ Mökin asetukset</div>
+      </div>
+      <div class="card-body">
+        <div id="settings-profile">
+          <div class="settings-field">
+            <label>Nimi</label>
+            <input type="text" id="set-name" class="settings-input">
+          </div>
+          <div class="settings-field">
+            <label>Puhelin</label>
+            <input type="tel" id="set-phone" class="settings-input">
+          </div>
+          <div class="settings-field">
+            <label>Sähköposti</label>
+            <input type="email" id="set-email" class="settings-input">
+          </div>
+        </div>
+        <div class="settings-bg-section">
+          <label>Taustakuva</label>
+          <div class="settings-bg-preview" id="set-bg-preview">
+            <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:0.82rem;">Ei taustakuvaa</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="cam-ctrl-btn secondary" onclick="document.getElementById('set-bg-input').click()">📷 Vaihda kuva</button>
+            <button class="cam-ctrl-btn secondary" onclick="removeBgPhoto()">🗑️ Poista</button>
+          </div>
+          <input type="file" id="set-bg-input" accept="image/*" style="display:none;" onchange="handleSettingsBgUpload(this)">
+        </div>
+        <button class="thermo-save" style="margin-top:14px;" onclick="saveSettings()">Tallenna asetukset</button>
+        <div id="settings-msg" class="thermo-msg"></div>
+      </div>
+    </div>
+
+  </div><!-- /dash-main -->
+
+  <div class="page-footer">
+    <a href="/">← Palaa pääsivulle</a>
+    &nbsp;·&nbsp;
+    <a href="dashboard.html">📊 Tilannekuva</a>
+  </div>
+</div><!-- /dashboard -->
+
+<script>
+const API_BASE = 'https://jaaskel.com';
+const MOMENTS_BASE = 'http://192.168.86.33:8090';
+
+// ========== CREDENTIALS ==========
+// Mökin numero → salasana (demo)
+const CREDS = { '484': 'hkl2026' };
+
+let _currentMokki = null;
+let _hklToken = '';
+let _targetTemp = 20;
+let _photos = [];
+let _sensorData = null;
+
+// Camera state
+const ESEE_VIDEOS = [
+  '20260115_160112-00010-M.mp4',
+  '20260115_152907-00020-M.mp4',
+  '20260110_141022-00010-M.mp4',
+];
+let _camIdx = 0;
+
+// ========== ONBOARDING ==========
+let _onboardStep = 1;
+let _onboardPhoto = null;
+let _onboardData = {};
+
+function showOnboarding() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('onboarding-screen').style.display = 'flex';
+  _onboardStep = 1;
+  updateOnboardProgress();
+}
+
+function hideOnboarding() {
+  document.getElementById('onboarding-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  _onboardStep = 1;
+  _onboardPhoto = null;
+  _onboardData = {};
+  ['ob-number','ob-name','ob-phone','ob-email'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  clearOnboardPhoto();
+  updateOnboardProgress();
+}
+
+function onboardNext(fromStep) {
+  const err = document.getElementById('onboard-error');
+  if (fromStep === 1) {
+    const num = document.getElementById('ob-number').value.trim();
+    const name = document.getElementById('ob-name').value.trim();
+    const phone = document.getElementById('ob-phone').value.trim();
+    const email = document.getElementById('ob-email').value.trim();
+    if (!num) { err.textContent = 'Syötä mökin numero'; return; }
+    if (!/^\d{1,6}$/.test(num)) { err.textContent = 'Mökin numero saa sisältää vain numeroita'; return; }
+    if (!name) { err.textContent = 'Syötä nimesi'; return; }
+    const existing = localStorage.getItem('hkl_onboard_' + num);
+    if (existing) { err.textContent = 'Mökille ' + num + ' on jo luotu sivut. Kirjaudu sisään.'; return; }
+    err.textContent = '';
+    _onboardData = { number: num, name, phone, email };
+    _onboardStep = 2;
+  } else if (fromStep === 2) {
+    document.getElementById('ob-sum-number').textContent = _onboardData.number;
+    document.getElementById('ob-sum-name').textContent = _onboardData.name;
+    document.getElementById('ob-sum-phone').textContent = _onboardData.phone || '–';
+    document.getElementById('ob-sum-email').textContent = _onboardData.email || '–';
+    document.getElementById('ob-sum-photo').textContent = _onboardPhoto ? 'Lisätty ✓' : 'Ei kuvaa';
+    const previewEl = document.getElementById('ob-photo-summary-preview');
+    if (_onboardPhoto) {
+      document.getElementById('ob-sum-photo-img').src = _onboardPhoto;
+      previewEl.style.display = 'block';
+    } else {
+      previewEl.style.display = 'none';
+    }
+    _onboardStep = 3;
+  }
+  showOnboardStep(_onboardStep);
+  updateOnboardProgress();
+}
+
+function onboardBack(fromStep) {
+  _onboardStep = fromStep - 1;
+  showOnboardStep(_onboardStep);
+  updateOnboardProgress();
+}
+
+function showOnboardStep(step) {
+  [1, 2, 3].forEach(s => {
+    document.getElementById('onboard-step-' + s).style.display = (s === step) ? 'block' : 'none';
+  });
+}
+
+function updateOnboardProgress() {
+  document.querySelectorAll('.onboard-step').forEach(el => {
+    const s = parseInt(el.dataset.step);
+    el.classList.remove('active', 'done');
+    if (s === _onboardStep) el.classList.add('active');
+    else if (s < _onboardStep) el.classList.add('done');
+  });
+}
+
+function handleOnboardPhoto(input) {
+  const file = input.files[0];
+  if (!file || !file.type.startsWith('image/')) { input.value = ''; return; }
+  resizeImage(file, 1920, 0.75).then(dataUrl => {
+    _onboardPhoto = dataUrl;
+    document.getElementById('ob-photo-img').src = dataUrl;
+    document.getElementById('ob-photo-preview').style.display = 'block';
+    document.getElementById('ob-photo-placeholder').style.display = 'none';
+    document.getElementById('ob-photo-area').classList.add('has-photo');
+  }).catch(e => {
+    alert('Kuvan käsittely epäonnistui: ' + e.message);
+  });
+  input.value = '';
+}
+
+function clearOnboardPhoto() {
+  _onboardPhoto = null;
+  document.getElementById('ob-photo-preview').style.display = 'none';
+  document.getElementById('ob-photo-placeholder').style.display = '';
+  document.getElementById('ob-photo-area').classList.remove('has-photo');
+}
+
+function completeOnboarding() {
+  const num = _onboardData.number;
+  const profile = {
+    number: num,
+    name: _onboardData.name,
+    phone: _onboardData.phone,
+    email: _onboardData.email,
+    created: new Date().toISOString()
+  };
+  try {
+    localStorage.setItem('hkl_onboard_' + num, JSON.stringify(profile));
+    if (_onboardPhoto) {
+      localStorage.setItem('hkl_mokki_bg_' + num, _onboardPhoto);
+    }
+    const session = { number: num, name: _onboardData.name, token: null, local: true };
+    localStorage.setItem('hkl_mokki_session', JSON.stringify(session));
+    _currentMokki = num;
+    _hklToken = '';
+    document.getElementById('onboarding-screen').style.display = 'none';
+    showDashboard(num);
+  } catch(e) {
+    alert('Tallennus epäonnistui. Tallennustila saattaa olla täynnä.');
+  }
+}
+
+// ========== SETTINGS ==========
+function saveSettings() {
+  if (!_currentMokki) return;
+  const key = 'hkl_onboard_' + _currentMokki;
+  const existing = JSON.parse(localStorage.getItem(key) || '{}');
+  existing.name = document.getElementById('set-name').value.trim();
+  existing.phone = document.getElementById('set-phone').value.trim();
+  existing.email = document.getElementById('set-email').value.trim();
+  localStorage.setItem(key, JSON.stringify(existing));
+  const session = JSON.parse(localStorage.getItem('hkl_mokki_session') || '{}');
+  if (session.local) {
+    session.name = existing.name;
+    localStorage.setItem('hkl_mokki_session', JSON.stringify(session));
+  }
+  const msg = document.getElementById('settings-msg');
+  msg.textContent = '✓ Asetukset tallennettu';
+  setTimeout(() => { msg.textContent = ''; }, 3000);
+}
+
+function handleSettingsBgUpload(input) {
+  const file = input.files[0];
+  if (!file || !file.type.startsWith('image/')) { input.value = ''; return; }
+  resizeImage(file, 1920, 0.75).then(dataUrl => {
+    try {
+      localStorage.setItem('hkl_mokki_bg_' + _currentMokki, dataUrl);
+      const bgEl = document.getElementById('dash-bg');
+      bgEl.style.backgroundImage = 'url(' + dataUrl + ')';
+      bgEl.classList.add('active');
+      document.getElementById('set-bg-preview').innerHTML = '<img src="' + dataUrl + '" alt="Taustakuva">';
+      const msg = document.getElementById('settings-msg');
+      msg.textContent = '✓ Taustakuva päivitetty';
+      setTimeout(() => { msg.textContent = ''; }, 3000);
+    } catch(e) {
+      alert('Kuvan tallennus epäonnistui. Tallennustila saattaa olla täynnä.');
+    }
+  });
+  input.value = '';
+}
+
+function removeBgPhoto() {
+  localStorage.removeItem('hkl_mokki_bg_' + _currentMokki);
+  const bgEl = document.getElementById('dash-bg');
+  bgEl.style.backgroundImage = '';
+  bgEl.classList.remove('active');
+  document.getElementById('set-bg-preview').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:0.82rem;">Ei taustakuvaa</div>';
+}
+
+// ========== LOGIN ==========
+async function doLogin() {
+  const num = document.getElementById('login-num').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
+  if (!num || !pass) { err.textContent = 'Syötä mökin numero ja salasana'; return; }
+  err.textContent = '';
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({number: num, password: pass})
+    });
+    if (!r.ok) { err.textContent = 'Väärä mökin numero tai salasana'; return; }
+    const d = await r.json();
+    localStorage.setItem('hkl_mokki_session', JSON.stringify({number: d.number, name: d.name, token: d.token}));
+    _currentMokki = d.number;
+    _hklToken = d.token;
+    showDashboard(d.number);
+  } catch(e) { err.textContent = 'Verkkovirhe – yritä uudelleen'; }
+}
+
+function doLogout() {
+  if (_hklToken) fetch(API_BASE + '/api/hkl/logout', {method:'POST', headers:{'X-Hkl-Token':_hklToken}}).catch(()=>{});
+  _hklToken = '';
+  localStorage.removeItem('hkl_mokki_session');
+  _currentMokki = null;
+  const bgEl = document.getElementById('dash-bg');
+  if (bgEl) { bgEl.style.backgroundImage = ''; bgEl.classList.remove('active'); }
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-pass').value = '';
+}
+
+async function checkSession() {
+  const saved = localStorage.getItem('hkl_mokki_session');
+  if (saved) {
+    try {
+      const s = JSON.parse(saved);
+      if (s.local === true && s.number) {
+        _currentMokki = s.number;
+        _hklToken = '';
+        showDashboard(s.number);
+        return;
+      }
+      if (s.token) {
+        const r = await fetch(API_BASE + '/api/hkl/session', {headers: {'X-Hkl-Token': s.token}});
+        if (r.ok) {
+          _currentMokki = s.number;
+          _hklToken = s.token;
+          showDashboard(s.number);
+          return;
+        }
+      }
+    } catch(e) {}
+    localStorage.removeItem('hkl_mokki_session');
+  }
+}
+
+async function loadMokkiAnnouncements() {
+  try {
+    const items = await fetch(API_BASE + '/api/hkl/announcements').then(r => r.json());
+    const banner = document.getElementById('ann-mokki');
+    const list = document.getElementById('ann-mokki-items');
+    if (!items || !items.length) { if(banner) banner.style.display='none'; return; }
+    const esc = s => (s||'').replace(/</g,'&lt;');
+    const fmtDate = s => s ? new Date(s).toLocaleDateString('fi-FI',{day:'numeric',month:'short',year:'numeric'}) : '';
+    list.innerHTML = items.map(a => `<div class="ann-item"><div class="ann-title">${esc(a.title)}</div><div class="ann-body">${esc(a.body)}</div>${a.created?`<div class="ann-date">${fmtDate(a.created)}</div>`:''}</div>`).join('');
+    if(banner) banner.style.display = 'block';
+  } catch(e) {}
+}
+
+function showDashboard(num) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('dash-mokki-badge').textContent = num;
+  document.getElementById('status-mokki-num').textContent = num;
+
+  // Apply cottage background if available
+  const bgData = localStorage.getItem('hkl_mokki_bg_' + num);
+  const bgEl = document.getElementById('dash-bg');
+  if (bgData && bgEl) {
+    bgEl.style.backgroundImage = 'url(' + bgData + ')';
+    bgEl.classList.add('active');
+  } else if (bgEl) {
+    bgEl.style.backgroundImage = '';
+    bgEl.classList.remove('active');
+  }
+
+  // Show settings card if this is an onboarded user
+  const onboard = localStorage.getItem('hkl_onboard_' + num);
+  const settingsCard = document.getElementById('settings-card');
+  if (settingsCard && onboard) {
+    settingsCard.style.display = 'block';
+    const profile = JSON.parse(onboard);
+    document.getElementById('set-name').value = profile.name || '';
+    document.getElementById('set-phone').value = profile.phone || '';
+    document.getElementById('set-email').value = profile.email || '';
+    const bgPreview = document.getElementById('set-bg-preview');
+    if (bgData) {
+      bgPreview.innerHTML = '<img src="' + bgData + '" alt="Taustakuva">';
+    } else {
+      bgPreview.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:0.82rem;">Ei taustakuvaa</div>';
+    }
+  } else if (settingsCard) {
+    settingsCard.style.display = 'none';
+  }
+
+  // Load state from localStorage
+  _targetTemp = parseInt(localStorage.getItem('hkl_target_temp_' + num) || '20');
+  updateThermoDisplay();
+
+  const awayOn = localStorage.getItem('hkl_away_' + num) === 'true';
+  document.getElementById('away-toggle').checked = awayOn;
+  updateAwayUI(awayOn);
+
+  loadPhotos(num);
+  loadSensorData();
+  renderSaunaCard();
+  setInterval(renderSaunaCard, 60000);
+  loadCamera();
+  loadLaituriLast();
+  loadMokkiAnnouncements();
+  loadAISummary();
+  loadSolar();
+  loadWasteSchedule();
+}
+
+// ========== SENSOR DATA ==========
+async function loadSensorData() {
+  try {
+    const d = await fetch(API_BASE + '/api/hkl/local-sensor').then(r => r.json());
+    _sensorData = d;
+    const motion = d.motion === true;
+    const badge = document.getElementById('motion-badge');
+    const mtext = document.getElementById('motion-text');
+    const mdot = badge.querySelector('.motion-dot');
+    if (motion) {
+      badge.className = 'motion-badge motion-active';
+      mdot.style.background = '#22c55e';
+      mtext.textContent = 'Liikettä havaittu';
+    } else {
+      badge.className = 'motion-badge motion-idle';
+      mdot.style.background = '#94a3b8';
+      mtext.textContent = 'Tyhjillään';
+    }
+    document.getElementById('s-temp').textContent = d.indoor_temp != null ? d.indoor_temp.toFixed(1) + '°C' : '–';
+    document.getElementById('s-temp-sub').textContent = 'Sisälämpötila';
+    document.getElementById('s-hum').textContent = d.indoor_humidity != null ? Math.round(d.indoor_humidity) + '%' : '–';
+    document.getElementById('s-lux').textContent = d.illuminance != null ? Math.round(d.illuminance) : '–';
+    document.getElementById('s-out').textContent = d.temperature != null ? d.temperature.toFixed(1) + '°C' : '–';
+    // Motion sensor grid item
+    const motVal = document.getElementById('s-motion-val');
+    if (motVal) motVal.textContent = motion ? 'Liikettä' : 'Tyhjä';
+    if (motVal) motVal.style.color = motion ? '#22c55e' : '#94a3b8';
+    if (d.motion_changed) {
+      const mc = new Date(d.motion_changed);
+      document.getElementById('s-motion-time').textContent = mc.toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' });
+    }
+    // Electricity card
+    const eMonthly = document.getElementById('e-monthly');
+    const ePower = document.getElementById('e-power');
+    const eHeat = document.getElementById('e-heat');
+    const eDevTotal = document.getElementById('e-device-total');
+    const eCanon = document.getElementById('e-canon');
+    const eFridge = document.getElementById('e-fridge');
+    if (eMonthly && d.helen_monthly != null) {
+      eMonthly.textContent = d.helen_monthly.toFixed(1);
+      const devKwh = (d.energy_canon || 0) + (d.energy_fridge || 0);
+      const heatEst = Math.max(0, d.helen_monthly - devKwh);
+      if (eHeat) eHeat.textContent = heatEst.toFixed(1);
+      if (eDevTotal) eDevTotal.textContent = devKwh.toFixed(2);
+    }
+    if (ePower) {
+      const totalW = (d.power_canon || 0) + (d.power_fridge || 0);
+      ePower.textContent = Math.round(totalW);
+    }
+    if (eCanon) eCanon.textContent = d.power_canon != null ? Math.round(d.power_canon) : '–';
+    if (eFridge) eFridge.textContent = d.power_fridge != null ? Math.round(d.power_fridge) : '–';
+    // Update thermostat current
+    document.getElementById('thermo-current').textContent = d.indoor_temp != null ? d.indoor_temp.toFixed(1) + '°C' : '–';
+    // Update camera motion indicator
+    const camMot = document.getElementById('cam-motion-indicator');
+    if (camMot) camMot.textContent = motion ? '🟢 Liikettä' : '⚪ Ei liikettä';
+  } catch(e) {
+    document.getElementById('motion-text').textContent = 'Ei yhteyttä';
+  }
+}
+
+// ========== THERMOSTAT ==========
+function adjustTemp(delta) {
+  _targetTemp = Math.min(30, Math.max(5, _targetTemp + delta));
+  updateThermoDisplay();
+}
+
+function updateThermoDisplay() {
+  document.getElementById('thermo-target-display').textContent = _targetTemp + '°C';
+}
+
+function saveTemp() {
+  localStorage.setItem('hkl_target_temp_' + _currentMokki, _targetTemp);
+  const msg = document.getElementById('thermo-msg');
+  msg.textContent = '✓ Asetus tallennettu (' + _targetTemp + '°C)';
+  setTimeout(() => { msg.textContent = ''; }, 3000);
+}
+
+// ========== AWAY MODE ==========
+function toggleAway() {
+  const on = document.getElementById('away-toggle').checked;
+  localStorage.setItem('hkl_away_' + _currentMokki, on);
+  updateAwayUI(on);
+}
+
+function updateAwayUI(on) {
+  document.getElementById('away-title').textContent = on ? 'Poissa' : 'Kotona';
+  const bar = document.getElementById('away-status-bar');
+  if (on) {
+    bar.className = 'away-status away-on';
+    bar.textContent = '🔒 Poissa-tila päällä. Kameravalvonta aktivoitu, lämmitys säästötilassa.';
+  } else {
+    bar.className = 'away-status away-off';
+    bar.textContent = 'Mökki on aktiivikäytössä. Kamera tallentaa normaalisti.';
+  }
+}
+
+// ========== SAUNA CARD ==========
+function renderSaunaCard() {
+  const now = new Date();
+  const dow = now.getDay();
+  const h = now.getHours(), m = now.getMinutes();
+  const month = now.getMonth() + 1, day = now.getDate();
+  const isPeak = (month === 6 && day >= 19) || month === 7 || month === 8;
+  const isPre  = month === 5 || (month === 6 && day < 19);
+
+  // Days with sauna
+  let saunaDay = false, saunaSchedule = 'la';
+  if (isPeak && [5, 6].includes(dow)) { saunaDay = true; saunaSchedule = dow === 5 ? 'pe' : 'la'; }
+  else if (isPre && [2, 6].includes(dow)) { saunaDay = true; saunaSchedule = dow === 2 ? 'ti' : 'la'; }
+
+  const DAYS = ['sunnuntai','maanantai','tiistai','keskiviikko','torstai','perjantai','lauantai'];
+  const dayInfo = document.getElementById('sauna-day-info');
+
+  const liveEl = document.getElementById('sauna-live');
+
+  if (!saunaDay) {
+    let nextDay = '';
+    if (isPeak) nextDay = 'Seuraava sauna: perjantai ja lauantai';
+    else if (isPre) nextDay = 'Seuraava sauna: tiistai ja lauantai';
+
+    dayInfo.textContent = 'Tänään ei saunaa (' + DAYS[dow] + ')';
+    liveEl.className = 'sauna-live-badge sauna-inactive';
+    liveEl.textContent = 'Suljettu';
+    document.getElementById('sauna-slots-list').innerHTML = `<div style="font-size:0.8rem;color:var(--text-muted);padding:8px 0;">${nextDay}</div>`;
+    return;
+  }
+
+  const SAUNA_SLOTS = {
+    pe: [{s:13,e:15,w:'♀',t:'Naistenvuoro'},{s:15,e:17,w:'♀',t:'Naistenvuoro'},{s:17,e:19,w:'♂',t:'Miesvuoro'}],
+    la: [{s:13,e:15,w:'♂',t:'Miesvuoro'},{s:15,e:17,w:'♀',t:'Naistenvuoro'},{s:17,e:19,w:'♂',t:'Miesvuoro'},{s:19,e:21,w:'♀',t:'Naistenvuoro'}],
+    ti: [{s:13,e:15,w:'♂',t:'Miesvuoro'},{s:15,e:16,w:'♀',t:'Naistenvuoro'},{s:16,e:18,w:'⚥',t:'Sekavuoro'},{s:18,e:19,w:'♂',t:'Miesvuoro'},{s:19,e:21,w:'♀',t:'Naistenvuoro'}]
+  };
+  const slots = SAUNA_SLOTS[saunaSchedule];
+
+  const tot = h * 60 + m;
+  let activeSlot = null;
+  for (const sl of slots) {
+    if (tot >= sl.s * 60 && tot < sl.e * 60) { activeSlot = sl; break; }
+  }
+
+  dayInfo.textContent = 'Tänään sauna käy (' + DAYS[dow] + ')';
+  if (activeSlot) {
+    liveEl.className = 'sauna-live-badge sauna-active';
+    liveEl.textContent = '🔥 Auki nyt';
+  } else {
+    liveEl.className = 'sauna-live-badge sauna-inactive';
+    liveEl.textContent = tot < 13*60 ? 'Aukeaa 13:00' : 'Vuorot ohi';
+  }
+
+  const listEl = document.getElementById('sauna-slots-list');
+
+  const CIRC = 2 * Math.PI * 34; // r=34
+  let ringHtml = '';
+  if (activeSlot) {
+    const totalMin = (activeSlot.e - activeSlot.s) * 60;
+    const elapsed = tot - activeSlot.s * 60;
+    const remMin = totalMin - elapsed;
+    const pct = elapsed / totalMin;
+    const dash = CIRC * pct;
+    const remStr = remMin >= 60 ? Math.floor(remMin/60)+'h '+(remMin%60)+'min' : remMin+' min';
+    ringHtml = `<div class="sauna-ring-wrap">
+      <div class="sauna-ring sauna-ring-active">
+        <svg width="80" height="80" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="#fef3c7" stroke-width="7"/>
+          <circle class="ring-progress" cx="40" cy="40" r="34" fill="none" stroke="#f59e0b" stroke-width="7"
+            stroke-dasharray="${CIRC}" stroke-dashoffset="${CIRC - dash}" stroke-linecap="round"/>
+        </svg>
+        <div class="sauna-ring-text"><div class="sauna-ring-min">${remMin}</div><div>min</div></div>
+      </div>
+      <div class="sauna-ring-info">
+        <div class="sauna-ring-slot">${activeSlot.s}:00–${activeSlot.e}:00</div>
+        <div class="sauna-ring-type">${activeSlot.w} ${activeSlot.t}</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px;">Aikaa jäljellä ${remStr}</div>
+      </div>
+    </div>`;
+  }
+
+  listEl.innerHTML = ringHtml + slots.map(sl => {
+    const isActive = activeSlot === sl;
+    return `<div class="sauna-slot${isActive ? ' active-slot' : ''}">
+      <div class="sauna-slot-time">${sl.s}:00–${sl.e}:00</div>
+      <div class="sauna-slot-type">${sl.w} ${sl.t}</div>
+    </div>`;
+  }).join('');
+}
+
+// ========== PHOTOS ==========
+const PHOTOS_KEY = () => 'hkl_photos_' + _currentMokki;
+
+function loadPhotos(num) {
+  try {
+    _photos = JSON.parse(localStorage.getItem('hkl_photos_' + num) || '[]');
+  } catch(e) { _photos = []; }
+  renderPhotos();
+}
+
+function renderPhotos() {
+  const grid = document.getElementById('photos-grid');
+  const empty = document.getElementById('photos-empty');
+  const count = document.getElementById('photos-count');
+  count.textContent = _photos.length ? _photos.length + ' kuvaa' : '';
+
+  let html = _photos.map((src, i) => `
+    <div class="photo-item">
+      <img src="${src}" alt="Kuva ${i+1}" loading="lazy">
+      <button class="photo-delete" onclick="deletePhoto(${i})" title="Poista">✕</button>
+    </div>
+  `).join('');
+
+  if (_photos.length < 12) {
+    html += `<div class="photo-add" onclick="document.getElementById('photo-input').click()">
+      <span>+</span>
+      <p>Lisää kuva</p>
+    </div>`;
+  }
+
+  grid.innerHTML = html;
+  empty.style.display = _photos.length === 0 ? 'block' : 'none';
+}
+
+function resizeImage(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        const ratio = Math.min(maxDim / w, maxDim / h);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Kuvan lataus epäonnistui')); };
+    img.src = url;
+  });
+}
+
+function handlePhotoUpload(input) {
+  const files = Array.from(input.files).filter(f => f.type.startsWith('image/'));
+  if (!files.length) { input.value = ''; return; }
+  const MAX_DIM = 1200;
+  const QUALITY = 0.7;
+  Promise.all(files.map(f => resizeImage(f, MAX_DIM, QUALITY))).then(results => {
+    results.forEach(dataUrl => _photos.push(dataUrl));
+    try {
+      localStorage.setItem(PHOTOS_KEY(), JSON.stringify(_photos));
+    } catch(e) {
+      results.forEach(() => _photos.pop());
+      alert('Tallennus epäonnistui: liian paljon kuvia tai tallennustila täynnä.');
+    }
+    renderPhotos();
+  }).catch(e => {
+    alert('Kuvan käsittely epäonnistui: ' + e.message);
+  });
+  input.value = '';
+}
+
+function deletePhoto(idx) {
+  _photos.splice(idx, 1);
+  localStorage.setItem(PHOTOS_KEY(), JSON.stringify(_photos));
+  renderPhotos();
+}
+
+// ========== LAITURI ==========
+const LAITURI_KEY = 'jaaskel2026';
+async function submitLaituri() {
+  const temp = parseFloat(document.getElementById('laituri-temp').value);
+  const name = (document.getElementById('laituri-name').value || '').trim();
+  const msg = document.getElementById('laituri-msg');
+  if (isNaN(temp)) { msg.innerHTML = '<span style="color:#e53e3e">❌ Anna lämpötila</span>'; return; }
+  if (!name) { msg.innerHTML = '<span style="color:#e53e3e">❌ Anna mittaajan nimi</span>'; return; }
+  msg.textContent = 'Tallennetaan…';
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/laituri', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Api-Key': LAITURI_KEY },
+      body: JSON.stringify({ temp, name, note: '' })
+    });
+    if (r.ok) {
+      msg.innerHTML = '<span style="color:#38a169">✅ Tallennettu!</span>';
+      document.getElementById('laituri-temp').value = '';
+      loadLaituriLast();
+      setTimeout(() => { msg.textContent = ''; }, 3000);
+    } else {
+      msg.innerHTML = '<span style="color:#e53e3e">❌ Virhe ' + r.status + '</span>';
+    }
+  } catch(e) { msg.innerHTML = '<span style="color:#e53e3e">❌ Verkkovirhe</span>'; }
+}
+async function loadLaituriLast() {
+  try {
+    const d = await fetch(API_BASE + '/api/hkl/laituri').then(r => r.json());
+    const el = document.getElementById('laituri-last');
+    if (!el) return;
+    if (d.temp == null) { el.textContent = 'Ei aikaisempia mittauksia.'; return; }
+    const t = d.time ? new Date(d.time).toLocaleString('fi-FI', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+    const by = d.name ? ` · ${d.name}` : '';
+    el.innerHTML = `Edellinen: <strong>${d.temp.toFixed(1)}°C</strong>${by}${t ? ' · ' + t : ''}`;
+  } catch(e) {}
+}
+
+// ========== CAMERA ==========
+function loadCamera() {
+  updateCamTimestamp();
+  setInterval(updateCamTimestamp, 1000);
+  loadCamVideo(_camIdx);
+}
+
+function loadCamVideo(idx) {
+  const video = document.getElementById('cam-video');
+  const filename = ESEE_VIDEOS[idx] || ESEE_VIDEOS[0];
+  const url = MOMENTS_BASE + '/video/' + filename;
+  const info = document.getElementById('cam-filename');
+  const offline = document.getElementById('cam-offline');
+
+  info.textContent = filename.replace('.mp4', '') + ' · Esee 2026-01';
+  offline.style.display = 'none';
+
+  video.src = url;
+  video.load();
+  video.play().catch(() => {
+    // Autoplay blocked — need user interaction
+  });
+
+  video.onerror = () => {
+    offline.style.display = 'block';
+    video.style.display = 'none';
+    info.textContent = 'Ei saatavilla lähiverkon ulkopuolelta';
+  };
+  // Timeout: if no data in 4s, assume offline
+  const camTimeout = setTimeout(() => {
+    if (video.readyState === 0) {
+      offline.style.display = 'block';
+      video.style.display = 'none';
+      info.textContent = 'Ei saatavilla lähiverkon ulkopuolelta';
+    }
+  }, 4000);
+  video.onloadedmetadata = () => clearTimeout(camTimeout);
+}
+
+function camPlay() {
+  const video = document.getElementById('cam-video');
+  if (video.paused) video.play(); else video.pause();
+}
+
+function camPrev() {
+  _camIdx = (_camIdx + ESEE_VIDEOS.length - 1) % ESEE_VIDEOS.length;
+  loadCamVideo(_camIdx);
+}
+
+function camNext() {
+  _camIdx = (_camIdx + 1) % ESEE_VIDEOS.length;
+  loadCamVideo(_camIdx);
+}
+
+function updateCamTimestamp() {
+  const el = document.getElementById('cam-ts');
+  if (!el) return;
+  el.textContent = new Date().toLocaleString('fi-FI', { timeZone: 'Europe/Helsinki',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+// ========== SOLAR PANEL ==========
+async function loadSolar() {
+  const AREA = 2, EFF = 0.20;
+  const LAT = 60.15524, LON = 24.85453;
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=shortwave_radiation,direct_radiation&hourly=shortwave_radiation&timezone=Europe/Helsinki&forecast_days=1`;
+    const d = await fetch(url).then(r => r.json());
+    const irr = d.current?.shortwave_radiation || 0;
+    const direct = d.current?.direct_radiation || 0;
+    const power = Math.round(irr * AREA * EFF);
+    document.getElementById('sol-irr').textContent = Math.round(irr);
+    document.getElementById('sol-power').textContent = power;
+    const hourly = d.hourly?.shortwave_radiation || [];
+    const now = new Date();
+    const currentHour = now.getHours();
+    let todayWh = 0;
+    for (let i = 0; i <= currentHour && i < hourly.length; i++) {
+      todayWh += (hourly[i] || 0) * AREA * EFF;
+    }
+    document.getElementById('sol-today').textContent = Math.round(todayWh);
+  } catch(e) {}
+}
+
+// ========== AI SUMMARY + HERO STATS ==========
+async function loadAISummary() {
+  try {
+    const [aiData, sensorData, weatherData] = await Promise.allSettled([
+      fetch(API_BASE + '/api/hkl/day-summary').then(r => r.json()),
+      fetch(API_BASE + '/api/hkl/local-sensor').then(r => r.json()),
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=temperature_2m,wind_speed_10m&timezone=Europe/Helsinki`).then(r => r.json())
+    ]);
+    const hero = document.getElementById('ai-hero');
+    const ai = aiData.status === 'fulfilled' ? aiData.value : null;
+    const sensor = sensorData.status === 'fulfilled' ? sensorData.value : null;
+    const weather = weatherData.status === 'fulfilled' ? weatherData.value : null;
+
+    if (ai && ai.summary) {
+      document.getElementById('ai-text').textContent = ai.summary;
+      if (ai.generated) {
+        const t = new Date(ai.generated);
+        document.getElementById('ai-time').textContent = 'Päivitetty ' + t.toLocaleTimeString('fi-FI', {hour:'2-digit', minute:'2-digit'});
+      }
+    } else {
+      document.getElementById('ai-text').textContent = 'Tervetuloa mökille! Sää- ja olosuhdetiedot päivittyvät automaattisesti.';
+    }
+
+    const now = new Date();
+    const dateEl = document.getElementById('ai-date');
+    if (dateEl) dateEl.textContent = now.toLocaleDateString('fi-FI', {weekday:'long', day:'numeric', month:'long'});
+
+    if (sensor) {
+      const te = document.getElementById('ai-temp');
+      if (te && sensor.indoor_temp != null) te.textContent = sensor.indoor_temp.toFixed(1) + '°';
+      else if (te && sensor.temperature != null) te.textContent = sensor.temperature.toFixed(1) + '°';
+    }
+    if (weather && weather.current) {
+      const oe = document.getElementById('ai-outdoor');
+      const we = document.getElementById('ai-wind');
+      if (oe) oe.textContent = weather.current.temperature_2m.toFixed(1) + '°';
+      if (we) we.textContent = weather.current.wind_speed_10m.toFixed(0) + ' m/s';
+    }
+
+    try {
+      const laituri = await fetch(API_BASE + '/api/hkl/laituri').then(r => r.json());
+      const we2 = document.getElementById('ai-water');
+      if (we2 && laituri.temp != null) we2.textContent = laituri.temp.toFixed(1) + '°';
+    } catch(e) {}
+
+    hero.style.display = 'block';
+  } catch(e) {}
+}
+
+// ========== WASTE SCHEDULE ==========
+function loadWasteSchedule() {
+  const schedule = [
+    { id: 'seka', name: 'Sekajäte', day: 2, weekInterval: 2 },
+    { id: 'bio', name: 'Biojäte', day: 2, weekInterval: 1 },
+    { id: 'kartonki', name: 'Kartonki', day: 2, weekInterval: 2 },
+    { id: 'lasi', name: 'Lasi', day: 2, weekInterval: 4 },
+    { id: 'metalli', name: 'Metalli', day: 2, weekInterval: 4 },
+    { id: 'paperi', name: 'Paperi', day: 2, weekInterval: 4 },
+  ];
+  const days = ['su','ma','ti','ke','to','pe','la'];
+  const now = new Date();
+  let nearest = null, nearestName = '';
+
+  schedule.forEach(s => {
+    const el = document.getElementById('w-' + s.id);
+    if (!el) return;
+    const interval = s.weekInterval === 1 ? 'Viikoittain' : `Joka ${s.weekInterval}. viikko`;
+    const next = getNextDay(now, s.day, s.weekInterval);
+    const daysLeft = Math.ceil((next - now) / 86400000);
+    const dateStr = next.toLocaleDateString('fi-FI', {weekday:'short', day:'numeric', month:'numeric'});
+    el.textContent = `${interval} · ${days[s.day]}`;
+    if (daysLeft <= 2) el.textContent += ` · ⏰ ${dateStr}`;
+    if (!nearest || next < nearest) { nearest = next; nearestName = s.name; }
+  });
+
+  if (nearest) {
+    const daysLeft = Math.ceil((nearest - now) / 86400000);
+    const dateStr = nearest.toLocaleDateString('fi-FI', {weekday:'long', day:'numeric', month:'long'});
+    const label = document.getElementById('waste-next-label');
+    const date = document.getElementById('waste-next-date');
+    if (daysLeft === 0) { label.textContent = `${nearestName} — tänään!`; }
+    else if (daysLeft === 1) { label.textContent = `${nearestName} — huomenna`; }
+    else { label.textContent = `${nearestName} — ${daysLeft} päivän päästä`; }
+    if (date) date.textContent = dateStr;
+  }
+}
+
+function getNextDay(from, targetDay, weekInterval) {
+  const d = new Date(from);
+  d.setHours(0,0,0,0);
+  const weekNum = Math.floor(d.getTime() / (7*86400000));
+  while (d.getDay() !== targetDay || weekNum % weekInterval !== Math.floor(d.getTime() / (7*86400000)) % weekInterval) {
+    d.setDate(d.getDate() + 1);
+    if (d - from > 35 * 86400000) break;
+  }
+  if (d <= from) d.setDate(d.getDate() + 7 * weekInterval);
+  return d;
+}
+
+// ========== INIT ==========
+checkSession();
+
+// Enter key on number field
+document.getElementById('login-num').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('login-pass').focus();
+});
+</script>
+</body>
+</html>

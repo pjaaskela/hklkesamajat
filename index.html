@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HKL-Kesämajat ry – HKL-Kesämajayhdistys ry</title>
+<meta name="description" content="HKL-Kesämajat ry – yhteisöllinen kesämaja-alue Lauttasaaressa. Venepaikat, sauna ja luonnon rauha.">
+<link rel="stylesheet" href="hkl-base.css">
+<style>
+/* :root, *, html moved to hkl-base.css */
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--sand); color: var(--text); line-height: 1.65; overflow-x: hidden; }
+
+/* HERO */
+.hero { background: linear-gradient(145deg, rgba(8,61,42,0.82) 0%, rgba(14,92,70,0.78) 45%, rgba(10,74,110,0.80) 100%), url('hkl-laituri.jpg') center/cover no-repeat; min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 80px 20px 120px; }
+.hero-orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18; animation: drift 12s ease-in-out infinite alternate; }
+.hero-orb-1 { width: 480px; height: 480px; background: #52b788; top: -120px; left: -120px; animation-delay: 0s; }
+.hero-orb-2 { width: 360px; height: 360px; background: #48b5d3; bottom: 40px; right: -80px; animation-delay: -4s; }
+.hero-orb-3 { width: 280px; height: 280px; background: #8b6914; top: 40%; left: 50%; animation-delay: -8s; }
+@keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(40px,30px) scale(1.08); } }
+.hero-inner { position: relative; z-index: 1; text-align: center; max-width: 700px; width: 100%; }
+.hero-badge { display: inline-block; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 6px 18px; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.8); margin-bottom: 22px; }
+.hero h1 { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 900; color: white; letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 14px; text-shadow: 0 2px 20px rgba(0,0,0,0.3); }
+.hero-sub { font-size: clamp(1rem, 2.5vw, 1.2rem); color: rgba(255,255,255,0.75); max-width: 480px; margin: 0 auto 40px; }
+.hero-stats { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 40px; }
+.glass-pill { background: rgba(255,255,255,0.13); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.22); border-radius: 14px; padding: 14px 20px; min-width: 120px; text-align: center; color: white; transition: background 0.2s, transform 0.2s; }
+.glass-pill:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+.glass-pill-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.7; margin-bottom: 4px; }
+.glass-pill-value { font-size: 1.5rem; font-weight: 800; line-height: 1.1; }
+.glass-pill-sub { font-size: 0.7rem; opacity: 0.65; margin-top: 2px; }
+@keyframes wx-float { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.05); } }
+.hero-wx-icon { font-size: 5rem; display: block; margin-bottom: 18px; animation: wx-float 4s ease-in-out infinite; line-height: 1; }
+.hero-down-hint { color: rgba(255,255,255,0.4); font-size: 0.82rem; letter-spacing: 0.05em; }
+.hero-wave { position: absolute; bottom: -1px; left: 0; right: 0; height: 72px; }
+.hero-wave svg { width: 100%; height: 100%; display: block; }
+
+/* TIEDOTTEET/SUN BANNERI */
+#ann-banner { display: none; background: #1a3522; border-bottom: 2px solid #52b788; padding: 0; }
+.ann-banner-inner { max-width: 900px; margin: auto; padding: 12px 20px; }
+.ann-banner-label { font-size: 0.7rem; font-weight: 700; color: #52b788; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+.ann-banner-items { display: flex; flex-direction: column; gap: 6px; }
+.ann-banner-item { background: rgba(82,183,136,0.08); border: 1px solid rgba(82,183,136,0.2); border-radius: 8px; padding: 9px 14px; }
+.ann-banner-title { font-weight: 700; font-size: 0.85rem; color: #e6f5ec; margin-bottom: 2px; }
+.ann-banner-text { font-size: 0.8rem; color: rgba(255,255,255,0.65); line-height: 1.5; }
+
+/* ROLE SECTION */
+.role-section { max-width: 960px; margin: 0 auto; padding: 72px 20px 88px; }
+.role-header { text-align: center; margin-bottom: 48px; }
+.role-header h2 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 900; color: var(--green); letter-spacing: -0.025em; }
+.role-header p { color: var(--text-muted); margin-top: 10px; font-size: 1rem; }
+.role-divider { width: 48px; height: 4px; background: var(--green-light); border-radius: 2px; margin: 12px auto 0; }
+.role-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
+.role-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 48px 28px 38px; text-align: center; text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; gap: 14px; transition: transform 0.25s ease, box-shadow 0.25s ease; border-top: 5px solid transparent; }
+.role-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); }
+.role-mokkilainen { border-top-color: var(--green-light); }
+.role-vierailija  { border-top-color: var(--blue-light); }
+.role-admin       { border-top-color: var(--wood); }
+.role-icon { font-size: 3.4rem; display: block; transition: transform 0.3s; }
+.role-card:hover .role-icon { transform: scale(1.15) rotate(-5deg); }
+.role-tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; padding: 4px 12px; border-radius: 20px; }
+.tag-mokki  { background: var(--green-pale); color: var(--green); }
+.tag-vieras { background: #e0f2fe; color: #0369a1; }
+.tag-admin  { background: #fef3c7; color: #92400e; }
+.role-card h3 { font-size: 1.3rem; font-weight: 800; color: var(--green); margin: 0; }
+.role-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.55; flex: 1; }
+.role-btn { display: inline-block; padding: 12px 26px; border-radius: 12px; font-size: 0.9rem; font-weight: 700; background: var(--green-pale); color: var(--green); transition: background 0.2s, color 0.2s; margin-top: 2px; }
+.role-card:hover .role-btn { background: var(--green); color: white; }
+
+/* FOOTER */
+footer { background: #083d2a; color: rgba(255,255,255,0.65); text-align: center; padding: 36px 20px; font-size: 0.85rem; }
+footer strong { color: white; }
+footer a { color: rgba(82,183,136,0.55); }
+
+@media (max-width: 640px) {
+  .hero { padding: 60px 20px 120px; }
+  .hero h1 { font-size: 2.2rem; }
+  .glass-pill { min-width: 100px; padding: 12px 14px; }
+  .glass-pill-value { font-size: 1.2rem; }
+  .role-cards { gap: 16px; }
+  .role-card { padding: 36px 20px 28px; }
+}
+
+/* HERO MAP */
+.hero-map-wrap {
+  width: 100%; max-width: 600px; margin: 0 auto 32px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 16px; overflow: hidden; backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.hero-map-label {
+  padding: 10px 16px 0; font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.6);
+}
+.hero-map { width: 100%; height: 200px; }
+@media (max-width: 640px) { .hero-map { height: 160px; } .hero-map-wrap { max-width: 100%; } }
+
+/* PÄIVÄNKUVAUS */
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">HKL-Kesämajayhdistys ry · Lauttasaari</div>
+    <span class="hero-wx-icon" id="h-wx-icon">🌥️</span>
+    <h1>HKL-Kesämajat ry</h1>
+    <p class="hero-sub">Yhteisöllinen kesämaja-alue merenrannalla — venepaikat, sauna ja luonnon rauha.</p>
+    <div class="hero-stats">
+      <div class="glass-pill">
+        <div class="glass-pill-label">📍 Lämpötila</div>
+        <div class="glass-pill-value" id="h-local-temp">–</div>
+        <div class="glass-pill-sub" id="h-local-hum">–</div>
+      </div>
+      <div class="glass-pill">
+        <div class="glass-pill-label">🌊 Vesi</div>
+        <div class="glass-pill-value" id="h-water">–</div>
+        <div class="glass-pill-sub" id="h-water-src">–</div>
+      </div>
+      <div class="glass-pill">
+        <div class="glass-pill-label">💨 Tuuli</div>
+        <div class="glass-pill-value" id="h-wind">–</div>
+        <div class="glass-pill-sub" id="h-wind-dir">–</div>
+      </div>
+      <div class="glass-pill">
+        <div class="glass-pill-label">☕ Buffetti</div>
+        <div class="glass-pill-value" style="font-size:1rem;" id="h-buffetti-status">–</div>
+        <div class="glass-pill-sub">pe–su 11–18</div>
+      </div>
+      <div class="glass-pill">
+        <div class="glass-pill-label">☀️ Aurinko</div>
+        <div class="glass-pill-value" style="font-size:1.1rem;" id="h-sun-rise">–</div>
+        <div class="glass-pill-sub" id="h-sun-set">–</div>
+      </div>
+    </div>
+
+    <!-- KARTTA -->
+    <div class="hero-map-wrap">
+      <div class="hero-map-label">📍 Lounaisväylänpolku · Lauttasaari, Helsinki</div>
+      <div id="hero-map" class="hero-map"></div>
+    </div>
+
+    <div class="hero-down-hint">▼ Valitse rooli alta</div>
+  </div>
+  <div class="hero-wave">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,48 C240,80 480,8 720,48 C960,88 1200,16 1440,48 L1440,80 L0,80 Z" fill="#f8f4e8"/>
+    </svg>
+  </div>
+</header>
+
+<!-- TIEDOTTEET BANNERI -->
+<div id="ann-banner">
+  <div class="ann-banner-inner" style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;">
+    <div id="ann-section" style="display:none;flex:1;min-width:200px;">
+      <div class="ann-banner-label">📢 Tiedotteet</div>
+      <div class="ann-banner-items" id="ann-banner-items"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ROOLIKORTIT -->
+<section class="role-section">
+  <div class="role-header">
+    <h2>Tervetuloa HKL-Kesämajat ry:hyn</h2>
+    <div class="role-divider"></div>
+    <p>Valitse roolisi — näet juuri sinulle sopivat tiedot</p>
+  </div>
+  <div class="role-cards">
+
+    <a href="mokki.html" class="role-card role-mokkilainen">
+      <span class="role-icon">🏡</span>
+      <span class="role-tag tag-mokki">Jäsen · kirjautuminen</span>
+      <h3>Mökkiläinen</h3>
+      <p>Kirjaudu mökin numerolla. Katso sauna-ajat, mökin live-tila, kameravalvonta ja omat kirjaukset.</p>
+      <div id="rc-sauna" style="font-size:0.78rem;background:var(--green-pale);color:var(--green);padding:5px 12px;border-radius:10px;font-weight:600;"></div>
+      <span class="role-btn">Kirjaudu sisään →</span>
+    </a>
+
+    <a href="vierailija.html" class="role-card role-vierailija">
+      <span class="role-icon">🌿</span>
+      <span class="role-tag tag-vieras">Avoin · ei kirjautumista</span>
+      <h3>Vierailija</h3>
+      <p>Sää, vedenlämpö, lähipalvelut ja alueen yleistiedot. Kaikille avoin näkymä.</p>
+      <div id="rc-water" style="font-size:0.78rem;background:#e0f2fe;color:#0369a1;padding:5px 12px;border-radius:10px;font-weight:600;"></div>
+      <span class="role-btn">Selaa tietoja →</span>
+    </a>
+
+    <a href="admin.html" class="role-card role-admin">
+      <span class="role-icon">🔑</span>
+      <span class="role-tag tag-admin">Hallitus · admin-tunnus</span>
+      <h3>Hallitus / Admin</h3>
+      <p>Hallintapaneeli: kirjoita tiedotteet, käsittele vikatiketit, seuraa saunan tilaa ja asukasrekisteriä.</p>
+      <span class="role-btn">Hallintaan →</span>
+    </a>
+
+  </div>
+</section>
+
+<footer>
+  <strong>HKL-Kesämajat ry</strong> — Lounaisväylänpolku, 00200 Helsinki<br>
+  <span style="margin-top:6px;display:inline-block;">
+    <a href="mailto:puheenjohtaja@hklkesamajat.fi">puheenjohtaja@hklkesamajat.fi</a>
+    &nbsp;·&nbsp;
+    <a href="tel:+358413101495" style="color:rgba(255,255,255,0.6);">+358 41 310 1495</a>
+    &nbsp;·&nbsp;
+    <a href="info.html">palvelukuvaus</a>
+  </span>
+</footer>
+
+<script>
+const LAT = 60.15524, LON = 24.85453;
+const API_BASE = 'https://jaaskel.com';
+const WMO_ICONS = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',99:'⛈️'};
+
+function fmt1(v) { return v != null ? v.toFixed(1) : '–'; }
+function windDir(deg) { const d=['P','KP','K','EK','E','EL','L','KL']; return d[Math.round(deg/45)%8]; }
+function dist(la1,lo1,la2,lo2) { const R=6371,dLa=Math.PI/180*(la2-la1),dLo=Math.PI/180*(lo2-lo1); const a=Math.sin(dLa/2)**2+Math.cos(Math.PI/180*la1)*Math.cos(Math.PI/180*la2)*Math.sin(dLo/2)**2; return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
+
+function isBuffettiOpen() {
+  const now = new Date(new Date().toLocaleString('en-US', {timeZone:'Europe/Helsinki'}));
+  const day = now.getDay(), month = now.getMonth()+1, t = now.getHours()*60+now.getMinutes();
+  if (month<5||month>9) return false;
+  if (![0,5,6].includes(day)) return false;
+  return t>=11*60&&t<18*60;
+}
+
+function renderBuffettiStatus() {
+  const open = isBuffettiOpen();
+  const el = document.getElementById('h-buffetti-status');
+  if (el) { el.textContent = open?'Auki':'Suljettu'; el.style.color = open?'#86efac':'#fca5a5'; }
+}
+
+async function loadWeatherHero() {
+  try {
+    const d=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&timezone=Europe/Helsinki`).then(r=>r.json());
+    const c=d.current;
+    const ico=document.getElementById('h-wx-icon'); if(ico) ico.textContent=WMO_ICONS[c.weather_code]??'🌥️';
+    document.getElementById('h-wind').textContent=fmt1(c.wind_speed_10m)+' m/s';
+    document.getElementById('h-wind-dir').textContent=windDir(c.wind_direction_10m);
+  } catch(e){}
+}
+
+async function loadWaterHero() {
+  try {
+    const d=await fetch(API_BASE+'/api/hkl/laituri').then(r=>r.json());
+    if(d.temp!=null){document.getElementById('h-water').textContent=fmt1(d.temp)+'°C';const src='Oma laituri'+(d.name?' · '+d.name:'');document.getElementById('h-water-src').textContent=src;return;}
+  } catch(e){}
+  try {
+    const d=await fetch('https://bri3.fvh.io/opendata/uiras/uiras_latest.geojson').then(r=>r.json());
+    const s=d.features.map(f=>{const[lo,la]=f.geometry.coordinates;return{name:f.properties.name,temp:f.properties.measurement?.temp_water??null,d:dist(LAT,LON,la,lo)};}).filter(s=>s.d<8&&s.temp!=null).sort((a,b)=>a.d-b.d)[0];
+    if(s){document.getElementById('h-water').textContent=fmt1(s.temp)+'°C';document.getElementById('h-water-src').textContent=s.name;}
+  } catch(e){}
+}
+
+async function loadLocalSensorHero() {
+  try {
+    const d=await fetch(API_BASE+'/api/hkl/local-sensor').then(r=>r.json());
+    if(d.temperature!=null){document.getElementById('h-local-temp').textContent=fmt1(d.temperature)+'°C';document.getElementById('h-local-hum').textContent=Math.round(d.humidity)+'% kosteus';}
+  } catch(e){}
+}
+
+async function loadSunHero() {
+  try {
+    const today=new Date().toISOString().split('T')[0];
+    const d=await fetch(`https://api.sunrise-sunset.org/json?lat=60.1560&lng=24.8750&date=${today}&formatted=0`).then(r=>r.json());
+    if(d.status!=='OK') return;
+    const fmt=s=>{const dt=new Date(s);return`${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;};
+    const rise=fmt(d.results.sunrise), set=fmt(d.results.sunset);
+    const mins=Math.round((new Date(d.results.sunset)-new Date(d.results.sunrise))/60000);
+    const daylen=`${Math.floor(mins/60)}h ${mins%60}min`;
+    document.getElementById('h-sun-rise').textContent=rise;
+    document.getElementById('h-sun-set').textContent=`↓ ${set} · ${daylen}`;
+  } catch(e){}
+}
+
+async function loadAnnouncementsBanner() {
+  try {
+    const items=await fetch(API_BASE+'/api/hkl/announcements').then(r=>r.json());
+    if(!items||!items.length) return;
+    document.getElementById('ann-banner-items').innerHTML=items.map(a=>`<div class="ann-banner-item"><div class="ann-banner-title">${a.title.replace(/</g,'&lt;')}</div><div class="ann-banner-text">${a.body.replace(/</g,'&lt;')}</div></div>`).join('');
+    document.getElementById('ann-section').style.display='block';
+    document.getElementById('ann-banner').style.display='block';
+  } catch(e){}
+}
+
+renderBuffettiStatus();
+setInterval(renderBuffettiStatus, 60_000);
+
+async function loadRoleLiveData() {
+  // Water temp for vierailija card
+  try {
+    const d = await fetch(API_BASE + '/api/hkl/laituri').then(r => r.json());
+    const el = document.getElementById('rc-water');
+    if (el && d.temp != null) el.textContent = '🌊 Vesi ' + d.temp.toFixed(1) + '°C';
+  } catch(e) {}
+
+  // Sauna status for mökkiläinen card
+  const el = document.getElementById('rc-sauna');
+  if (!el) return;
+  const now = new Date(), dow = now.getDay(), h = now.getHours(), m = now.getMinutes();
+  const month = now.getMonth()+1, day = now.getDate();
+  const isPeak = (month===6&&day>=19)||month===7||month===8;
+  const isPre = month===5||(month===6&&day<19);
+  let saunaDay = false, sch = 'la';
+  if (isPeak && [5,6].includes(dow)) { saunaDay = true; sch = dow===5?'pe':'la'; }
+  else if (isPre && [2,6].includes(dow)) { saunaDay = true; sch = dow===2?'ti':'la'; }
+  if (!saunaDay) { el.textContent = '🛁 Sauna: ' + (isPeak?'pe+la':'ti+la'); return; }
+  const slots = {pe:[{s:13,e:19}],la:[{s:13,e:21}],ti:[{s:13,e:21}]};
+  const tot = h*60+m;
+  const open = slots[sch] && slots[sch].some(sl => tot>=sl.s*60 && tot<sl.e*60);
+  el.textContent = open ? '🔥 Sauna auki nyt!' : '🛁 Sauna tänään käy';
+}
+
+loadRoleLiveData();
+
+loadAnnouncementsBanner();
+loadWeatherHero();
+loadWaterHero();
+loadLocalSensorHero();
+loadSunHero();
+
+function initHeroMap() {
+  const center = { lat: LAT, lng: LON };
+  const map = new google.maps.Map(document.getElementById('hero-map'), {
+    center, zoom: 15,
+    mapTypeId: 'satellite',
+    tilt: 0,
+    disableDefaultUI: true,
+    gestureHandling: 'cooperative',
+    styles: [{ featureType: 'all', elementType: 'labels', stylers: [{ visibility: 'on' }] }]
+  });
+  new google.maps.Marker({
+    position: center, map,
+    title: 'HKL-Kesämajat',
+    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#4ade80', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2.5 }
+  });
+}
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4v6_V6A8uGas4M9UQz3bu9FwsbdFH8ds&callback=initHeroMap" async defer></script>
+</body>
+</html>

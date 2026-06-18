@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HKL-Kesämajat – Aluetiedot & Vierailija</title>
+<meta name="description" content="HKL-Kesämajat ry – yhteisöllinen kesämaja-alue Lauttasaaressa. Live-sää, vedenlämpö, lähipalvelut ja palveluinfo.">
+<link rel="stylesheet" href="hkl-base.css">
+<style>
+/* html scroll-behavior moved to hkl-base.css */
+/* :root, * moved to hkl-base.css */
+
+body { padding-top: 56px; 
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--sand);
+  color: var(--text);
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* HERO */
+.hero {
+  background: linear-gradient(145deg, rgba(8,61,42,0.82) 0%, rgba(14,92,70,0.78) 45%, rgba(10,74,110,0.80) 100%), url('hkl-laituri.jpg') center/cover no-repeat;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 80px 20px 100px;
+}
+
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.18;
+  animation: drift 12s ease-in-out infinite alternate;
+}
+.hero-orb-1 { width: 480px; height: 480px; background: #52b788; top: -120px; left: -120px; animation-delay: 0s; }
+.hero-orb-2 { width: 360px; height: 360px; background: #48b5d3; bottom: 40px; right: -80px; animation-delay: -4s; }
+.hero-orb-3 { width: 280px; height: 280px; background: #8b6914; top: 40%; left: 50%; animation-delay: -8s; }
+
+@keyframes drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(40px, 30px) scale(1.08); }
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 700px;
+  width: 100%;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 18px;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 22px;
+}
+
+.hero h1 {
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  font-weight: 900;
+  color: white;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin-bottom: 14px;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+
+.hero-sub {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: rgba(255,255,255,0.75);
+  max-width: 480px;
+  margin: 0 auto 40px;
+}
+
+/* GLASS STAT PILLS */
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 48px;
+}
+.glass-pill {
+  background: rgba(255,255,255,0.13);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 14px;
+  padding: 14px 20px;
+  min-width: 120px;
+  text-align: center;
+  color: white;
+  transition: background 0.2s, transform 0.2s;
+}
+.glass-pill:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+.glass-pill-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.7; margin-bottom: 4px; }
+.glass-pill-value { font-size: 1.5rem; font-weight: 800; line-height: 1.1; }
+.glass-pill-sub { font-size: 0.7rem; opacity: 0.65; margin-top: 2px; }
+
+.scroll-hint {
+  color: rgba(255,255,255,0.45);
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  animation: bounce 2.5s ease-in-out infinite;
+}
+@keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+@keyframes wx-float { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.05); } }
+@keyframes steamFloat { 0% { transform: translateY(0) scale(1); opacity: 0.7; } 100% { transform: translateY(-12px) scale(1.15); opacity: 0; } }
+.hero-wx-icon { font-size: 5rem; display: block; margin-bottom: 18px; animation: wx-float 4s ease-in-out infinite; line-height: 1; }
+
+.hero-wave {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 72px;
+}
+.hero-wave svg { width: 100%; height: 100%; display: block; }
+
+/* MAIN LAYOUT */
+main {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+/* REVEAL ANIMATION */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-d1 { transition-delay: 0.1s; }
+.reveal-d2 { transition-delay: 0.2s; }
+.reveal-d3 { transition-delay: 0.3s; }
+
+
+/* SECTION HEADERS */
+.section-header {
+  text-align: center;
+  margin: 60px 0 28px;
+}
+.section-header h2 {
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 900;
+  color: var(--green);
+  letter-spacing: -0.025em;
+}
+.section-header p { color: var(--text-muted); margin-top: 8px; max-width: 500px; margin-left: auto; margin-right: auto; }
+.divider { width: 48px; height: 4px; background: var(--green-light); border-radius: 2px; margin: 10px auto 0; }
+
+/* CARDS */
+.card {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 32px;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--green);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+
+/* LIVE SECTION */
+.live-section { padding: 0 20px; max-width: 1020px; margin: 0 auto; }
+.live-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.live-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite; }
+.live-label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* STAT CARD */
+.stat-card {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.news-card { background:white; border:1px solid #e4ede7; border-radius:10px; padding:10px 14px; text-decoration:none; color:inherit; display:flex; align-items:baseline; gap:10px; transition:background 0.15s; }
+.news-card:hover { background:#f5faf5; }
+.news-card-source { font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--green); background:rgba(82,183,136,0.12); padding:2px 7px; border-radius:4px; white-space:nowrap; flex-shrink:0; }
+.news-card-date { font-size:0.7rem; color:var(--text-muted); white-space:nowrap; flex-shrink:0; }
+.news-card-title { font-size:0.88rem; font-weight:700; line-height:1.4; color:var(--text); flex:1; }
+.news-card-link { font-size:0.75rem; color:var(--green); font-weight:600; white-space:nowrap; flex-shrink:0; }
+.show-more-btn { display:block; width:100%; margin-top:8px; padding:9px; border:1.5px solid var(--green-light); background:transparent; border-radius:10px; color:var(--green); font-size:0.85rem; font-weight:700; cursor:pointer; transition:background 0.15s; }
+.show-more-btn:hover { background:var(--green-pale); }
+.stat-label { font-size: 0.73rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+.stat-value { font-size: 1.95rem; font-weight: 800; color: var(--text); line-height: 1.1; }
+.stat-unit { font-size: 1rem; font-weight: 500; color: var(--text-muted); }
+.stat-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+/* skeleton moved to hkl-base.css */
+
+/* SERVICE CARDS */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.service-card {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 36px 28px;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-top: 4px solid transparent;
+}
+.service-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+.service-card-vene  { border-top-color: var(--blue-light); }
+.service-card-lajit { border-top-color: var(--green-light); }
+.service-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  display: block;
+  transition: transform 0.3s;
+}
+.service-card:hover .service-icon { transform: scale(1.15) rotate(-5deg); }
+.service-title { font-size: 1.15rem; font-weight: 800; color: var(--green); margin-bottom: 8px; }
+.service-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
+.service-badge {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.badge-vene  { background: #e0f2fe; color: #0369a1; }
+.badge-lajit { background: #d1fae5; color: #065f46; }
+
+/* ALGAE & AQI BADGES */
+.algae-badge, .aqi-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  border-radius: 8px; padding: 6px 12px;
+  font-size: 0.88rem; font-weight: 700; margin-top: 4px;
+}
+.algae-low  { background: #d1fae5; color: #065f46; }
+.algae-mid  { background: #fef9c3; color: #854d0e; }
+.algae-high { background: #fee2e2; color: #991b1b; }
+.algae-none { background: #f1f5f9; color: #475569; }
+.aqi-good { background: #d1fae5; color: #065f46; }
+.aqi-fair { background: #fef9c3; color: #854d0e; }
+.aqi-mod  { background: #ffedd5; color: #9a3412; }
+.aqi-poor { background: #fee2e2; color: #991b1b; }
+
+/* FORECAST */
+.forecast-row { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin-top: 4px; }
+.fcast-day {
+  background: var(--green-pale);
+  border-radius: 12px;
+  padding: 14px 8px;
+  text-align: center;
+  display: flex; flex-direction: column; gap: 4px;
+  transition: transform 0.2s;
+}
+.fcast-day:hover { transform: translateY(-3px); }
+.fcast-date { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+.fcast-ico  { font-size: 1.6rem; }
+.fcast-max  { font-size: 1.05rem; font-weight: 800; color: var(--text); }
+.fcast-min  { font-size: 0.8rem; color: var(--text-muted); }
+.fcast-sea  { font-size: 0.75rem; color: var(--blue); font-weight: 600; margin-top: 2px; }
+.fcast-prec { font-size: 0.72rem; color: #4682b4; }
+
+/* SENSORS */
+.sensor-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem;
+}
+.sensor-row:last-child { border-bottom: none; }
+.sensor-name { font-weight: 600; }
+.sensor-dist { color: var(--text-muted); font-size: 0.78rem; }
+.sensor-temp { font-size: 1.15rem; font-weight: 800; color: var(--blue); }
+.sensor-nodata { color: var(--text-muted); font-size: 0.85rem; font-style: italic; }
+
+
+/* WASTE */
+.waste-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.waste-chip { border-radius: 20px; padding: 5px 14px; font-size: 0.85rem; font-weight: 600; }
+.chip-brown { background: #efebe9; color: #4e342e; }
+.chip-green { background: #e8f5e9; color: #1b5e20; }
+.chip-blue  { background: #e3f2fd; color: #0d47a1; }
+.chip-gray  { background: #f5f5f5; color: #424242; }
+.chip-yellow{ background: #fffde7; color: #827717; }
+.chip-red   { background: #fce4ec; color: #880e4f; }
+
+/* INFO */
+.info-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; font-size: 0.95rem; }
+.info-row:last-child { margin-bottom: 0; }
+.info-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+.info-label { font-weight: 600; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* CONTACT CARDS */
+.contact-card {
+  background: white; border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 24px; text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.contact-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.contact-avatar {
+  width: 60px; height: 60px; border-radius: 50%;
+  background: var(--green-pale);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; margin: 0 auto 14px;
+}
+.contact-role { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
+.contact-name { font-weight: 700; font-size: 1rem; margin-bottom: 10px; }
+.contact-link {
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; color: var(--green); text-decoration: none;
+  font-size: 0.88rem; font-weight: 500; margin-top: 4px;
+}
+.contact-link:hover { text-decoration: underline; }
+
+/* MAP */
+.map-container { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); height: 340px; }
+.map-container iframe { width: 100%; height: 100%; border: none; }
+
+/* HIGHLIGHT */
+.highlight-box {
+  background: linear-gradient(135deg, var(--green) 0%, var(--blue) 100%);
+  color: white; border-radius: var(--radius); padding: 36px;
+  text-align: center; margin: 48px 0;
+}
+.highlight-box h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; }
+.highlight-box p { opacity: 0.88; margin-bottom: 22px; }
+.btn {
+  display: inline-block; background: white; color: var(--green);
+  border-radius: 10px; padding: 12px 26px;
+  font-weight: 700; text-decoration: none; font-size: 0.95rem;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+
+/* GALLERY CAROUSEL */
+.gallery-section { max-width: 1020px; margin: 0 auto; padding: 40px 20px 0; }
+.gallery-track {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 460px;
+  position: relative;
+}
+.gallery-slide {
+  border-radius: 14px; overflow: hidden; position: relative;
+  flex-shrink: 0; height: 100%; cursor: pointer;
+  transition: all 0.5s ease;
+  box-shadow: var(--shadow);
+}
+.gallery-slide img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.gallery-slide.center {
+  flex: 0 0 62%;
+  box-shadow: var(--shadow-lg);
+  border-radius: 16px;
+  z-index: 2;
+}
+.gallery-slide.side {
+  flex: 0 0 18%;
+  opacity: 0.6;
+  filter: brightness(0.7);
+  z-index: 1;
+}
+.gallery-slide.side:hover { opacity: 0.85; }
+.gallery-slide.hidden { flex: 0 0 0; opacity: 0; overflow: hidden; padding: 0; margin: 0; gap: 0; }
+.gallery-caption {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+  background: linear-gradient(transparent, rgba(0,0,0,0.65)); padding: 16px;
+  pointer-events: none;
+}
+.gallery-dots {
+  display: flex; gap: 8px; justify-content: center; margin-top: 14px;
+}
+.gallery-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #ccc; border: none; cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+  padding: 0;
+}
+.gallery-dot.active { background: var(--green); transform: scale(1.3); }
+@media (max-width: 640px) {
+  .gallery-track { height: 280px; gap: 6px; }
+  .gallery-slide.center { flex: 0 0 74%; }
+  .gallery-slide.side { flex: 0 0 12%; }
+}
+
+/* HSL */
+.hsl-route { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 20px; border-radius: 4px; font-size: 0.72rem; font-weight: 800; color: white; padding: 0 5px; flex-shrink: 0; }
+.hsl-mode-BUS   { background: #007AC9; }
+.hsl-mode-TRAM  { background: #00985F; }
+.hsl-mode-METRO { background: #FF6319; }
+.hsl-mode-RAIL  { background: #8C4799; }
+.hsl-dep { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px solid #f5f5f5; }
+.hsl-dep:last-child { border-bottom: none; }
+.hsl-headsign { color: var(--text-muted); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hsl-time { font-weight: 700; font-size: 0.88rem; }
+.hsl-time.rt { color: #16a34a; }
+.hsl-min { font-size: 0.7rem; color: var(--text-muted); min-width: 32px; text-align: right; }
+.hsl-min.soon { color: #dc2626; font-weight: 700; }
+
+/* FOOTER */
+footer {
+  background: #083d2a;
+  color: rgba(255,255,255,0.65);
+  text-align: center; padding: 36px 20px; font-size: 0.85rem;
+}
+footer strong { color: white; }
+
+
+/* TIEDOTTEET */
+#ann-banner{display:none;background:#1a3522;border-bottom:2px solid #52b788;padding:0}
+.ann-banner-inner{max-width:900px;margin:auto;padding:12px 20px}
+.ann-banner-label{font-size:0.7rem;font-weight:700;color:#52b788;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px}
+.ann-banner-items{display:flex;flex-direction:column;gap:6px}
+.ann-banner-item{background:rgba(82,183,136,0.08);border:1px solid rgba(82,183,136,0.2);border-radius:8px;padding:9px 14px}
+.ann-banner-title{font-weight:700;font-size:0.85rem;color:#e6f5ec;margin-bottom:2px}
+.ann-banner-text{font-size:0.8rem;color:rgba(255,255,255,0.65);line-height:1.5}
+
+/* ADMIN */
+#admin-panel { display: none; background: #1a2e22; color: white; padding: 32px 20px; }
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  .hero { padding: 60px 20px 100px; }
+  .hero h1 { font-size: 2.2rem; }
+  .glass-pill { min-width: 100px; padding: 12px 14px; }
+  .glass-pill-value { font-size: 1.2rem; }
+  .card { padding: 20px; }
+  .forecast-row { grid-template-columns: repeat(3,1fr); }
+  .forecast-row .fcast-day:nth-child(n+4) { display: none; }
+}
+/* VISITOR NAV */
+.vn{position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(8,61,42,0.96);backdrop-filter:blur(12px);border-bottom:1px solid rgba(82,183,136,0.25);padding:0;}
+.vn-inner{max-width:1020px;margin:auto;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;}
+.vn-home{color:#d8f3dc;text-decoration:none;font-size:0.85rem;font-weight:600;opacity:0.85;transition:opacity .2s;}
+.vn-home:hover{opacity:1;}
+.vn-right{display:flex;gap:10px;}
+.vn-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:10px;text-decoration:none;font-size:0.82rem;font-weight:700;transition:background .2s;}
+.vn-btn-mokki{background:rgba(82,183,136,0.18);color:#d8f3dc;border:1px solid rgba(82,183,136,0.3);}
+.vn-btn-mokki:hover{background:rgba(82,183,136,0.32);}
+.vn-btn-admin{background:rgba(139,105,20,0.18);color:#fde68a;border:1px solid rgba(139,105,20,0.3);}
+.vn-btn-admin:hover{background:rgba(139,105,20,0.32);}
+.stab { display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:600;color:var(--text-muted);text-decoration:none;white-space:nowrap;transition:background .15s,color .15s;flex-shrink:0; }
+.stab:hover { background:var(--green-pale);color:var(--green); }
+.stab.active { background:var(--green);color:#fff; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<nav class="vn">
+  <div class="vn-inner">
+    <a href="/" class="vn-home">← HKL-Kesämajat etusivu</a>
+    <div class="vn-right">
+      <a href="mokki.html" class="vn-btn vn-btn-mokki">🏡 Mökkiläinen</a>
+      <a href="admin.html" class="vn-btn vn-btn-admin">🔑 Admin</a>
+    </div>
+  </div>
+</nav>
+
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">HKL-Kesämajayhdistys ry · Lauttasaari</div>
+    <span class="hero-wx-icon" id="h-wx-icon">🌥️</span>
+    <h1>HKL-Kesämajat ry</h1>
+    <p class="hero-sub">Yhteisöllinen kesämaja-alue merenrannalla — venepaikat ja luonnon rauha.</p>
+    <div class="hero-stats">
+      <a href="#live-tilanne" class="glass-pill" style="text-decoration:none;color:inherit;cursor:pointer;">
+        <div class="glass-pill-label">📍 Lämpötila</div>
+        <div class="glass-pill-value" id="h-local-temp">–</div>
+        <div class="glass-pill-sub" id="h-local-hum">–</div>
+      </a>
+      <a href="#vedenlampo" class="glass-pill" style="text-decoration:none;color:inherit;cursor:pointer;">
+        <div class="glass-pill-label">🌊 Vesi</div>
+        <div class="glass-pill-value" id="h-water">–</div>
+        <div class="glass-pill-sub" id="h-water-src">–</div>
+      </a>
+      <a href="#tuuli" class="glass-pill" style="text-decoration:none;color:inherit;cursor:pointer;">
+        <div class="glass-pill-label">💨 Tuuli</div>
+        <div class="glass-pill-value" id="h-wind">–</div>
+        <div class="glass-pill-sub" id="h-wind-dir">–</div>
+      </a>
+      <a href="#buffetti" class="glass-pill" style="text-decoration:none;color:inherit;cursor:pointer;">
+        <div class="glass-pill-label">☕ Buffetti</div>
+        <div class="glass-pill-value" style="font-size:1rem;" id="h-buffetti-status">–</div>
+        <div class="glass-pill-sub">pe–su 11–18</div>
+      </a>
+      <div class="glass-pill">
+        <div class="glass-pill-label">☀️ Aurinko</div>
+        <div class="glass-pill-value" style="font-size:1rem;" id="h-sun-set">–</div>
+        <div class="glass-pill-sub" id="h-sun-daylen">–</div>
+      </div>
+      <div class="glass-pill">
+        <div class="glass-pill-label">🌊 Aallonkorkeus</div>
+        <div class="glass-pill-value" id="h-wave">–</div>
+        <div class="glass-pill-sub" id="h-wave-sub">Open-Meteo Marine</div>
+      </div>
+    </div>
+
+    <div class="scroll-hint">▼ Vieritä alas</div>
+  </div>
+  <div class="hero-wave">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,48 C240,80 480,8 720,48 C960,88 1200,16 1440,48 L1440,80 L0,80 Z" fill="#f8f4e8"/>
+    </svg>
+  </div>
+</header>
+
+<!-- STICKY SECTION TABS -->
+<div id="section-tabs" style="display:none;position:sticky;top:56px;z-index:90;background:rgba(248,244,232,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e8f0;padding:0 16px;">
+  <div style="max-width:1020px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:8px 0;">
+    <a href="#live-tilanne" class="stab" data-sec="live-tilanne">🌡️ Sää</a>
+    <a href="#vedenlampo" class="stab" data-sec="vedenlampo">🌊 Vesi</a>
+    <a href="#uutiset" class="stab" data-sec="uutiset">📰 Uutiset</a>
+    <a href="#kartta" class="stab" data-sec="kartta">🗺️ Kartta</a>
+    <a href="#buffetti" class="stab" data-sec="buffetti">🏪 Palvelut</a>
+  </div>
+</div>
+
+<!-- TIEDOTTEET-BANNERI -->
+<div id="ann-banner" style="display:none">
+  <div class="ann-banner-inner">
+    <div class="ann-banner-label">📢 Tiedotteet</div>
+    <div class="ann-banner-items" id="ann-banner-items"></div>
+  </div>
+</div>
+
+<!-- PHOTO GALLERY CAROUSEL -->
+<div class="gallery-section reveal">
+  <div class="gallery-track" id="gallery-track"></div>
+  <div class="gallery-dots" id="gallery-dots"></div>
+</div>
+
+
+
+<!-- LIVE TILANNE -->
+<div id="live-tilanne" class="section-header reveal">
+  <h2>Live-tilanne</h2>
+  <div class="divider"></div>
+</div>
+</main>
+
+<div class="live-section">
+  <div class="live-bar">
+    <div class="live-dot"></div>
+    <span class="live-label">Reaaliaikainen tieto</span>
+    <span id="live-time" style="font-size:0.75rem;color:var(--text-muted);margin-left:4px;"></span>
+  </div>
+
+  <div class="grid-4 reveal">
+    <div class="stat-card">
+      <div class="stat-label">📍 Paikallinen</div>
+      <div class="stat-value" id="s-local-temp"><div class="skeleton" style="height:2rem;width:80%;"></div></div>
+      <div class="stat-sub" id="s-local-hum">–</div>
+      <div class="stat-sub" id="s-local-meta">–</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🌡️ Ennuste</div>
+      <div class="stat-value" id="s-temp"><div class="skeleton" style="height:2rem;width:70%;"></div></div>
+      <div class="stat-sub" id="s-feels">–</div>
+    </div>
+    <div id="tuuli" class="stat-card">
+      <div class="stat-label">💨 Tuuli</div>
+      <div class="stat-value" id="s-wind"><div class="skeleton" style="height:2rem;width:75%;"></div></div>
+      <div class="stat-sub" id="s-wind-dir">–</div>
+    </div>
+    <div class="stat-card" style="flex-direction:row;align-items:center;gap:12px;">
+      <div style="font-size:2.4rem;" id="s-wx-ico">⏳</div>
+      <div>
+        <div class="stat-label">Sää</div>
+        <div style="font-size:0.95rem;font-weight:700;" id="s-wx-desc">Ladataan…</div>
+        <div class="stat-sub" id="s-humidity">–</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🌬️ Ilmanlaatu</div>
+      <div class="stat-value" id="s-aqi"><div class="skeleton" style="height:2rem;width:50%;"></div></div>
+      <div class="stat-sub" id="s-aqi-label">–</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">☀️ UV-indeksi</div>
+      <div class="stat-value" id="s-uv"><div class="skeleton" style="height:2rem;width:40%;"></div></div>
+      <div class="stat-sub" id="s-uv-label">–</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🌊 Vedenpinta</div>
+      <div class="stat-value" id="s-sealevel"><div class="skeleton" style="height:2rem;width:50%;"></div></div>
+      <div class="stat-sub" id="s-sealevel-label">–</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🌧️ Sade tänään</div>
+      <div class="stat-value" id="s-rain-min"><div class="skeleton" style="height:2rem;width:50%;"></div></div>
+      <div class="stat-sub" id="s-rain-label">–</div>
+    </div>
+  </div>
+
+  <!-- Aurinko / Sade / Pilvisyys -->
+  <div class="grid-3 reveal" style="margin-top:16px;">
+    <div class="stat-card" style="text-align:center;">
+      <div class="stat-label">☀️ Aurinkoista</div>
+      <div class="stat-value" id="s-sun-min" style="color:#f59e0b;">–</div>
+      <div class="stat-sub">min tänään</div>
+    </div>
+    <div class="stat-card" style="text-align:center;">
+      <div class="stat-label">🌧️ Sadetta</div>
+      <div class="stat-value" id="s-rain-min2" style="color:#3b82f6;">–</div>
+      <div class="stat-sub">min tänään</div>
+    </div>
+    <div class="stat-card" style="text-align:center;">
+      <div class="stat-label">☁️ Pilvistä</div>
+      <div class="stat-value" id="s-cloud-min" style="color:#94a3b8;">–</div>
+      <div class="stat-sub">min tänään</div>
+    </div>
+  </div>
+  <div style="font-size:0.65rem;color:var(--text-muted);text-align:center;margin-top:4px;">☀️ Open-Meteo sunshine · 🌧️ Sademittari (HA) · ☁️ arvio</div>
+
+  <!-- Levätilanne + Siitepöly -->
+  <div class="grid-2 reveal" style="margin-top:16px;">
+    <div class="stat-card">
+      <div class="stat-label">🌿 Levätilanne</div>
+      <div id="s-algae-badge" style="margin-top:6px;"><div class="skeleton" style="width:120px;height:1.6rem;"></div></div>
+      <div class="stat-sub" id="s-algae-sub" style="margin-top:5px;">–</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🌸 Siitepöly <span id="s-pollen-src" style="font-size:0.65rem;color:var(--text-muted);font-weight:400;"></span></div>
+      <div id="s-pollen" style="margin-top:8px;flex-wrap:wrap;display:flex;gap:4px;"><div class="skeleton" style="width:90px;height:1.4rem;"></div></div>
+    </div>
+  </div>
+
+  <!-- Vedenlämpö -->
+  <div id="vedenlampo" class="card reveal" style="margin-top:16px;">
+    <div class="card-title"><span>🌡️</span> Vedenlämpötila</div>
+    <div id="laituri-row"></div>
+    <div id="uiras-list"><div class="skeleton" style="height:1rem;margin-bottom:6px;width:80%;"></div><div class="skeleton" style="height:1rem;width:60%;"></div></div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid #eee;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;">
+      <span style="font-size:0.75rem;color:var(--text-muted);">🌊 Malliennuste (Open-Meteo Marine):</span>
+      <span id="s-sea" style="font-size:0.88rem;font-weight:700;color:var(--blue);">–</span>
+      <span id="s-wave" style="font-size:0.75rem;color:var(--text-muted);"></span>
+    </div>
+    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;">Oma laituri: manuaalinen · Muut: UIRAS/FVH · Malli: Open-Meteo</div>
+  </div>
+
+  <!-- Historiakuvaaja -->
+  <div id="local-history-chart" class="card reveal" style="margin-top:16px;display:none;">
+    <div class="card-title" style="margin-bottom:10px;"><span>📈</span> Lämpötila &amp; kosteus — 48h</div>
+    <div style="position:relative;height:180px;">
+      <canvas id="local-history-canvas"></canvas>
+    </div>
+    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;">Mökki ulkomittari · Home Assistant</div>
+  </div>
+
+  <!-- 5pv ennuste -->
+  <div class="card reveal" style="margin-top:16px;">
+    <div class="card-title" style="margin-bottom:10px;"><span>📅</span> Sääennuste</div>
+    <div style="overflow-x:auto;margin-bottom:16px;padding-bottom:4px;">
+      <div id="hourly-row" style="display:flex;gap:8px;min-width:max-content;padding:2px 0;">
+        <div class="skeleton" style="width:52px;height:80px;border-radius:10px;"></div>
+        <div class="skeleton" style="width:52px;height:80px;border-radius:10px;"></div>
+        <div class="skeleton" style="width:52px;height:80px;border-radius:10px;"></div>
+        <div class="skeleton" style="width:52px;height:80px;border-radius:10px;"></div>
+        <div class="skeleton" style="width:52px;height:80px;border-radius:10px;"></div>
+      </div>
+    </div>
+    <div style="border-top:1px solid #eee;padding-top:14px;margin-bottom:10px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);">Päiväennuste</div>
+    <div class="forecast-row" id="forecast-row">
+      <div class="fcast-day"><div class="fcast-date">–</div><div class="fcast-ico">⏳</div><div class="fcast-max">–</div></div>
+      <div class="fcast-day"><div class="fcast-date">–</div><div class="fcast-ico">⏳</div><div class="fcast-max">–</div></div>
+      <div class="fcast-day"><div class="fcast-date">–</div><div class="fcast-ico">⏳</div><div class="fcast-max">–</div></div>
+      <div class="fcast-day"><div class="fcast-date">–</div><div class="fcast-ico">⏳</div><div class="fcast-max">–</div></div>
+      <div class="fcast-day"><div class="fcast-date">–</div><div class="fcast-ico">⏳</div><div class="fcast-max">–</div></div>
+    </div>
+    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:8px;">Open-Meteo · UIRAS/SYKE · Algaline</div>
+  </div>
+
+  <!-- KARTTA -->
+  <div id="kartta" class="section-header reveal" style="margin-top:16px;"><h2>🗺️ Sijainti</h2><div class="divider"></div><p>Lounaisväylänpolku, 00200 Helsinki</p></div>
+  <div class="map-container reveal" style="height:380px;">
+    <div id="gmap" style="width:100%;height:100%;border-radius:var(--radius);"></div>
+  </div>
+  <p style="text-align:center;font-size:0.82rem;color:var(--text-muted);margin-top:8px;">
+    <a href="https://www.google.com/maps/search/?api=1&query=60.15524,24.85453" target="_blank" rel="noopener" style="color:var(--green);">Avaa Google Mapsissa ↗</a>
+  </p>
+
+  <!-- LÄHIPALVELUT -->
+  <div id="buffetti" class="section-header reveal" style="margin-top:28px;"><h2>🏪 Lähipalvelut</h2><div class="divider"></div><p>Kahvila ja lähimmät palvelut 1,5 km säteellä</p></div>
+  <a href="https://kahvilabuffetti.fi" target="_blank" rel="noopener" style="text-decoration:none;display:block;margin-bottom:12px;" class="reveal">
+    <div class="card" style="display:flex;gap:20px;align-items:center;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;"
+         onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,0.14)'"
+         onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <div style="flex-shrink:0;width:72px;height:72px;border-radius:14px;background:linear-gradient(135deg,#d4a96a,#8b5e2a);display:flex;align-items:center;justify-content:center;font-size:2.2rem;">☕</div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">
+          <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);">Kesäkahvila · Lounaisväylä</span>
+          <span id="buffetti-status-badge"></span>
+        </div>
+        <div style="font-size:1.1rem;font-weight:800;color:var(--green);margin-bottom:5px;">Kesäkahvila Buffetti</div>
+        <div style="font-size:0.88rem;color:var(--text-muted);line-height:1.5;">Kotitekoisia leivonnaisia, tuoretta kahvia ja upea merinäkymä.</div>
+        <div style="margin-top:7px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+          <span style="font-size:0.82rem;background:#f5f5f5;border-radius:7px;padding:3px 10px;font-weight:600;">🕐 pe–su 11–18</span>
+          <span style="font-size:0.82rem;color:var(--text-muted);">Vapusta syyskuuhun</span>
+        </div>
+        <div style="margin-top:6px;font-size:0.78rem;color:var(--green);font-weight:600;">kahvilabuffetti.fi ↗</div>
+      </div>
+    </div>
+  </a>
+  <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:8px;">Muut lähipalvelut · OpenStreetMap</div>
+  <div id="places-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;">
+    <div class="skeleton" style="height:36px;border-radius:8px;"></div>
+    <div class="skeleton" style="height:36px;border-radius:8px;width:85%;"></div>
+    <div class="skeleton" style="height:36px;border-radius:8px;width:70%;"></div>
+  </div>
+
+  <!-- HSL -->
+  <div class="card reveal" style="margin-top:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+      <div class="card-title" style="margin-bottom:0;"><span>🚌</span> Julkinen liikenne</div>
+      <a href="https://reittiopas.hsl.fi/reitti/Oma+sijainti::/Lounaisv%C3%A4yl%C3%A4npolku+1,+Helsinki::" target="_blank" rel="noopener"
+         style="font-size:0.78rem;color:var(--blue);font-weight:600;text-decoration:none;">Reittiopas ↗</a>
+    </div>
+    <div style="background:#fff3e0;border-radius:10px;padding:11px 13px;margin-bottom:10px;display:flex;gap:10px;align-items:flex-start;">
+      <span style="font-size:1.3rem;flex-shrink:0;margin-top:1px;">🚇</span>
+      <div>
+        <div style="font-weight:700;font-size:0.88rem;color:#e65100;">Koivusaari (M) → alue ~15 min</div>
+        <div style="font-size:0.8rem;color:#6d4c41;margin-top:3px;line-height:1.5;">Metroasemalta pohjoiseen, sitten länsirannikon <strong>merenrantapolkua</strong> pitkin ~1,2 km.</div>
+      </div>
+    </div>
+    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:6px;">Lähin pysäkki</div>
+    <div id="hsl-list"><div class="skeleton" style="height:1rem;margin-bottom:5px;"></div><div class="skeleton" style="height:1rem;width:80%;"></div></div>
+    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:8px;">HSL Digitransit · 🟢 = reaaliaikainen</div>
+  </div>
+</div>
+
+<!-- PALVELUT + YHDISTYS + VENEPAIKAT + LAJITTELU -->
+<main>
+
+  <!-- PALVELUT -->
+  <div class="section-header reveal" style="margin-top:48px;">
+    <h2>Palvelut</h2>
+    <div class="divider"></div>
+    <p>Alueen yhteiset palvelut jäsenistölle</p>
+  </div>
+  <div class="services-grid">
+    <a href="#venepaikat" class="service-card service-card-vene reveal reveal-d1">
+      <span class="service-icon">⛵</span>
+      <div class="service-title">Venepaikat</div>
+      <div class="service-desc">Laituripaikkoja jäsenille. Tiedustelut laiturivastaavalta.</div>
+      <span class="service-badge badge-vene">Kausi käynnissä</span>
+    </a>
+    <a href="#lajittelu" class="service-card service-card-lajit reveal reveal-d2">
+      <span class="service-icon">♻️</span>
+      <div class="service-title">Jätteiden lajittelu</div>
+      <div class="service-desc">Sekajäte, biojäte, lasi, metalli, kartonki ja paperi alueella.</div>
+      <span class="service-badge badge-lajit">6 jaetta</span>
+    </a>
+  </div>
+
+  <div class="section-header reveal" style="margin-top:48px;">
+    <h2>Tietoa yhdistyksestä</h2>
+    <div class="divider"></div>
+  </div>
+
+  <div class="grid-2 reveal">
+    <div class="card">
+      <div class="card-title"><span>📍</span> Sijainti</div>
+      <div class="info-row"><span class="info-icon">🗺️</span><div><div class="info-label">Osoite</div>Lounaisväylänpolku, 00200 Helsinki</div></div>
+      <div class="info-row"><span class="info-icon">🏡</span><div><div class="info-label">Palvelut</div>Venelaituri, lajittelupiste, kirpputori</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>📋</span> Asiakirjat</div>
+      <ul style="list-style:none;">
+        <li style="padding:8px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;font-size:0.9rem;"><span>📜</span> Yhdistyksen säännöt 2010</li>
+        <li style="padding:8px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;font-size:0.9rem;"><span>📋</span> Järjestyssäännöt</li>
+        <li style="padding:8px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;font-size:0.9rem;"><span>🏗️</span> Rakennustapaohje</li>
+        <li style="padding:8px 0;display:flex;align-items:center;gap:8px;font-size:0.9rem;"><span>🎨</span> Maalisävyjen vastaavuudet</li>
+      </ul>
+      <p style="margin-top:10px;font-size:0.8rem;color:var(--text-muted);">Asiakirjat: ota yhteyttä sihteeriin</p>
+    </div>
+  </div>
+
+  <div class="grid-3 reveal reveal-d1" style="margin-top:20px;">
+    <div class="contact-card">
+      <div class="contact-avatar">🏛️</div>
+      <div class="contact-role">Puheenjohtaja</div>
+      <div class="contact-name">Hallitus</div>
+      <a href="tel:+358413101495" class="contact-link">📞 +358 41 310 1495</a>
+      <a href="mailto:puheenjohtaja@hklkesamajat.fi" class="contact-link">📧 puheenjohtaja@</a>
+    </div>
+    <div class="contact-card">
+      <div class="contact-avatar">✍️</div>
+      <div class="contact-role">Sihteeri</div>
+      <div class="contact-name">Sihteeristö</div>
+      <a href="mailto:sihteeri@hklkesamajat.fi" class="contact-link">📧 sihteeri@hklkesamajat.fi</a>
+    </div>
+    <div class="contact-card">
+      <div class="contact-avatar">⚓</div>
+      <div class="contact-role">Laiturivastaava</div>
+      <div class="contact-name">Jyrki Luokkanen</div>
+      <a href="tel:+358440748796" class="contact-link">📞 +358 44 074 8796</a>
+      <a href="mailto:laiturivastaava@hklkesamajat.fi" class="contact-link">📧 laiturivastaava@</a>
+    </div>
+  </div>
+
+  <div class="highlight-box reveal" style="margin-top:28px;">
+    <h3>Etsitkö mökkiä Helsingistä?</h3>
+    <p>Jäsenten mökkimyynti- ja ostoilmoitukset sihteeriltä.</p>
+    <a href="mailto:sihteeri@hklkesamajat.fi" class="btn">📧 Ota yhteyttä sihteeriin</a>
+  </div>
+
+  <!-- UUTISET -->
+  <div id="uutiset" class="section-header reveal" style="margin-top:48px;">
+    <h2>📰 Media & uutiset</h2>
+    <div class="divider"></div>
+    <p>Lehtijutut ja artikkelit HKL-Kesämajat-alueesta · päivitetään automaattisesti</p>
+  </div>
+  <div id="news-grid" style="display:flex;flex-direction:column;gap:6px;margin-bottom:4px;">
+    <div class="skeleton" style="height:240px;border-radius:12px;"></div>
+    <div class="skeleton" style="height:240px;border-radius:12px;"></div>
+    <div class="skeleton" style="height:240px;border-radius:12px;"></div>
+  </div>
+  <p style="text-align:center;font-size:0.75rem;color:var(--text-muted);margin-top:4px;margin-bottom:32px;" id="news-updated-label"></p>
+        <div class="info-row"><span class="info-icon">📧</span><div><div class="info-label">Sähköposti</div><a href="mailto:laiturivastaava@hklkesamajat.fi" style="color:var(--green);font-weight:600;">laiturivastaava@hklkesamajat.fi</a></div></div>
+      </div>
+      <div style="border-radius:12px;overflow:hidden;position:relative;">
+        <img src="https://hklkesamajat.nettisivu.org/wp-content/uploads/sites/1190/2014/02/Venepaikat_2009.jpg"
+             alt="Venepaikat" loading="lazy" style="width:100%;height:160px;object-fit:cover;display:block;">
+        <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.65));padding:10px 14px;text-align:center;">
+          <div style="font-weight:700;color:white;font-size:0.9rem;">Venepaikan haltijan ohje</div>
+          <a href="mailto:laiturivastaava@hklkesamajat.fi" style="color:rgba(255,255,255,0.85);font-size:0.8rem;font-weight:600;">Pyydä opas sähköpostitse →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAJITTELU -->
+  <div id="lajittelu" class="section-header reveal">
+    <h2>♻️ Lajittelu</h2>
+    <div class="divider"></div>
+  </div>
+  <div class="grid-2 reveal">
+    <div class="card" style="padding:0;overflow:hidden;">
+      <img src="https://hklkesamajat.nettisivu.org/wp-content/uploads/sites/1190/2014/02/kierr%C3%A4tysastiat.png"
+           alt="Lajitteluastiat" loading="lazy" style="width:100%;height:120px;object-fit:cover;display:block;object-position:center 30%;">
+      <div style="padding:18px 22px;">
+        <div class="card-title"><span>🗑️</span> Lajitteluastiat alueella</div>
+        <div class="waste-chips">
+          <span class="waste-chip chip-gray">Sekajäte</span>
+          <span class="waste-chip chip-brown">Biojäte</span>
+          <span class="waste-chip chip-green">Lasi</span>
+          <span class="waste-chip chip-yellow">Metalli</span>
+          <span class="waste-chip chip-blue">Kartonki</span>
+          <span class="waste-chip chip-red">Paperi</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>🛒</span> Naapuruston kierrätyspiste</div>
+      <p style="font-size:0.93rem;color:var(--text-muted);">Vanha taksiasema toimii kierrätyspisteenä. Jätä vain <strong>ehjää, puhdasta ja toimivaa</strong> tavaraa.</p>
+    </div>
+  </div>
+
+
+</main>
+
+<!-- ADMIN -->
+<div id="admin-panel" style="display:none;background:#1a2e22;color:white;padding:32px 20px;">
+  <div style="max-width:420px;margin:0 auto;">
+    <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:#52b788;margin-bottom:12px;">🔒 Laituri-lämpötilan päivitys</div>
+    <div style="display:grid;gap:10px;">
+      <div><label style="font-size:0.8rem;color:#aaa;display:block;margin-bottom:4px;">Lämpötila (°C)</label>
+        <input id="adm-temp" type="number" step="0.1" min="-5" max="35" placeholder="esim. 17.5"
+          style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #333;background:#0d1a12;color:white;font-size:1rem;"></div>
+      <div><label style="font-size:0.8rem;color:#aaa;display:block;margin-bottom:4px;">Huomio</label>
+        <input id="adm-note" type="text" maxlength="100" placeholder="vapaaehtoinen"
+          style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #333;background:#0d1a12;color:white;font-size:0.95rem;"></div>
+      <div><label style="font-size:0.8rem;color:#aaa;display:block;margin-bottom:4px;">API-avain</label>
+        <input id="adm-key" type="password" placeholder="••••••••"
+          style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #333;background:#0d1a12;color:white;font-size:1rem;"></div>
+      <button onclick="submitLaituri()" style="padding:12px;border-radius:8px;background:#52b788;color:#0d1a12;font-weight:700;font-size:1rem;border:none;cursor:pointer;">Tallenna mittaus</button>
+      <div id="adm-msg" style="font-size:0.85rem;min-height:1.2em;"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <strong>HKL-Kesämajat ry</strong> — Lounaisväylänpolku, 00200 Helsinki<br>
+  <span style="margin-top:6px;display:inline-block;">
+    <a href="mailto:puheenjohtaja@hklkesamajat.fi" style="color:rgba(255,255,255,0.6);">puheenjohtaja@hklkesamajat.fi</a>
+    &nbsp;·&nbsp;
+    <a href="tel:+358413101495" style="color:rgba(255,255,255,0.6);">+358 41 310 1495</a>
+    &nbsp;·&nbsp;
+    <a href="admin.html" style="color:rgba(82,183,136,0.45);font-size:0.8rem;">hallinta</a>
+    &nbsp;·&nbsp;
+    <a href="info.html" style="color:rgba(82,183,136,0.45);font-size:0.8rem;">palvelukuvaus</a>
+  </span>
+</footer>
+
+
+
+<script>
+// Gallery carousel with side previews
+(function() {
+  const slides = [
+    { src: 'hkl-hero.jpg', alt: 'Auringonlasku rannalla' },
+    { src: 'hkl-ranta.jpg', alt: 'Rantanäkymä kesällä' },
+    { src: 'hkl-laituri.jpg', alt: 'Laituri auringossa' },
+    { src: 'hkl-uinti.jpg', alt: 'Uintia auringonlaskussa' },
+    { src: 'hkl-ilta.jpg', alt: 'Kesäilta mökillä' },
+    { src: 'hkl-talvi.jpg', alt: 'Talvimaisema' },
+    { src: 'hkl-myrsky.jpg', alt: 'Myrskypilvet rannalla' },
+    { src: 'hkl-lumi.jpg', alt: 'Luminen polku' },
+  ];
+  const n = slides.length;
+  const track = document.getElementById('gallery-track');
+  const dotsC = document.getElementById('gallery-dots');
+  let cur = 0, timer;
+
+  function mod(i) { return ((i % n) + n) % n; }
+
+  function render() {
+    const prev = mod(cur - 1), next = mod(cur + 1);
+    track.innerHTML = '';
+    [prev, cur, next].forEach((idx, pos) => {
+      const div = document.createElement('div');
+      div.className = 'gallery-slide ' + (pos === 1 ? 'center' : 'side');
+      const img = document.createElement('img');
+      img.src = slides[idx].src;
+      img.alt = slides[idx].alt;
+      img.loading = pos === 1 ? 'eager' : 'lazy';
+      div.appendChild(img);
+      if (pos === 1) {
+        div.innerHTML += `<div class="gallery-caption"><div style="color:white;font-weight:700;font-size:0.95rem;">HKL-Kesämajat</div><div style="color:rgba(255,255,255,0.75);font-size:0.75rem;">${slides[idx].alt}</div></div>`;
+      }
+      div.onclick = () => { if (pos === 0) go(-1); else if (pos === 2) go(1); };
+      track.appendChild(div);
+    });
+    dotsC.querySelectorAll('.gallery-dot').forEach((d, i) => d.classList.toggle('active', i === cur));
+  }
+
+  slides.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'gallery-dot';
+    d.onclick = () => { cur = i; render(); resetTimer(); };
+    dotsC.appendChild(d);
+  });
+
+  function go(dir) { cur = mod(cur + dir); render(); resetTimer(); }
+  function resetTimer() { clearInterval(timer); timer = setInterval(() => go(1), 5000); }
+  window.galleryGo = go;
+  render();
+  resetTimer();
+})();
+
+const LAT = 60.15524, LON = 24.85453;
+const dayState = { localTemp:null, modelTemp:null, wind:null, windDir:null, weatherCode:null, waterTemp:null, waterSrc:'', algaeLabel:null, aqiLabel:null, pollen:[] };
+const API_BASE = 'https://jaaskel.com';
+
+function isBuffettiOpen() {
+  const now = new Date(new Date().toLocaleString('en-US', {timeZone:'Europe/Helsinki'}));
+  const day = now.getDay();
+  const month = now.getMonth() + 1;
+  const timeMin = now.getHours() * 60 + now.getMinutes();
+  if (month < 5 || month > 9) return false;
+  if (![0, 5, 6].includes(day)) return false;
+  return timeMin >= 11*60 && timeMin < 18*60;
+}
+
+function renderBuffettiStatus() {
+  const open = isBuffettiOpen();
+  const badge = `<span style="display:inline-flex;align-items:center;gap:4px;border-radius:10px;padding:3px 9px;font-size:0.78rem;font-weight:700;
+    background:${open?'#d1fae5':'#fee2e2'};color:${open?'#065f46':'#991b1b'};">
+    <span style="width:7px;height:7px;border-radius:50%;background:${open?'#22c55e':'#ef4444'};display:inline-block;"></span>
+    ${open?'Auki nyt':'Suljettu nyt'}
+  </span>`;
+  const el = document.getElementById('buffetti-status-badge');
+  if (el) el.innerHTML = badge;
+  const heroEl = document.getElementById('h-buffetti-status');
+  if (heroEl) heroEl.textContent = open ? 'Auki' : 'Suljettu';
+  if (heroEl) heroEl.style.color = open ? '#86efac' : '#fca5a5';
+}
+
+const WMO_ICONS = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',77:'🌨️',80:'🌦️',81:'🌧️',82:'⛈️',85:'🌨️',86:'❄️',95:'⛈️',96:'⛈️',99:'⛈️'};
+const WMO_DESC = {0:'Kirkas taivas',1:'Pääosin selkeää',2:'Puolipilvistä',3:'Pilvistä',45:'Sumua',48:'Sumua',51:'Tihkusadetta',53:'Tihkusadetta',55:'Tihkusadetta',61:'Vesisadetta',63:'Vesisadetta',65:'Vesisadetta',71:'Lumisadetta',73:'Lumisadetta',75:'Lumisadetta',80:'Sadekuuroja',81:'Sadekuuroja',82:'Sadekuuroja',95:'Ukkosia',96:'Ukkosia',99:'Ukkosia'};
+
+function wmoIcon(c) { return WMO_ICONS[c] ?? '🌥️'; }
+function wmoDesc(c) { return WMO_DESC[c] ?? `Sääkoodi ${c}`; }
+function windDir(deg) { const d=['P','KP','K','EK','E','EL','L','KL']; return d[Math.round(deg/45)%8]; }
+function dist(la1,lo1,la2,lo2) { const R=6371,dLa=Math.PI/180*(la2-la1),dLo=Math.PI/180*(lo2-lo1); const a=Math.sin(dLa/2)**2+Math.cos(Math.PI/180*la1)*Math.cos(Math.PI/180*la2)*Math.sin(dLo/2)**2; return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
+async function loadNews() {
+  try {
+    const d = await fetch(API_BASE + '/api/hkl/news').then(r => r.json());
+    const arts = d.articles || [];
+    // Pikakortti
+    const countEl = document.getElementById('s-news-count');
+    const dateEl  = document.getElementById('s-news-date');
+    if (countEl) countEl.textContent = `${arts.length} artikkelia`;
+    if (dateEl && arts.length > 0) {
+      const newest = arts[0].date;
+      dateEl.textContent = newest ? new Date(newest).toLocaleDateString('fi-FI',{day:'numeric',month:'long',year:'numeric'}) : '–';
+    }
+    // Uutisruudukko
+    const grid = document.getElementById('news-grid');
+    const updLabel = document.getElementById('news-updated-label');
+    if (!grid) return;
+    if (arts.length === 0) {
+      grid.innerHTML = '<p style="color:var(--text-muted);">Ei uutisia tällä hetkellä.</p>';
+      return;
+    }
+    const newsCard = a => {
+      const dateStr = a.date ? new Date(a.date).toLocaleDateString('fi-FI',{day:'numeric',month:'short'}) : '';
+      return `<a href="${a.url}" target="_blank" rel="noopener" class="news-card">`
+        + `<span class="news-card-source">${a.source || 'Uutinen'}</span>`
+        + `<span class="news-card-title">${a.title}</span>`
+        + (dateStr ? `<span class="news-card-date">${dateStr}</span>` : '')
+        + `<span class="news-card-link">↗</span></a>`;
+    };
+    const LIMIT = 3;
+    grid.innerHTML = arts.slice(0, LIMIT).map(newsCard).join('');
+    if (arts.length > LIMIT) {
+      const btn = document.createElement('button');
+      btn.className = 'show-more-btn';
+      btn.textContent = `Näytä lisää (${arts.length - LIMIT} kpl)`;
+      btn.onclick = () => { grid.innerHTML = arts.map(newsCard).join(''); btn.remove(); };
+      grid.after(btn);
+    }
+    if (updLabel) updLabel.textContent = `${arts.length} artikkelia · päivitetään kerran vuorokaudessa`;
+  } catch(e) { console.warn('loadNews error', e); }
+}
+function uvClass(uv) {
+  if(uv<=2)  return ['aqi-good',  'Matala'];
+  if(uv<=5)  return ['aqi-good',  'Kohtalainen'];
+  if(uv<=7)  return ['aqi-fair',  'Korkea'];
+  if(uv<=10) return ['aqi-mod',   'Erittäin korkea'];
+  return            ['aqi-poor',  'Äärimmäinen'];
+}
+async function loadEnvironment() {
+  try {
+    const d = await fetch(API_BASE + '/api/hkl/environment').then(r => r.json());
+    // UV
+    if (d.uv != null) {
+      const [cls, lbl] = uvClass(d.uv);
+      document.getElementById('s-uv').textContent = d.uv;
+      document.getElementById('s-uv-label').innerHTML = `<span class="aqi-badge ${cls}">${lbl}</span>`;
+    }
+    // Vedenpinta
+    if (d.sealevel) {
+      const sl = d.sealevel;
+      const arrow = sl.trend === 'nouseva' ? '↑' : sl.trend === 'laskeva' ? '↓' : '→';
+      document.getElementById('s-sealevel').textContent = `${sl.cm > 0 ? '+' : ''}${sl.cm} cm`;
+      document.getElementById('s-sealevel-label').textContent = `${arrow} ${sl.trend} · FMI`;
+    }
+    // Google Pollen (korvaa Open-Meteo jos saatavilla)
+    if (d.pollen && Object.keys(d.pollen).length > 0) {
+      const catCls = {'Matala':'aqi-good','Kohtalainen':'aqi-fair','Korkea':'aqi-mod','Erittäin korkea':'aqi-poor'};
+      const items = Object.values(d.pollen).filter(p => p.inSeason);
+      const el = document.getElementById('s-pollen');
+      const src = document.getElementById('s-pollen-src');
+      if (src) src.textContent = '· Google';
+      if (el && items.length > 0) {
+        el.innerHTML = items.map(p => {
+          const cls = catCls[p.category] || 'aqi-good';
+          return `<span style="display:inline-flex;align-items:center;gap:4px;margin-right:10px;">
+            <span style="font-size:0.82rem;font-weight:600;">${p.name}</span>
+            <span class="aqi-badge ${cls}" style="font-size:0.72rem;padding:1px 7px;">${p.category}</span>
+          </span>`;
+        }).join('');
+      } else if (el && items.length === 0) {
+        el.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Ei kausikasveja käynnissä</span>';
+      }
+      // Päivitä dayState.pollen myös AI-yhteenvetoa varten
+      dayState.pollen = items.map(p => ({name: p.name, val: p.category === 'Matala' ? 5 : p.category === 'Kohtalainen' ? 60 : 500, type: 'birch'}));
+    }
+  } catch(e) { console.warn('loadEnvironment error', e); }
+}
+function aqiClass(aqi) { if(aqi<=20)return['aqi-good','Erinomainen']; if(aqi<=40)return['aqi-good','Hyvä']; if(aqi<=60)return['aqi-fair','Kohtalainen']; if(aqi<=80)return['aqi-mod','Heikko']; return['aqi-poor','Huono']; }
+function algaeClass(label) { if(!label)return'algae-none'; if(label.includes('vähän'))return'algae-low'; if(label.includes('kohtalainen'))return'algae-mid'; if(label.includes('runsaasti'))return'algae-high'; return'algae-none'; }
+function fmt1(v) { return v!=null?v.toFixed(1):'–'; }
+function fmtInt(v) { return v!=null?Math.round(v):'–'; }
+function fmtDateTime(s) { if(!s)return''; try{ const d=new Date(s); return`${d.getDate()}.${d.getMonth()+1}. klo ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }catch(e){return s.slice(0,16);} }
+function pollenLevel(val,type) { if(val===null||val===undefined)return['–','aqi-good']; const t=type==='grass'?[[5,'Vähäinen','aqi-good'],[50,'Kohtalainen','aqi-fair'],[200,'Korkea','aqi-mod'],[Infinity,'Erittäin korkea','aqi-poor']]:[[10,'Vähäinen','aqi-good'],[100,'Kohtalainen','aqi-fair'],[1000,'Korkea','aqi-mod'],[Infinity,'Erittäin korkea','aqi-poor']]; for(const[l,lbl,cls]of t)if(val<=l)return[lbl,cls]; return['–','aqi-good']; }
+
+// Shared state for AI summary
+
+
+async function loadWeather() {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}`
+    + `&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m`
+    + `&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_sum`
+    + `&timezone=Europe/Helsinki&forecast_days=5&wind_speed_unit=ms`;
+  const r = await fetch(url); const d = await r.json(); const c = d.current;
+
+  document.getElementById('s-temp').textContent = fmt1(c.temperature_2m) + '°C';
+  document.getElementById('s-feels').textContent = `Tuntuu kuin ${fmt1(c.apparent_temperature)}°C · ${fmtInt(c.relative_humidity_2m)}%`;
+  document.getElementById('s-wind').innerHTML = fmt1(c.wind_speed_10m) + '<span class="stat-unit"> m/s</span>';
+  document.getElementById('s-wind-dir').textContent = `${windDir(c.wind_direction_10m)} (${fmtInt(c.wind_direction_10m)}°)`;
+  document.getElementById('s-wx-ico').textContent = wmoIcon(c.weather_code);
+  document.getElementById('s-wx-desc').textContent = wmoDesc(c.weather_code);
+  document.getElementById('s-humidity').textContent = `Kosteus ${fmtInt(c.relative_humidity_2m)}%`;
+  const wxIconEl = document.getElementById('h-wx-icon');
+  if (wxIconEl) wxIconEl.textContent = wmoIcon(c.weather_code);
+  document.getElementById('h-wind').textContent = fmt1(c.wind_speed_10m) + ' m/s';
+  document.getElementById('h-wind-dir').textContent = windDir(c.wind_direction_10m);
+
+  const now = new Date();
+  document.getElementById('live-time').textContent = `· ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  dayState.modelTemp = c.temperature_2m;
+  dayState.wind = c.wind_speed_10m;
+  dayState.windDir = c.wind_direction_10m;
+  dayState.weatherCode = c.weather_code;
+
+  const days=['Su','Ma','Ti','Ke','To','Pe','La'], months=['tam','hel','maa','huh','tou','kes','hei','elo','syy','lok','mar','jou'];
+  const frow = document.getElementById('forecast-row'); frow.innerHTML = '';
+  d.daily.time.forEach((ds,i) => {
+    const dt = new Date(ds+'T12:00:00');
+    const label = i===0?'Tänään':i===1?'Huomenna':`${days[dt.getDay()]} ${dt.getDate()}.${months[dt.getMonth()]}`;
+    const prec = d.daily.precipitation_sum[i];
+    frow.innerHTML += `<div class="fcast-day"><div class="fcast-date">${label}</div><div class="fcast-ico">${wmoIcon(d.daily.weather_code[i])}</div><div class="fcast-max">${fmtInt(d.daily.temperature_2m_max[i])}°</div><div class="fcast-min">${fmtInt(d.daily.temperature_2m_min[i])}°</div><div class="fcast-sea" id="sea-day-${i}">…</div><div class="fcast-prec">${prec>0.1?`💧${fmt1(prec)} mm`:''}</div></div>`;
+  });
+}
+
+async function loadMarine() {
+  const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}&current=sea_surface_temperature,wave_height,wave_period&daily=sea_surface_temperature_max,sea_surface_temperature_min&timezone=Europe/Helsinki&forecast_days=5`;
+  const r = await fetch(url); const d = await r.json(); const c = d.current;
+  document.getElementById('s-sea').innerHTML = fmt1(c.sea_surface_temperature) + '<span class="stat-unit">°C</span>';
+  document.getElementById('s-wave').textContent = `Aallonkorkeus ${fmt1(c.wave_height)} m`;
+  const heroWave = document.getElementById('h-wave');
+  const heroWaveSub = document.getElementById('h-wave-sub');
+  if (heroWave) heroWave.innerHTML = fmt1(c.wave_height) + '<span style="font-size:0.9rem;"> m</span>';
+  if (heroWaveSub) heroWaveSub.textContent = c.wave_period ? `jakso ${fmt1(c.wave_period)}s` : 'Open-Meteo Marine';
+  if (d.daily) d.daily.time.forEach((_,i) => { const el=document.getElementById(`sea-day-${i}`); if(el)el.textContent=`🌊 ${fmt1(d.daily.sea_surface_temperature_max[i])}°C`; });
+}
+
+async function loadAirQuality() {
+  const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${LAT}&longitude=${LON}&current=european_aqi,pm2_5,birch_pollen,grass_pollen,alder_pollen,mugwort_pollen&timezone=Europe/Helsinki`;
+  const r = await fetch(url); const d = await r.json(); const c = d.current;
+  const aqi = c.european_aqi; const [cls,label] = aqiClass(aqi);
+  document.getElementById('s-aqi').textContent = aqi;
+  document.getElementById('s-aqi-label').innerHTML = `<span class="aqi-badge ${cls}">${label}</span> · PM2.5 ${fmt1(c.pm2_5)} µg/m³`;
+  dayState.aqiLabel = label;
+
+  const pollens = [{name:'Koivu',val:c.birch_pollen,type:'birch'},{name:'Heinä',val:c.grass_pollen,type:'grass'},{name:'Leppä',val:c.alder_pollen,type:'birch'},{name:'Pujo',val:c.mugwort_pollen,type:'birch'}].filter(p=>p.val>0);
+  dayState.pollen = pollens;
+  const el = document.getElementById('s-pollen'); if(!el)return;
+  if(!pollens.length){el.innerHTML='<span style="color:var(--text-muted);font-size:0.85rem;">Ei merkittävää siitepölyä</span>';return;}
+  el.innerHTML = pollens.map(p => { const [lbl,pcls]=pollenLevel(p.val,p.type); return`<span style="display:inline-flex;align-items:center;gap:4px;margin-right:10px;"><span style="font-size:0.82rem;font-weight:600;">${p.name}</span><span class="aqi-badge ${pcls}" style="font-size:0.72rem;padding:1px 7px;">${lbl}</span><span style="font-size:0.72rem;color:var(--text-muted);">${Math.round(p.val)} gr/m³</span></span>`; }).join('');
+}
+
+async function loadUIRAS() {
+  const r = await fetch('https://bri3.fvh.io/opendata/uiras/uiras_latest.geojson');
+  const d = await r.json();
+  const sensors = d.features.map(f => {
+    const [slon,slat]=f.geometry.coordinates; const meas=f.properties.measurement||{};
+    return {name:f.properties.name||'–',location:f.properties.location||'',temp:meas.temp_water??null,time:meas.time||'',dist:dist(LAT,LON,slat,slon)};
+  }).filter(s=>s.dist<8 && s.temp!=null).sort((a,b)=>a.dist-b.dist).slice(0,5);
+  const el = document.getElementById('uiras-list');
+  if(!sensors.length){el.innerHTML='<span style="color:var(--text-muted);font-size:0.85rem;">Ei antureita 8 km säteellä</span>';return;}
+  // Update hero water if no laituri data
+  const closest = sensors.find(s => s.temp != null);
+  if (closest && dayState.waterTemp === null) {
+    dayState.waterTemp = closest.temp;
+    dayState.waterSrc = closest.name;
+    document.getElementById('h-water').textContent = fmt1(closest.temp) + '°C';
+    document.getElementById('h-water-src').textContent = closest.name;
+  }
+  const INNER_BAY_KW = ['lahti', 'salmi', 'allas', 'bukt', 'vik'];
+  el.innerHTML = sensors.map(s => {
+    const tempStr = s.temp!=null?`<span class="sensor-temp">${fmt1(s.temp)}°C</span>`:`<span class="sensor-nodata">ei lukemaa</span>`;
+    const locLower = (s.name + ' ' + s.location).toLowerCase();
+    const isInnerBay = INNER_BAY_KW.some(k => locLower.includes(k));
+    const sub = [s.location,`<strong>${s.dist.toFixed(1)} km</strong>`,s.time?fmtDateTime(s.time):''].filter(Boolean).join(' · ');
+    const bayNote = isInnerBay
+      ? `<div style="margin-top:3px;font-size:0.72rem;color:#92400e;background:#fef3c7;border-radius:5px;padding:2px 7px;display:inline-block;">⚠️ Sisälahti — selittää alhaisempaa lämpötilaa</div>`
+      : '';
+    return`<div class="sensor-row"><div><div class="sensor-name">${s.name}</div><div class="sensor-dist">${sub}</div>${bayNote}</div>${tempStr}</div>`;
+  }).join('');
+}
+
+async function loadAlgae() {
+  try {
+    const r = await fetch('https://jaaskel.com/api/beaches/algae-map'); const pts = await r.json(); const now = Date.now();
+    const scored = pts.map(p => { const d=dist(LAT,LON,p.lat,p.lon); const ageDays=p.time?(now-new Date(p.time).getTime())/86400000:999; return{...p,d,ageDays,fresh:ageDays<3}; });
+    const fresh=scored.filter(p=>p.fresh).sort((a,b)=>a.d-b.d); const best=fresh[0]??scored.sort((a,b)=>a.d-b.d)[0];
+    if(!best)throw new Error('no data');
+    const cls=algaeClass(best.label); const icons={algae_low:'🟢',algae_mid:'🟡',algae_high:'🔴',algae_none:'⚪'}; const icon=icons[cls]??'⚪';
+    dayState.algaeLabel = best.label;
+    document.getElementById('s-algae-badge').innerHTML=`<span class="algae-badge ${cls}">${icon} ${best.label??'ei dataa'}</span>`;
+    document.getElementById('s-algae-sub').textContent=`${best.chl} µg/l · ${best.d.toFixed(1)} km${best.time?' · '+fmtDateTime(best.time):''}`;
+  } catch(e) {
+    document.getElementById('s-algae-badge').innerHTML='<span class="algae-badge algae-none">⚪ Ei dataa</span>';
+    document.getElementById('s-algae-sub').textContent='';
+  }
+}
+
+async function loadHSL() {
+  const DT_KEY = 'b545f3f25b3048f38daddc4676713a98';
+  const query = `{stopsByRadius(lat:${LAT},lon:${LON},radius:900,first:4){edges{node{distance stop{gtfsId name code vehicleMode routes{shortName}stoptimesWithoutPatterns(numberOfDepartures:4 omitNonPickups:true){scheduledArrival realtimeArrival realtime serviceDay headsign trip{routeShortName}}}}}}}`;
+  const r = await fetch('https://api.digitransit.fi/routing/v2/hsl/gtfs/v1',{method:'POST',headers:{'Content-Type':'application/json','digitransit-subscription-key':DT_KEY},body:JSON.stringify({query})});
+  const data = await r.json(); const edges=data?.data?.stopsByRadius?.edges??[]; const el=document.getElementById('hsl-list');
+  if(!edges.length){el.innerHTML='<span style="color:var(--text-muted);font-size:0.82rem;">Ei pysäkkejä</span>';return;}
+  const {node}=edges[0]; const s=node.stop; const now=Date.now()/1000;
+  const routeBadges=[...new Set(s.routes.map(ro=>ro.shortName))].map(n=>`<span class="hsl-route hsl-mode-${s.vehicleMode}">${n}</span>`).join(' ');
+  const deps=(s.stoptimesWithoutPatterns??[]).map(st=>{
+    const epoch=st.serviceDay+(st.realtime?st.realtimeArrival:st.scheduledArrival);
+    const minLeft=Math.round((epoch-now)/60); const hhmm=new Date(epoch*1000).toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit'});
+    const minStr=minLeft<=0?'nyt':`${minLeft} min`; const soon=minLeft<=3;
+    return`<div class="hsl-dep"><span class="hsl-route hsl-mode-${s.vehicleMode}">${st.trip.routeShortName}</span><span class="hsl-headsign">${st.headsign}</span><span class="hsl-time${st.realtime?' rt':''}">${hhmm}</span><span class="hsl-min${soon?' soon':''}">${st.realtime?'🟢 ':''}${minStr}</span></div>`;
+  }).join('');
+  el.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;"><span style="font-weight:700;font-size:0.9rem;">${s.name}</span><span style="font-size:0.72rem;color:var(--text-muted);background:#f0f0f0;border-radius:4px;padding:1px 6px;">${s.code}</span><span style="display:flex;gap:4px;">${routeBadges}</span><span style="font-size:0.72rem;color:var(--text-muted);margin-left:auto;">${node.distance} m</span></div>${deps||'<span style="color:var(--text-muted);font-size:0.82rem;">Ei lähtöjä lähiaikoina</span>'}`;
+}
+
+async function loadLaituri() {
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/laituri'); const d = await r.json();
+    const el = document.getElementById('laituri-row'); if(!el)return;
+    if(d.temp==null){el.innerHTML='';return;}
+    const timeStr=d.time?fmtDateTime(d.time):''; const noteStr=d.note?` · ${d.note}`:'';
+    // Laituri is closest — override UIRAS
+    dayState.waterTemp = d.temp;
+    dayState.waterSrc = 'Oma laituri';
+    document.getElementById('h-water').textContent = fmt1(d.temp) + '°C';
+    const laituriSrc = 'Oma laituri' + (d.name ? ' · ' + d.name : '');
+    document.getElementById('h-water-src').textContent = laituriSrc;
+    const nameStr = d.name ? ` · <strong>${d.name}</strong>` : '';
+    el.innerHTML=`<div class="sensor-row" style="background:#d8f3dc;border-radius:8px;padding:10px 12px;margin-bottom:8px;"><div><div class="sensor-name">📍 Oma laituri (HKL)</div><div class="sensor-dist">0 km · ${timeStr}${nameStr}${noteStr}</div></div><span class="sensor-temp">${fmt1(d.temp)}°C</span></div>`;
+  } catch(e){}
+}
+
+async function loadLocalSensor() {
+  const LS_KEY = 'hkl_ls_cache';
+  function lsSet(v) { try{localStorage.setItem(LS_KEY,JSON.stringify(v));}catch(e){} }
+  function lsGet() { try{const r=localStorage.getItem(LS_KEY);return r?JSON.parse(r):null;}catch(e){return null;} }
+  let d = null;
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/local-sensor');
+    if (r.ok) d = await r.json();
+  } catch(e) {}
+  let temp = null, hum = null, ts = '', stale = false, name = 'Paikallinen sensori';
+  if (d && d.temperature != null) {
+    temp = d.temperature; hum = d.humidity; ts = d.temperature_updated || ''; stale = !!d.stale; name = d.name || name;
+    lsSet({temp, hum, ts, name});
+  } else {
+    const c = lsGet();
+    if (c && c.temp != null) { temp = c.temp; hum = c.hum; ts = c.ts || ''; stale = true; name = c.name || name; }
+    else if (d) { hum = d.humidity; ts = d.temperature_updated || ''; name = d.name || name; }
+  }
+  const tsStr = ts ? fmtDateTime(ts) : '';
+  const metaStr = name + (stale && tsStr ? ' (edell. '+tsStr+')' : tsStr ? ' · '+tsStr : '');
+  const tempEl = document.getElementById('s-local-temp');
+  const humEl  = document.getElementById('s-local-hum');
+  const metaEl = document.getElementById('s-local-meta');
+  const heroEl = document.getElementById('h-local-temp');
+  const heroHum= document.getElementById('h-local-hum');
+  if (tempEl) tempEl.textContent = temp != null ? fmt1(temp)+'°C' : '–';
+  if (humEl)  humEl.textContent  = hum  != null ? fmtInt(hum)+'% kosteus' : '–';
+  if (metaEl) metaEl.textContent = metaStr;
+  if (heroEl) heroEl.textContent = temp != null ? fmt1(temp)+(stale?' *':'')+'°C' : '–';
+  if (heroHum)heroHum.textContent = hum  != null ? fmtInt(hum)+'% kosteus' : '–';
+  dayState.localTemp = temp;
+}
+
+async function loadHourly() {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&hourly=temperature_2m,weather_code,precipitation_probability&timezone=Europe/Helsinki&forecast_days=2`;
+  const r = await fetch(url); const d = await r.json(); const now = new Date(); const el=document.getElementById('hourly-row');
+  if(!el)return; el.innerHTML=''; let count=0;
+  for(let i=0;i<d.hourly.time.length&&count<24;i++){
+    const t=new Date(d.hourly.time[i]); if(t<now-1800000)continue;
+    const h=t.getHours(); const precip=d.hourly.precipitation_probability[i];
+    el.innerHTML+=`<div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:52px;background:${count===0?'var(--green)':'#f5f5f5'};border-radius:10px;padding:8px 6px;"><div style="font-size:0.68rem;font-weight:700;color:${count===0?'rgba(255,255,255,0.8)':'var(--text-muted)'};">${h}:00</div><div style="font-size:1.3rem;">${wmoIcon(d.hourly.weather_code[i])}</div><div style="font-size:0.88rem;font-weight:800;color:${count===0?'white':'var(--text)'};">${fmtInt(d.hourly.temperature_2m[i])}°</div>${precip>10?`<div style="font-size:0.65rem;color:${count===0?'rgba(255,255,255,0.8)':'#4682b4'};">💧${precip}%</div>`:''}</div>`;
+    count++;
+  }
+}
+
+async function loadLocalHistory() {
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/local-history'); const d = await r.json();
+    const el=document.getElementById('local-history-chart'); if(!el)return;
+    // Build UTC-hour buckets — 48h window slots will ignore old data automatically
+    const tB={},hB={};
+    (d.temperature||[]).forEach(p=>{const h=p.t.slice(0,13);(tB[h]=tB[h]||[]).push(p.v);});
+    (d.humidity||[]).forEach(p=>{const h=p.t.slice(0,13);(hB[h]=hB[h]||[]).push(p.v);});
+    // Fixed 48h window ending now (UTC keys match HA timestamp format)
+    const allH=[];
+    for(let i=47;i>=0;i--){const dt=new Date(Date.now()-i*3600000);allH.push(dt.toISOString().slice(0,13));}
+    const avg=arr=>arr?arr.reduce((a,b)=>a+b,0)/arr.length:null;
+    const tV=allH.map(h=>tB[h]?Math.round(avg(tB[h])*10)/10:null);
+    const hV=allH.map(h=>hB[h]?Math.round(avg(hB[h])):null);
+    if(!tV.some(v=>v!==null)&&!hV.some(v=>v!==null))return;
+    el.style.display='block'; el.classList.add('visible');
+    // Parse UTC hour key with explicit Z → local time display
+    const labels=allH.map(h=>{const dt=new Date(h+':00:00Z');return`${dt.getDate()}.${dt.getMonth()+1}. ${dt.getHours()}:00`;});
+    const canvas=document.getElementById('local-history-canvas'); if(!canvas||!window.Chart)return;
+    if(canvas._chart)canvas._chart.destroy();
+    canvas._chart=new Chart(canvas,{type:'line',data:{labels,datasets:[{label:'Lämpötila (°C)',data:tV,borderColor:'#2d6a4f',backgroundColor:'rgba(45,106,79,0.08)',tension:0.3,fill:true,pointRadius:0,spanGaps:true,yAxisID:'yTemp'},{label:'Kosteus (%)',data:hV,borderColor:'#1a6b8a',backgroundColor:'rgba(26,107,138,0.07)',tension:0.3,fill:false,spanGaps:true,pointRadius:0,yAxisID:'yHum',borderDash:[4,3]}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{x:{ticks:{maxTicksLimit:7,font:{size:10}},grid:{display:false}},yTemp:{position:'left',title:{display:true,text:'°C',font:{size:10}},ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,0.06)'}},yHum:{position:'right',title:{display:true,text:'%',font:{size:10}},ticks:{font:{size:10}},grid:{display:false},min:0,max:100}}}});
+  } catch(e){}
+}
+
+
+async function loadSunData() {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&daily=sunrise,sunset,daylight_duration&timezone=Europe/Helsinki&forecast_days=1`;
+    const d = await (await fetch(url)).json();
+    if (!d.daily) return;
+    const rise = d.daily.sunrise[0], set = d.daily.sunset[0];
+    const dayMin = Math.round((d.daily.daylight_duration[0] || 0) / 60);
+    const h = Math.floor(dayMin / 60), m = dayMin % 60;
+    const fmt = t => { const dt = new Date(t); return `${dt.getHours()}:${String(dt.getMinutes()).padStart(2,'0')}`; };
+    const setEl = document.getElementById('h-sun-set');
+    const dayEl = document.getElementById('h-sun-daylen');
+    if (setEl) setEl.textContent = `↓ ${fmt(set)}`;
+    if (dayEl) dayEl.textContent = `${h}h ${m}min · ↑ ${fmt(rise)}`;
+  } catch(e) { console.warn('loadSunData error', e); }
+}
+
+// Tiedotteet — näytä jos on aktiivisia
+async function loadAnnouncementsBanner() {
+  try {
+    const items = await fetch(API_BASE + '/api/hkl/announcements').then(r => r.json());
+    if (!items || !items.length) return;
+    const list = document.getElementById('ann-banner-items');
+    const banner = document.getElementById('ann-banner');
+    list.innerHTML = items.map(a => `<div class="ann-banner-item"><div class="ann-banner-title">${a.title.replace(/</g,'&lt;')}</div><div class="ann-banner-text">${a.body.replace(/</g,'&lt;')}</div></div>`).join('');
+    if (banner) banner.style.display = 'block';
+  } catch(e) {}
+}
+
+async function submitLaituri() {
+  const temp=parseFloat(document.getElementById('adm-temp').value); const note=document.getElementById('adm-note').value.trim(); const key=document.getElementById('adm-key').value.trim(); const msg=document.getElementById('adm-msg');
+  if(isNaN(temp)){msg.textContent='❌ Anna lämpötila';msg.style.color='#f87171';return;}
+  msg.textContent='Tallennetaan…';msg.style.color='#aaa';
+  try {
+    const r=await fetch(API_BASE + '/api/hkl/laituri',{method:'POST',headers:{'Content-Type':'application/json','X-Api-Key':key},body:JSON.stringify({temp,note})});
+    if(r.ok){msg.textContent='✅ Tallennettu!';msg.style.color='#52b788';document.getElementById('adm-temp').value='';document.getElementById('adm-note').value='';loadLaituri();}
+    else{msg.textContent=r.status===403?'❌ Väärä avain':`❌ Virhe ${r.status}`;msg.style.color='#f87171';}
+  }catch(e){msg.textContent='❌ Yhteysvirhe';msg.style.color='#f87171';}
+}
+
+if(new URLSearchParams(location.search).get('admin')==='1') document.getElementById('admin-panel').style.display='block';
+
+// Scroll reveal
+function initReveal() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);} });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+}
+initReveal();
+
+async function loadWeatherStats() {
+  try {
+    const [haData, omData] = await Promise.all([
+      fetch(API_BASE + '/api/hkl/weather-stats').then(r => r.json()),
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&daily=sunshine_duration,precipitation_hours&timezone=Europe/Helsinki&forecast_days=1`).then(r => r.json())
+    ]);
+    const rainEl = document.getElementById('s-rain-min');
+    const rainLbl = document.getElementById('s-rain-label');
+    const sunEl = document.getElementById('s-sun-min');
+    const rainEl2 = document.getElementById('s-rain-min2');
+    const cloudEl = document.getElementById('s-cloud-min');
+    if (haData.rain_today_min != null && rainEl) {
+      const m = haData.rain_today_min;
+      const h = Math.floor(m / 60);
+      rainEl.innerHTML = h > 0 ? `${h}h ${m % 60}<span class="stat-unit">min</span>` : `${m}<span class="stat-unit"> min</span>`;
+      rainLbl.textContent = haData.raining ? '🔵 Sataa nyt' : 'Sademittari · HA';
+    }
+    if (haData.rain_today_min != null && rainEl2) rainEl2.textContent = haData.rain_today_min;
+    if (omData.daily?.sunshine_duration) {
+      const sunSec = omData.daily.sunshine_duration[0] || 0;
+      const sunMin = Math.round(sunSec / 60);
+      const h = Math.floor(sunMin / 60);
+      if (sunEl) sunEl.textContent = h > 0 ? `${h}h ${sunMin % 60}` : sunMin;
+    }
+    if (omData.daily?.sunshine_duration && cloudEl) {
+      const sunMin = Math.round((omData.daily.sunshine_duration[0] || 0) / 60);
+      const dayMin = 60 * (new Date().getHours() - 5);
+      const rainMin = haData.rain_today_min || 0;
+      const cloudMin = Math.max(0, dayMin - sunMin - rainMin);
+      cloudEl.textContent = cloudMin;
+    }
+  } catch(e) { console.warn('loadWeatherStats error', e); }
+}
+
+// Load all data then build AI summary
+loadAnnouncementsBanner();
+Promise.allSettled([
+  loadLocalSensor(),
+  loadLaituri(),
+  loadWeather(),
+  loadHourly(),
+  loadMarine(),
+  loadNews(),
+  loadEnvironment(),
+  loadAirQuality(),
+  loadUIRAS(),
+  loadHSL(),
+  loadLocalHistory(),
+  loadWeatherStats(),
+  loadSunData(),
+]);
+setTimeout(loadAlgae, 2000);
+
+renderBuffettiStatus();
+setInterval(loadHSL, 60_000);
+setInterval(renderBuffettiStatus, 60_000);
+
+function initGoogleMap() {
+  const center = {lat: 60.15524, lng: 24.85453};
+  const map = new google.maps.Map(document.getElementById('gmap'), {
+    center, zoom: 16,
+    mapTypeId: 'satellite',
+    tilt: 0,
+    disableDefaultUI: true,
+    zoomControl: true,
+    fullscreenControl: true,
+  });
+  new google.maps.Marker({
+    position: center, map,
+    title: 'HKL-Kesämajat',
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 10,
+      fillColor: '#4ade80',
+      fillOpacity: 1,
+      strokeColor: '#fff',
+      strokeWeight: 2,
+    }
+  });
+  loadPlaces();
+}
+
+async function loadPlaces() {
+  try {
+    const d = await fetch(API_BASE + '/api/hkl/places').then(r => r.json());
+    const el = document.getElementById('places-list');
+    if (!el) return;
+    const places = d.places || [];
+    if (places.length === 0) {
+      el.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">Ei palveluita löydetty lähialueelta.</p>';
+      return;
+    }
+    const placeRow = p =>
+      `<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:white;border:1px solid #e4ede7;border-radius:8px;">`
+      + `<span style="font-size:1.1rem;flex-shrink:0;">${p.emoji}</span>`
+      + `<span style="font-weight:600;font-size:0.88rem;flex:1;">${p.name}</span>`
+      + `<span style="font-size:0.75rem;color:var(--text-muted);white-space:nowrap;">${p.type}</span>`
+      + `<span style="font-size:0.75rem;color:var(--green);font-weight:700;white-space:nowrap;">${p.dist_m}m</span></div>`;
+    const PLIMIT = 3;
+    el.innerHTML = places.slice(0, PLIMIT).map(placeRow).join('');
+    if (places.length > PLIMIT) {
+      const btn = document.createElement('button');
+      btn.className = 'show-more-btn';
+      btn.textContent = `Näytä lisää (${places.length - PLIMIT} kpl)`;
+      btn.onclick = () => { el.innerHTML = places.map(placeRow).join(''); btn.remove(); };
+      el.after(btn);
+    }
+  } catch(e) { console.warn('loadPlaces error', e); }
+}
+
+
+
+// Section tabs — show after scrolling past hero, highlight active section
+(function() {
+  const tabs = document.getElementById('section-tabs');
+  const hero = document.querySelector('.hero');
+  const stabs = document.querySelectorAll('.stab');
+  const sections = ['live-tilanne','vedenlampo','uutiset','kartta','buffetti'].map(id => document.getElementById(id)).filter(Boolean);
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        stabs.forEach(t => { t.classList.toggle('active', t.dataset.sec === e.target.id); });
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+
+  sections.forEach(s => io.observe(s));
+
+  new IntersectionObserver(([e]) => {
+    tabs.style.display = e.isIntersecting ? 'none' : 'block';
+  }, { threshold: 0.1 }).observe(hero);
+})();
+
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4v6_V6A8uGas4M9UQz3bu9FwsbdFH8ds&libraries=places,geometry&callback=initGoogleMap" async defer></script>
+</body>
+</html>
