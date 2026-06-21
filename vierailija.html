@@ -592,7 +592,7 @@ footer strong { color: white; }
 
 <div class="live-section">
 
-<!-- Hidden placeholders for JS compatibility (removed weather grid) -->
+<!-- Hidden placeholders for JS compatibility (removed weather/live sections) -->
 <div style="display:none;">
   <span id="s-local-temp"></span><span id="s-local-hum"></span><span id="s-local-meta"></span>
   <span id="s-temp"></span><span id="s-feels"></span>
@@ -603,65 +603,15 @@ footer strong { color: white; }
   <span id="s-sealevel"></span><span id="s-sealevel-label"></span>
   <span id="live-time"></span>
   <div id="rain-7d-bars"><div id="rain-7d-chart"></div></div>
+  <span id="s-algae-badge"></span><span id="s-algae-sub"></span>
+  <span id="s-pollen-src"></span><span id="s-pollen"></span>
+  <span id="s-sea"></span><span id="s-wave"></span>
+  <div id="laituri-row"></div><div id="uiras-list"></div>
+  <div id="vedenlampo"></div>
+  <div id="local-history-chart"><canvas id="local-history-canvas"></canvas></div>
+  <div id="hourly-row"></div>
+  <div id="forecast-row"></div>
 </div>
-
-  <!-- Levätilanne + Siitepöly -->
-  <div class="grid-2 reveal" style="margin-top:16px;">
-    <div class="stat-card">
-      <div class="stat-label">🌿 Levätilanne</div>
-      <div id="s-algae-badge" style="margin-top:6px;"><div class="skeleton" style="width:120px;height:1.6rem;"></div></div>
-      <div class="stat-sub" id="s-algae-sub" style="margin-top:5px;">–</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">🌸 Siitepöly <span id="s-pollen-src" style="font-size:0.65rem;color:var(--text-muted);font-weight:400;"></span></div>
-      <div id="s-pollen" style="margin-top:8px;flex-wrap:wrap;display:flex;gap:4px;"><div class="skeleton" style="width:90px;height:1.4rem;"></div></div>
-    </div>
-  </div>
-
-  <!-- Vedenlämpö -->
-  <div id="vedenlampo" class="card reveal" style="margin-top:16px;">
-    <div class="card-title"><span>🌡️</span> Vedenlämpötila</div>
-    <div id="laituri-row"></div>
-    <div id="uiras-list"><div class="skeleton" style="height:1rem;margin-bottom:6px;width:80%;"></div><div class="skeleton" style="height:1rem;width:60%;"></div></div>
-    <div style="margin-top:10px;padding-top:10px;border-top:1px solid #eee;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;">
-      <span style="font-size:0.75rem;color:var(--text-muted);">🌊 Malliennuste (Open-Meteo Marine):</span>
-      <span id="s-sea" style="font-size:0.88rem;font-weight:700;color:var(--blue);">–</span>
-      <span id="s-wave" style="font-size:0.75rem;color:var(--text-muted);"></span>
-    </div>
-    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;">Oma laituri: manuaalinen · Muut: UIRAS/FVH · Malli: Open-Meteo</div>
-  </div>
-
-  <!-- Historiakuvaaja -->
-  <div id="local-history-chart" class="card reveal" style="margin-top:16px;display:none;">
-    <div class="card-title" style="margin-bottom:10px;"><span>📈</span> Lämpötila &amp; kosteus — 48h</div>
-    <div style="position:relative;height:180px;">
-      <canvas id="local-history-canvas"></canvas>
-    </div>
-    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;">Mökki ulkomittari · Home Assistant</div>
-  </div>
-
-  <!-- 5pv ennuste -->
-  <div class="card reveal" style="margin-top:16px;">
-    <div class="card-title" style="margin-bottom:10px;"><span>📅</span> Sääennuste</div>
-    <div style="overflow-x:auto;margin-bottom:16px;padding-bottom:4px;">
-      <div id="hourly-row" style="display:flex;gap:8px;min-width:max-content;padding:2px 0;">
-        <div class="skeleton" style="width:52px;height:80px;border-radius:10px;"></div>
-        <div class="skeleton" style="width:52px;height:80px;border-radius:10px;"></div>
-        <div class="skeleton" style="width:52px;height:80px;border-radius:10px;"></div>
-        <div class="skeleton" style="width:52px;height:80px;border-radius:10px;"></div>
-        <div class="skeleton" style="width:52px;height:80px;border-radius:10px;"></div>
-      </div>
-    </div>
-    <div style="border-top:1px solid #eee;padding-top:14px;margin-bottom:10px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);">Päiväennuste</div>
-    <div class="forecast-row" id="forecast-row">
-      <div class="fcast-day"><div class="fcast-date">–</div><div class="fcast-ico">⏳</div><div class="fcast-max">–</div></div>
-      <div class="fcast-day"><div class="fcast-date">–</div><div class="fcast-ico">⏳</div><div class="fcast-max">–</div></div>
-      <div class="fcast-day"><div class="fcast-date">–</div><div class="fcast-ico">⏳</div><div class="fcast-max">–</div></div>
-      <div class="fcast-day"><div class="fcast-date">–</div><div class="fcast-ico">⏳</div><div class="fcast-max">–</div></div>
-      <div class="fcast-day"><div class="fcast-date">–</div><div class="fcast-ico">⏳</div><div class="fcast-max">–</div></div>
-    </div>
-    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:8px;">Open-Meteo · UIRAS/SYKE · Algaline</div>
-  </div>
 
   <!-- KARTTA -->
   <div id="kartta" class="section-header reveal" style="margin-top:16px;"><h2>🗺️ Sijainti</h2><div class="divider"></div><p>Lounaisväylänpolku, 00200 Helsinki</p></div>
