@@ -6,7 +6,6 @@
 <title>HKL-Kesämajat – Aluetiedot & Vierailija</title>
 <meta name="description" content="HKL-Kesämajat ry – yhteisöllinen kesämaja-alue Lauttasaaressa. Live-sää, vedenlämpö, lähipalvelut ja palveluinfo.">
 <link rel="stylesheet" href="hkl-base.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9/dist/leaflet.css">
 <style>
 /* html scroll-behavior moved to hkl-base.css */
 /* :root, * moved to hkl-base.css */
@@ -656,17 +655,16 @@ footer strong { color: white; }
     <a href="https://www.google.com/maps/search/?api=1&query=60.15524,24.85453" target="_blank" rel="noopener" style="color:var(--green);">Avaa Google Mapsissa ↗</a>
   </p>
 
-  <!-- MÖKKIKARTTA (interaktiivinen) -->
+  <!-- MÖKKIKARTTA -->
   <div class="card reveal" style="margin-top:20px;padding:0;overflow:hidden;">
-    <div style="padding:14px 22px 8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-      <div class="card-title" style="margin:0;"><span>🏘️</span> Mökkikartta</div>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <button id="mokki-overlay-btn" onclick="toggleMokkiOverlay()" style="font-size:0.72rem;padding:5px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:var(--text-muted);cursor:pointer;font-weight:600;">🗺️ Näytä karttapohja</button>
-        <a href="mokkikartta.pdf" target="_blank" style="font-size:0.72rem;padding:5px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:var(--green);cursor:pointer;font-weight:600;text-decoration:none;">📥 PDF</a>
+    <a href="mokkikartta.pdf" target="_blank" style="display:block;text-decoration:none;color:inherit;">
+      <div style="padding:18px 22px 10px;">
+        <div class="card-title"><span>🏘️</span> Mökkikartta</div>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin:0;">Kesämaja-alueen mökit numerojärjestyksessä · klikkaa avataksesi PDF</p>
       </div>
-    </div>
-    <div id="mokki-map" style="width:100%;height:420px;"></div>
-    <div style="padding:8px 22px 12px;font-size:0.68rem;color:var(--text-muted);">Satelliitti: Esri · Mökkikartta: HKL-Kesämajat ry</div>
+      <img src="mokkikartta.jpg" alt="Mökkikartta – HKL-Kesämajat" loading="lazy"
+           style="width:100%;max-height:400px;object-fit:contain;display:block;padding:0 16px 16px;">
+    </a>
   </div>
 
   <!-- HISTORIA -->
@@ -962,65 +960,6 @@ footer strong { color: white; }
 </footer>
 
 
-
-<script src="https://unpkg.com/leaflet@1.9/dist/leaflet.js"></script>
-<script>
-// ========== MÖKKIKARTTA ==========
-let _mokkiMap, _mokkiOverlay, _overlayVisible = false;
-function initMokkiMap() {
-  const el = document.getElementById('mokki-map');
-  if (!el || _mokkiMap) return;
-  _mokkiMap = L.map(el, { zoomControl: true, attributionControl: false }).setView([60.15555, 24.8545], 17);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }).addTo(_mokkiMap);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 19, opacity: 0.7 }).addTo(_mokkiMap);
-
-  const bounds = [[60.1535, 24.8510], [60.1578, 24.8582]];
-  _mokkiOverlay = L.imageOverlay('mokkikartta.jpg', bounds, { opacity: 0.82 });
-
-  const ic = (emoji, size) => L.divIcon({ html: `<div style="font-size:${size||'1.3rem'};filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5));">${emoji}</div>`, className: '', iconSize: [28,28], iconAnchor: [14,14] });
-  const landmarks = [
-    [60.15665, 24.8555, '🔥', 'Grillikatos'],
-    [60.15635, 24.8548, '💃', 'Tanssilava'],
-    [60.15595, 24.8530, '🚻', 'WC-rakennus'],
-    [60.15595, 24.8533, '♻️', 'Jätepiste'],
-    [60.15575, 24.8565, '🧖', 'Sauna'],
-    [60.15475, 24.8558, '👮', 'Poliisin kesäkoti'],
-    [60.15575, 24.8575, '🏊', 'Uimaranta'],
-    [60.15650, 24.8575, '⛵', 'Venelaiturit'],
-    [60.15685, 24.8540, '☕', 'Buffetti'],
-  ];
-  landmarks.forEach(([lat, lng, emoji, name]) => {
-    L.marker([lat, lng], { icon: ic(emoji) }).addTo(_mokkiMap).bindPopup(`<b>${name}</b>`);
-  });
-
-  const area = L.polygon([
-    [60.1571, 24.8518],[60.1578, 24.8545],[60.1575, 24.8575],
-    [60.1565, 24.8580],[60.1545, 24.8570],[60.1537, 24.8555],
-    [60.1540, 24.8525],[60.1550, 24.8515],[60.1560, 24.8512]
-  ], { color: '#52b788', weight: 2, fillColor: '#52b788', fillOpacity: 0.08, dashArray: '6 4' }).addTo(_mokkiMap);
-  area.bindPopup('<b>HKL-Kesämajat ry</b><br>~100 kesämajaa');
-}
-
-function toggleMokkiOverlay() {
-  if (!_mokkiMap || !_mokkiOverlay) return;
-  const btn = document.getElementById('mokki-overlay-btn');
-  if (_overlayVisible) {
-    _mokkiMap.removeLayer(_mokkiOverlay);
-    _overlayVisible = false;
-    if (btn) btn.textContent = '🗺️ Näytä karttapohja';
-  } else {
-    _mokkiOverlay.addTo(_mokkiMap);
-    _overlayVisible = true;
-    if (btn) btn.textContent = '🛰️ Satelliittinäkymä';
-  }
-}
-
-const mokkiObs = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) { initMokkiMap(); mokkiObs.disconnect(); } });
-}, { rootMargin: '200px' });
-const mokkiEl = document.getElementById('mokki-map');
-if (mokkiEl) mokkiObs.observe(mokkiEl);
-</script>
 
 <script>
 // Gallery carousel with side previews

@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Oma Mökki – HKL-Kesämajat</title>
 <link rel="stylesheet" href="hkl-base.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9/dist/leaflet.css">
 <style>
 /* :root, * moved to hkl-base.css */
 body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--sand); color: var(--text); min-height: 100svh; }
@@ -1133,11 +1132,11 @@ body { padding-top: 48px; }
         <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
       </div>
       <div class="card-body card-collapse-body" style="display:none;padding:0;">
-        <div style="display:flex;gap:6px;padding:10px 18px 6px;flex-wrap:wrap;">
-          <button id="mokki-overlay-btn2" onclick="toggleMokkiOverlay2()" style="font-size:0.68rem;padding:4px 10px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:var(--text-muted);cursor:pointer;font-weight:600;">🗺️ Karttapohja</button>
-          <a href="mokkikartta.pdf" target="_blank" style="font-size:0.68rem;padding:4px 10px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:var(--green);font-weight:600;text-decoration:none;">📥 PDF</a>
-        </div>
-        <div id="mokki-map2" style="width:100%;height:280px;"></div>
+        <a href="mokkikartta.pdf" target="_blank" style="display:block;text-decoration:none;color:inherit;">
+          <img src="mokkikartta.jpg" alt="Mökkikartta" loading="lazy"
+               style="width:100%;max-height:350px;object-fit:contain;display:block;padding:10px 14px;">
+          <div style="text-align:center;padding:0 14px 12px;font-size:0.78rem;color:var(--green);font-weight:600;">Avaa PDF ↗</div>
+        </a>
       </div>
     </div>
 
@@ -1342,34 +1341,6 @@ body { padding-top: 48px; }
   </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9/dist/leaflet.js"></script>
-<script>
-let _mokkiMap2, _mokkiOverlay2, _overlayVisible2 = false;
-function initMokkiMap2() {
-  const el = document.getElementById('mokki-map2');
-  if (!el || _mokkiMap2) return;
-  _mokkiMap2 = L.map(el, { zoomControl: true, attributionControl: false }).setView([60.15555, 24.8545], 16);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }).addTo(_mokkiMap2);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 19, opacity: 0.7 }).addTo(_mokkiMap2);
-  const bounds = [[60.1535, 24.8510], [60.1578, 24.8582]];
-  _mokkiOverlay2 = L.imageOverlay('mokkikartta.jpg', bounds, { opacity: 0.82 });
-  const ic = (emoji) => L.divIcon({ html: `<div style="font-size:1.1rem;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5));">${emoji}</div>`, className: '', iconSize: [24,24], iconAnchor: [12,12] });
-  [[60.15665,24.8555,'🔥','Grillikatos'],[60.15635,24.8548,'💃','Tanssilava'],[60.15595,24.8530,'🚻','WC'],[60.15575,24.8565,'🧖','Sauna'],[60.15575,24.8575,'🏊','Uimaranta'],[60.15650,24.8575,'⛵','Laiturit']].forEach(([lat,lng,e,n]) => {
-    L.marker([lat,lng], {icon: ic(e)}).addTo(_mokkiMap2).bindPopup(`<b>${n}</b>`);
-  });
-}
-function toggleMokkiOverlay2() {
-  if (!_mokkiMap2 || !_mokkiOverlay2) return;
-  const btn = document.getElementById('mokki-overlay-btn2');
-  if (_overlayVisible2) { _mokkiMap2.removeLayer(_mokkiOverlay2); _overlayVisible2 = false; if(btn) btn.textContent = '🗺️ Karttapohja'; }
-  else { _mokkiOverlay2.addTo(_mokkiMap2); _overlayVisible2 = true; if(btn) btn.textContent = '🛰️ Satelliitti'; }
-}
-const mokkiObs2 = new MutationObserver(() => {
-  const el = document.getElementById('mokki-map2');
-  if (el && el.offsetHeight > 0) { setTimeout(() => { initMokkiMap2(); if(_mokkiMap2) _mokkiMap2.invalidateSize(); }, 100); mokkiObs2.disconnect(); }
-});
-mokkiObs2.observe(document.body, { childList: true, subtree: true, attributes: true });
-</script>
 <script>
 const API_BASE = 'https://jaaskel.com';
 const MOMENTS_BASE = 'http://192.168.86.33:8090';
