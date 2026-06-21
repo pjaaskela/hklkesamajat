@@ -1125,6 +1125,17 @@ body { padding-top: 48px; }
       </div>
     </div>
 
+    <!-- KESÄMAJALAISEN OPAS -->
+    <div class="card" id="opas-card">
+      <div class="card-header" onclick="toggleCardCollapse('opas-card')" style="cursor:pointer;">
+        <div class="card-title">📖 Kesämajalaisen opas <span style="font-size:0.65rem;font-weight:400;color:var(--text-muted);text-transform:none;letter-spacing:0;">v5</span></div>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▾</span>
+      </div>
+      <div class="card-body card-collapse-body" id="opas-body">
+        <div id="opas-sections" style="display:flex;flex-direction:column;gap:2px;"></div>
+      </div>
+    </div>
+
     <!-- 10. DOKUMENTIT & OHJEET CARD (collapsed default) -->
     <div class="card" id="docs-card" data-collapse="true">
       <div class="card-header" onclick="toggleCardCollapse('docs-card')" style="cursor:pointer;">
@@ -1567,15 +1578,14 @@ async function loadMokkiDocs() {
       html += `<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:6px;">📁 ${folder}</div>`;
       items.forEach(d => {
         const size = d.file_size ? (d.file_size > 1048576 ? (d.file_size/1048576).toFixed(1)+' MB' : (d.file_size/1024).toFixed(0)+' KB') : '';
-        const downloadUrl = API_BASE + '/api/hkl/documents/' + d.id + '/download';
-        html += `<a href="${downloadUrl}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:var(--sand);margin-bottom:6px;text-decoration:none;color:var(--text);transition:background .15s;">
+        html += `<div onclick="downloadDoc(${d.id},'${d.title.replace(/'/g,"\\'")}')" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:var(--sand);margin-bottom:6px;cursor:pointer;color:var(--text);transition:background .15s;" onmouseover="this.style.background='#e8ede9'" onmouseout="this.style.background='var(--sand)'">
           <span style="font-size:1.2rem;">📄</span>
           <div style="flex:1;min-width:0;">
             <div style="font-weight:600;font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.title}</div>
             <div style="font-size:0.7rem;color:var(--text-muted);">${size}${d.drive_modified ? ' · ' + new Date(d.drive_modified).toLocaleDateString('fi-FI') : ''}</div>
           </div>
           <span style="font-size:0.8rem;color:var(--green);">📥</span>
-        </a>`;
+        </div>`;
       });
       html += '</div>';
     }
@@ -1934,6 +1944,63 @@ function renderSaunaCard() {
     </div>`;
   }).join('');
 }
+
+// ========== DOCUMENT DOWNLOAD (with token) ==========
+async function downloadDoc(id, title) {
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/documents/' + id + '/download', {
+      headers: { 'X-Hkl-Token': _hklToken }
+    });
+    if (!r.ok) throw new Error('Download failed');
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = title; a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) { alert('Lataus epäonnistui: ' + e.message); }
+}
+
+// ========== KESÄMAJALAISEN OPAS ==========
+const OPAS_DATA = [
+  { t: '1. HKL-Kesämajat ry -yhdistys', icon: '🏛️', body: `Yhdistyksen jäseniä ovat kesämajan omistajat eli maanvuokralaiset. Kannatusjäseniä ovat venepaikkalaiset, joilla ei ole omaa kesämajaa.\n\nYhdistyksellä on hallitus, laiturivastaava ja vesivastaava. Päätökset tehdään kevät- ja syyskokouksissa.\n\nYhdistys järjestää kevät-, syys- ja laituritalkoita, juhannus- ja elojuhlat.\n\nYhdistys omistaa grillikatoksen, WC-rakennuksen, jäteaitauksen ja venelaiturit sekä tanssilavan. Saunarakennuksen omistaa HKL.\n\n<b>Huomioita säännöistä:</b>\n• Hiljaisuus klo 23–07 (juhlat klo 24)\n• Rakennustyöt arkisin klo 8–20\n• Rakennuskielto juhannusaatosta heinäkuun loppuun\n• Lemmikit kytkettyinä\n• Avotulen teko kielletty\n• Edelleenvuokraus ehdottomasti kielletty\n• Vain keskitetyn kompostin käyttö sallittu` },
+  { t: '2. Kesämajalaisen asema', icon: '📋', body: `Alue on Helsingin kaupungin omistamaa ulkoilualuetta. Järjestyssäännöt ja maanvuokrasopimus sääntelevät mökkielämää. Kesämajalainen omistaa vain mökkinsä, mutta ei piha-aluetta.\n\nOmistamiseen vaaditaan, että omistajat asuvat ja ovat kirjoilla Helsingissä, asuvat samassa taloudessa eivätkä omista entuudestaan kesämajaa/siirtolapuutarhamökkiä.` },
+  { t: '3. Kunnossapito ja ympäristö', icon: '🌿', body: `Maanvuokrasopimuksen mukaan kesämaja pidettävä hyvässä kunnossa ja lähiympäristö siistinä ja luonnonmukaisena. Puita ei saa kaataa ja kasvillisuus tulee säilyttää. Ympäristöön ei saa tehdä istutuksia eikä maata muokata.\n\nMultaa ei saa tuoda alueelle ulkopuolelta — vain alueen kompostin tuottamaa multaa.\n\nPihoja ei saa aidata. Remonttiin haettava hallitukselta kirjallinen suostumus.\n\nNuohous vähintään 3 vuoden välein (pelastuslaki).` },
+  { t: '4. Kierrätys', icon: '♻️', body: `Talousjätteet lajitellaan jäteaitauksen astioihin: biojäte, kartonki, pahvi, paperi, metalli, lasi, muovipakkaukset ja sekajäte.\n\nRakennusjätteet ja isommat jätteet kukin vie itse Sortti-asemalle.\n\nMaatuvat puutarhajätteet (ei oksia) WC-rakennuksen päätyihin. Parillisina vuosina eteläpäätyyn, parittomina pohjoispäätyyn.\n\nVieraslajit kitketään juurineen → sekajäteastiaan.\n\n<b>Kierrätyspiste</b> on vanhalla taksitolpalla. Tavaroiden oltava ehjiä ja puhtaita.` },
+  { t: '5. Pysäköinti', icon: '🅿️', body: `Pysäköinti sallittu ainoastaan pysäköintipaikoilla, ei puistoalueilla. Pidempiaikainen säilytys kielletty poissaollessa. Saunarakennuksen edessä 4 paikkaa eivät ole kesämajalaisten käytössä.` },
+  { t: '6. Venepaikat', icon: '⛵', body: `Venepaikkoja jaettaessa kesämajalaiset ovat etusijalla. Tarkemmat tiedot erillisestä Venepaikan haltijan ohjeesta.` },
+  { t: '7. Leikkipaikka', icon: '🧒', body: `Leikkimökki ja hiekkalaatikko lentopallokentän vieressä. Katolle kiipeäminen kielletty, hiekkaa ei sisälle, jäljet siivottava. Lelut ja välineet takaisin paikoilleen.` },
+  { t: '8. Nuohous', icon: '🔥', body: `Omistajan huolehdittava nuohouksesta. Pelastuslain mukaan vapaa-ajanasuntojen tulisijat ja hormit nuohotaan vähintään kolmen vuoden välein.` },
+  { t: '9. Avotulen teko', icon: '⚠️', body: `Avotulta ei saa sytyttää maastopalovaroituksen aikana. Kevytrakenteisten grillien (kertakäyttö, pienet pallogrillit, risukeittimet) käyttö katsotaan avotulen teoksi.` },
+  { t: '10. Kausivesi', icon: '🚿', body: `Vedet avataan vapun tienoilla, suljetaan lokakuun alussa. Sulkemisen jälkeen hanat auki, keväällä ennen avaamista kiinni (jäätymisen esto).\n\nJokainen vastaa omista hanoistaan ja putkistaan. Vuodon sattuessa: sulje lähimmät sulut ja ota yhteyttä vesiverkkovastaavaan.` },
+  { t: '11. Sauna', icon: '🧖', body: `Rakennuksen omistaa Kaupunkiliikenne Oy. Suihkut käytössä kesäkaudella. Suihkuun mennessä avain jätetään ulos merkiksi varauksesta.\n\n<b>Saunamaksu:</b> 3 €/vieras. Vapautettuja: samassa taloudessa asuvat ja alle 12-vuotiaat. Maksu käteisellä tai MobilePaylla.` },
+  { t: '12. Verstas', icon: '🔨', body: `WC-rakennuksen päädyssä pieni verstas (vessan avaimella). Siellä myös yhteinen lentopallo ja verkko.` },
+  { t: '13. Vessat', icon: '🚻', body: `Käytössä kun kesävesi on päällä. Avain lukkoon oven ulkopuolelle merkiksi varauksesta. Vain eritteet ja vessapaperi pönttöön.` },
+  { t: '14. Grillikatos', icon: '🔥', body: `Grillikatos kesämajalaisten käytettävissä. Polttopuulaatikon lukon koodi: <b>1532</b>.` },
+  { t: '15. Yhteiset työkalut', icon: '🛠️', body: `Kottikärryjä, tikkaita ja lapioita WC-rakennuksen takana olevassa aitauksessa. Yhteisessä käytössä myös kuomullinen peräkärry.` },
+  { t: '16. Vaaralliset puut', icon: '🌳', body: `Merkitään syksyllä punaisella nauhalla. Hallitus kerää tiedot ja kaupunki arvioi toimenpiteet. Kiireellisissä tapauksissa yhteys suoraan kaupunkiin.` },
+  { t: '17. Rottien ennaltaehkäisy', icon: '🐀', body: `Pudonneet hedelmät ja marjat kerätään pois → biojätteeseen (pieni määrä kerrallaan). Ruoantähteet pyyhitään astioista ennen tiskausta.\n\nPikkulintujen talviruokinta sallittu siemenenautomaatilla (ei siemeniä maahan). Kesällä lintuja ei ruokita.` },
+  { t: '18. Sadettimien käyttö', icon: '💧', body: `Sadettimien käyttö kielletty — nostaa vedenkulutusta kohtuuttomasti. Sadetin kuluttaa 300–900 litraa/tunti, alueen normaali kulutus 1000–1500 litraa/päivä.` },
+  { t: '19. Sähköliittymä', icon: '⚡', body: `Helen Sähköverkko Oy vastaa sähköpylväistä ja siirrosta. Kesämajalainen vastaa maakaapelista pylväälle. Maakaapeleihin siirrytään asteittain. Yhteydenotot suoraan Helen Sähköverkkoon.` },
+  { t: '20. Nettisivut ja Facebook', icon: '🌐', body: `Yhdistyksen sivut: <a href="https://hklkesamajat.fi" target="_blank" style="color:var(--green);font-weight:600;">hklkesamajat.fi</a>\n\nSuljettu Facebook-ryhmä: <a href="https://www.facebook.com/groups/255284816782" target="_blank" style="color:var(--green);font-weight:600;">HKL-kesämajat ry</a> (liittyessä kysytään mökin numeroa).` },
+  { t: '21. MobilePay', icon: '💳', body: `Yhdistystili: <b>#24434</b> tai nimellä <i>HKL-kesämajat ry</i>.\n\nMaksukategoriat:\n• Saunamaksu\n• Kannatusmaksu\n• Vesiverkkohuolto` },
+];
+
+function renderOpas() {
+  const el = document.getElementById('opas-sections');
+  if (!el) return;
+  el.innerHTML = OPAS_DATA.map((s, i) => `
+    <div style="border-bottom:1px solid #f0f0f0;">
+      <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.opas-chev').textContent=this.nextElementSibling.style.display==='none'?'▸':'▾'"
+           style="display:flex;align-items:center;gap:10px;padding:11px 4px;cursor:pointer;transition:background .15s;border-radius:6px;"
+           onmouseover="this.style.background='var(--sand)'" onmouseout="this.style.background=''">
+        <span style="font-size:1.2rem;width:28px;text-align:center;">${s.icon}</span>
+        <span style="flex:1;font-size:0.85rem;font-weight:700;color:var(--text);">${s.t}</span>
+        <span class="opas-chev" style="font-size:0.75rem;color:var(--text-muted);width:16px;text-align:center;">▸</span>
+      </div>
+      <div style="display:none;padding:4px 4px 14px 42px;font-size:0.84rem;color:var(--text-muted);line-height:1.7;white-space:pre-line;">${s.body}</div>
+    </div>`).join('');
+}
+renderOpas();
 
 // ========== PHOTOS ==========
 const PHOTOS_KEY = () => 'hkl_photos_' + _currentMokki;
@@ -2558,6 +2625,7 @@ const SECTION_DEFS = [
   { key: 'laituri', label: '🌊 Laituri', sel: '#laituri-card' },
   { key: 'camera', label: '📹 Kamera', sel: '#camera-card', mokki: true },
   { key: 'profile', label: '👤 Profiili', sel: '#profile-card' },
+  { key: 'opas', label: '📖 Opas', sel: '#opas-card' },
   { key: 'docs', label: '📄 Dokumentit', sel: '#docs-card' },
   { key: 'kierratys', label: '♻️ Kierrätyspiste', sel: '#kierratys-card' },
   { key: 'hallitus', label: '🏛️ Hallitus', sel: '#hallitus-card' },
