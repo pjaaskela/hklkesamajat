@@ -505,6 +505,7 @@ footer strong { color: white; }
   <div class="hero-orb hero-orb-2"></div>
   <div class="hero-orb hero-orb-3"></div>
   <div class="hero-inner">
+    <div class="hero-badge">HKL-Kesämajayhdistys ry · Lauttasaari</div>
     <span class="hero-wx-icon" id="h-wx-icon">🌥️</span>
     <h1>HKL-Kesämajat ry</h1>
     <p class="hero-sub">Yhteisöllinen kesämaja-alue merenrannalla — venepaikat ja luonnon rauha.</p>
@@ -638,16 +639,17 @@ footer strong { color: white; }
     </div>
   </div>
 
-  <!-- Aurinko / Sade / Pilvisyys -->
-  <div class="grid-3 reveal" style="margin-top:16px;">
+  <!-- Sadehistoria 7 pv -->
+  <div id="rain-7d-bars" class="stat-card reveal" style="display:none;margin-top:12px;padding:14px 16px;">
+    <div class="stat-label">🌧️ Sadehistoria — 7 päivää (mm)</div>
+    <div id="rain-7d-chart" style="display:flex;align-items:flex-end;gap:2px;height:44px;margin-top:8px;"></div>
+  </div>
+
+  <!-- Aurinko / Pilvisyys -->
+  <div class="reveal" style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
     <div class="stat-card" style="text-align:center;">
       <div class="stat-label">☀️ Aurinkoista</div>
       <div class="stat-value" id="s-sun-min" style="color:#f59e0b;">–</div>
-      <div class="stat-sub">min tänään</div>
-    </div>
-    <div class="stat-card" style="text-align:center;">
-      <div class="stat-label">🌧️ Sadetta</div>
-      <div class="stat-value" id="s-rain-min2" style="color:#3b82f6;">–</div>
       <div class="stat-sub">min tänään</div>
     </div>
     <div class="stat-card" style="text-align:center;">
@@ -656,7 +658,6 @@ footer strong { color: white; }
       <div class="stat-sub">min tänään</div>
     </div>
   </div>
-  <div style="font-size:0.65rem;color:var(--text-muted);text-align:center;margin-top:4px;">☀️ Open-Meteo sunshine · 🌧️ Sademittari (HA) · ☁️ arvio</div>
 
   <!-- Levätilanne + Siitepöly -->
   <div class="grid-2 reveal" style="margin-top:16px;">
@@ -844,10 +845,76 @@ footer strong { color: white; }
     </div>
   </div>
 
-  <div class="highlight-box reveal" style="margin-top:28px;">
-    <h3>Etsitkö mökkiä Helsingistä?</h3>
-    <p>Jäsenten mökkimyynti- ja ostoilmoitukset sihteeriltä.</p>
-    <a href="mailto:sihteeri@hklkesamajat.fi" class="btn">📧 Ota yhteyttä sihteeriin</a>
+  <!-- OSTETAAN / MYYDÄÄN MÖKKEJÄ -->
+  <div id="listings-section" class="reveal" style="margin-top:28px;display:none;">
+    <div class="section-header"><h2 id="listings-title">🏡 Ilmoitukset</h2><div class="divider"></div><p id="listings-sub"></p></div>
+    <div id="listings-cards" style="display:flex;flex-direction:column;gap:12px;"></div>
+    <div style="text-align:center;margin-top:12px;">
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px;">Haluatko jättää ilmoituksen?</p>
+      <a href="mailto:sihteeri@hklkesamajat.fi" class="btn" style="font-size:0.85rem;">📧 Ota yhteyttä sihteeriin</a>
+    </div>
+  </div>
+
+  <!-- VENEPAIKAT -->
+  <div class="card reveal" style="margin-top:28px;background:linear-gradient(135deg,#0a4a6e 0%,#1e6b8a 50%,#0e5c3a 100%);color:#fff;padding:0;overflow:hidden;">
+    <div style="display:flex;align-items:stretch;">
+      <div style="flex:1;padding:28px 24px;">
+        <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:8px;">⚓ Venepaikat</div>
+        <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:8px;color:#fff;">Vuokraa venepaikka Lauttasaaresta</h3>
+        <p style="font-size:0.85rem;color:rgba(255,255,255,0.75);line-height:1.6;margin-bottom:14px;">HKL-Kesämajat ry:n venelaiturit sijaitsevat suojaisassa sijainnissa Länsiulapanniemessä. Merellinen sijainti, helppo pääsy vesille ja turvallinen säilytys.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+          <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px 16px;text-align:center;">
+            <div style="font-size:1.4rem;font-weight:900;color:#4ade80;">200€</div>
+            <div style="font-size:0.68rem;color:rgba(255,255,255,0.6);">mökkiläinen / kausi</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px 16px;text-align:center;">
+            <div style="font-size:1.4rem;font-weight:900;color:#93c5fd;">300€</div>
+            <div style="font-size:0.68rem;color:rgba(255,255,255,0.6);">ulkopuolinen / kausi</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <a href="tel:+358440748796" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:8px 16px;color:#fff;text-decoration:none;font-size:0.82rem;font-weight:600;">📞 Jyrki Luokkanen</a>
+          <a href="mailto:laiturivastaava@hklkesamajat.fi" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:8px 16px;color:#fff;text-decoration:none;font-size:0.82rem;font-weight:600;">📧 laiturivastaava@</a>
+        </div>
+        <p style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-top:12px;">Mökkiläiset etusijalla · Veneet vesille 10.6. mennessä · Talvisäilytys tanssilavan lähellä</p>
+      </div>
+      <div style="width:100px;flex-shrink:0;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:3.5rem;">
+        ⛵
+      </div>
+    </div>
+  </div>
+
+  <!-- KANNATUSMAKSU -->
+  <div class="card reveal" style="margin-top:28px;background:linear-gradient(135deg,#0e5c3a 0%,#0a4a6e 100%);color:#fff;padding:0;overflow:hidden;">
+    <div style="display:flex;align-items:stretch;">
+      <div style="flex:1;padding:28px 24px;">
+        <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:8px;">💚 Tue yhdistystä</div>
+        <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:8px;color:#fff;">Kannatusmaksu</h3>
+        <p style="font-size:0.85rem;color:rgba(255,255,255,0.75);line-height:1.6;margin-bottom:16px;">HKL-Kesämajat ry ylläpitää ainutlaatuista merellista kesämaja-aluetta Lauttasaaressa. Yhdistys järjestää perinteiset juhannusjuhlat kokkoineen, elojuhlat ja yhteistalkoita. Kannatusmaksullasi tuet alueen kehitystä, yhteistiloja ja tapahtumia.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;background:#5a31f4;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 3H7C4.79 3 3 4.79 3 7v10c0 2.21 1.79 4 4 4h10c2.21 0 4-1.79 4-4V7c0-2.21-1.79-4-4-4z" fill="#fff"/><path d="M15.5 12.5l-2.3-4c-.2-.4-.7-.5-1.1-.3l-2 1.2c-.4.2-.5.7-.3 1.1l2.3 4c.2.4.7.5 1.1.3l2-1.2c.4-.2.5-.7.3-1.1z" fill="#5a31f4"/></svg>
+            </div>
+            <div>
+              <div style="font-size:0.68rem;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:0.04em;">MOBILEPAY</div>
+              <div style="font-size:1.1rem;font-weight:800;color:#fff;letter-spacing:0.02em;">#24434</div>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:10px;">
+            <div style="font-size:1.3rem;">🏦</div>
+            <div>
+              <div style="font-size:0.68rem;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:0.04em;">TILISIIRTO</div>
+              <div style="font-size:0.82rem;font-weight:700;color:#fff;">Kysy sihteeriltä</div>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-top:12px;">Vapaavalintainen summa · Viesti: "Kannatusmaksu"</p>
+      </div>
+      <div style="width:120px;flex-shrink:0;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:4rem;">
+        🌊
+      </div>
+    </div>
   </div>
 
   <!-- UUTISET -->
@@ -1257,15 +1324,20 @@ async function loadLaituri() {
     const r = await fetch(API_BASE + '/api/hkl/laituri'); const d = await r.json();
     const el = document.getElementById('laituri-row'); if(!el)return;
     if(d.temp==null){el.innerHTML='';return;}
-    const timeStr=d.time?fmtDateTime(d.time):''; const noteStr=d.note?` · ${d.note}`:'';
-    // Laituri is closest — override UIRAS
+    const isUiras = d.source === 'uiras';
+    const timeStr=d.time?fmtDateTime(d.time):''; const noteStr=d.note&&!isUiras?` · ${d.note}`:'';
     dayState.waterTemp = d.temp;
-    dayState.waterSrc = 'Oma laituri';
+    dayState.waterSrc = isUiras ? 'Lähirannat (ka.)' : 'Oma laituri';
     document.getElementById('h-water').textContent = fmt1(d.temp) + '°C';
-    const laituriSrc = 'Oma laituri' + (d.name ? ' · ' + d.name : '');
-    document.getElementById('h-water-src').textContent = laituriSrc;
-    const nameStr = d.name ? ` · <strong>${d.name}</strong>` : '';
-    el.innerHTML=`<div class="sensor-row" style="background:#d8f3dc;border-radius:8px;padding:10px 12px;margin-bottom:8px;"><div><div class="sensor-name">📍 Oma laituri (HKL)</div><div class="sensor-dist">0 km · ${timeStr}${nameStr}${noteStr}</div></div><span class="sensor-temp">${fmt1(d.temp)}°C</span></div>`;
+    const heroSrc = isUiras ? `Lähirannat (${d.uiras_count} anturia)` : 'Oma laituri' + (d.name ? ' · ' + d.name : '');
+    document.getElementById('h-water-src').textContent = heroSrc;
+    const nameStr = d.name && !isUiras ? ` · <strong>${d.name}</strong>` : '';
+    if (isUiras) {
+      const manualNote = d.manual_temp != null ? `<div style="font-size:0.7rem;color:#92400e;margin-top:4px;">📌 Viimeisin laiturimitaus: ${fmt1(d.manual_temp)}°C (${d.manual_time?fmtDateTime(d.manual_time):''})</div>` : '';
+      el.innerHTML=`<div class="sensor-row" style="background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:10px 12px;margin-bottom:8px;"><div><div class="sensor-name">📍 Lähirantojen keskiarvo</div><div class="sensor-dist">${d.uiras_count} UIRAS-anturia · laiturimitaus yli 24h vanha</div>${manualNote}</div><span class="sensor-temp">${fmt1(d.temp)}°C</span></div>`;
+    } else {
+      el.innerHTML=`<div class="sensor-row" style="background:#d8f3dc;border-radius:8px;padding:10px 12px;margin-bottom:8px;"><div><div class="sensor-name">📍 Oma laituri (HKL)</div><div class="sensor-dist">0 km · ${timeStr}${nameStr}${noteStr}</div></div><span class="sensor-temp">${fmt1(d.temp)}°C</span></div>`;
+    }
   } catch(e){}
 }
 
@@ -1421,6 +1493,33 @@ async function loadWeatherStats() {
       cloudEl.textContent = cloudMin;
     }
   } catch(e) { console.warn('loadWeatherStats error', e); }
+  loadRain7d();
+}
+
+async function loadRain7d() {
+  try {
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&daily=precipitation_sum&timezone=Europe/Helsinki&past_days=7&forecast_days=0`);
+    const d = await r.json();
+    const dates = d.daily?.time || [];
+    const rain = d.daily?.precipitation_sum || [];
+    if (!dates.length) return;
+    const wrap = document.getElementById('rain-7d-bars');
+    const chart = document.getElementById('rain-7d-chart');
+    if (!wrap || !chart) return;
+    wrap.style.display = '';
+    const maxR = Math.max(0.5, ...rain);
+    const wds = ['su','ma','ti','ke','to','pe','la'];
+    chart.innerHTML = dates.map((dt, i) => {
+      const mm = rain[i] || 0;
+      const h = Math.max(2, (mm / maxR) * 34);
+      const day = new Date(dt);
+      const col = mm > 5 ? '#3b82f6' : mm > 0.5 ? '#60a5fa' : '#bfdbfe';
+      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;overflow:hidden;">`
+        + (mm > 0.1 ? `<div style="font-size:0.6rem;font-weight:700;color:#3b82f6;white-space:nowrap;">${mm<10?mm.toFixed(1):Math.round(mm)}</div>` : `<div style="font-size:0.6rem;color:#cbd5e1;">·</div>`)
+        + `<div style="width:70%;max-width:22px;height:${h}px;background:${col};border-radius:3px;"></div>`
+        + `<div style="font-size:0.55rem;color:var(--text-muted);white-space:nowrap;">${wds[day.getDay()]}${day.getDate()}</div></div>`;
+    }).join('');
+  } catch(e) { console.warn('loadRain7d', e); }
 }
 
 // Load all data then build AI summary
@@ -1446,10 +1545,12 @@ renderBuffettiStatus();
 setInterval(loadHSL, 60_000);
 setInterval(renderBuffettiStatus, 60_000);
 
+let _gmap = null;
+let _vesselMarkers = [];
 function initGoogleMap() {
   const center = {lat: 60.15524, lng: 24.85453};
-  const map = new google.maps.Map(document.getElementById('gmap'), {
-    center, zoom: 16,
+  _gmap = new google.maps.Map(document.getElementById('gmap'), {
+    center, zoom: 13,
     mapTypeId: 'satellite',
     tilt: 0,
     disableDefaultUI: true,
@@ -1457,7 +1558,7 @@ function initGoogleMap() {
     fullscreenControl: true,
   });
   new google.maps.Marker({
-    position: center, map,
+    position: center, map: _gmap,
     title: 'HKL-Kesämajat',
     icon: {
       path: google.maps.SymbolPath.CIRCLE,
@@ -1500,6 +1601,105 @@ async function loadPlaces() {
 }
 
 
+
+// ── Laivaliikenne (vain kartalla) ──
+async function loadVessels() {
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/vessels');
+    if (!r.ok || !_gmap) return;
+    const d = await r.json();
+    if (!d.vessels || !d.vessels.length) return;
+    const icons = {'Matkustaja-alus':'🚢','Rahtialus':'📦','Tankkeri':'🛢️','Purjealus':'⛵','Huvialus':'🛥️','Tutkimusalus':'🔬','Viranomainen':'🚨','Sotilasalus':'⚓','Luotsi':'🧭','Pelastus':'🚑'};
+    _vesselMarkers.forEach(m => m.setMap(null));
+    _vesselMarkers = [];
+    d.vessels.forEach(v => {
+      const moving = v.speed_kn > 0.5;
+      const marker = new google.maps.Marker({
+        position: {lat: v.lat, lng: v.lon},
+        map: _gmap,
+        title: v.name,
+        icon: {
+          path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+          scale: moving ? 6 : 4,
+          fillColor: moving ? '#06b6d4' : '#94a3b8',
+          fillOpacity: 0.9,
+          strokeColor: '#fff',
+          strokeWeight: 1.5,
+          rotation: v.cog || 0,
+        },
+      });
+      const destClean = (v.dest || '').replace(/FI|EE|<>|<->|\./g, ' ').trim();
+      const ic = icons[v.type] || '🚢';
+      const iw = new google.maps.InfoWindow({
+        content: `<div style="font-family:system-ui;min-width:160px;padding:2px 0;">
+          <div style="font-size:15px;font-weight:700;margin-bottom:4px;">${ic} ${v.name}</div>
+          <div style="font-size:12px;color:#666;line-height:1.6;">
+            ${v.type || 'Alus'}<br>
+            ${moving ? '🟢 ' + v.speed_kn + ' kn' : '⚪ ' + v.status}
+            ${destClean ? '<br>→ ' + destClean : ''}<br>
+            📍 ${v.dist_km} km HKL:stä
+          </div></div>`
+      });
+      marker.addListener('click', () => iw.open(_gmap, marker));
+      _vesselMarkers.push(marker);
+    });
+    if (_vesselMarkers.length) {
+      const bounds = new google.maps.LatLngBounds();
+      bounds.extend({lat: 60.15524, lng: 24.85453});
+      d.vessels.forEach(v => bounds.extend({lat: v.lat, lng: v.lon}));
+      _gmap.fitBounds(bounds, 30);
+    }
+  } catch(e) { console.warn('loadVessels', e); }
+}
+loadVessels();
+setInterval(loadVessels, 180_000);
+
+// ── Ilmoitukset ──
+async function loadListings() {
+  try {
+    const all = await fetch(API_BASE + '/api/hkl/listings').then(r => r.json());
+    const active = all.filter(l => l.active);
+    if (!active.length) return;
+    const sec = document.getElementById('listings-section');
+    sec.style.display = '';
+    const ostetaan = active.filter(l => l.tyyppi === 'ostetaan');
+    const myydaan = active.filter(l => l.tyyppi === 'myydaan');
+    const title = document.getElementById('listings-title');
+    const sub = document.getElementById('listings-sub');
+    if (ostetaan.length && myydaan.length) {
+      title.textContent = '🏡 Ostetaan & myydään kesämajoja';
+      sub.textContent = 'Mökkien myynti- ja ostoilmoitukset';
+    } else if (myydaan.length) {
+      title.textContent = '🏷️ Myydään kesämajoja';
+      sub.textContent = 'Alueen myynti-ilmoitukset';
+    } else {
+      title.textContent = '🏡 Ostetaan kesämajoja';
+      sub.textContent = 'Nämä perheet etsivät omaa kesämajaa Lauttasaaren alueelta.';
+    }
+    const icons = {ostetaan:'🏡', myydaan:'🏷️'};
+    const colors = {ostetaan:'var(--green)', myydaan:'#f59e0b'};
+    const esc = s => (s||'').replace(/</g,'&lt;');
+    document.getElementById('listings-cards').innerHTML = active.map(l => {
+      const icon = icons[l.tyyppi] || '🏡';
+      const col = colors[l.tyyppi] || 'var(--green)';
+      const contacts = [
+        l.puh ? `<a href="tel:${l.puh.replace(/\s/g,'')}" style="font-size:0.82rem;color:var(--green);font-weight:600;text-decoration:none;">📞 ${esc(l.puh)}</a>` : '',
+        l.email ? `<a href="mailto:${esc(l.email)}" style="font-size:0.82rem;color:var(--green);font-weight:600;text-decoration:none;">📧 ${esc(l.email)}</a>` : ''
+      ].filter(Boolean).join(' &nbsp; ');
+      return `<div class="card" style="border-left:4px solid ${col};padding:18px 20px;">
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#d8f3dc,#b7e4c7);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">${icon}</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px;">${esc(l.nimi)}</div>
+            <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">${esc(l.kuvaus)}</p>
+            <div style="display:flex;gap:14px;flex-wrap:wrap;">${contacts}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.warn('loadListings', e); }
+}
+loadListings();
 
 // Section tabs — show after scrolling past hero, highlight active section
 (function() {

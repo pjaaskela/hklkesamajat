@@ -552,7 +552,7 @@ body { padding-top: 48px; }
 
 <!-- TOP NAV -->
 <nav class="mn">
-  <a href="hklkesamajat.html" class="mn-back">← Etusivu</a>
+  <a href="index.html" class="mn-back">← Etusivu</a>
   <span class="mn-title">🏡 Oma mökki</span>
 </nav>
 
@@ -1173,9 +1173,9 @@ body { padding-top: 48px; }
   </div><!-- /dash-main -->
 
   <div class="page-footer">
-    <a href="hklkesamajat.html">← Palaa pääsivulle</a>
+    <a href="index.html">← Palaa pääsivulle</a>
     &nbsp;·&nbsp;
-    <a href="hklkesamajat-dashboard.html">📊 Tilannekuva</a>
+    <a href="dashboard.html">📊 Tilannekuva</a>
   </div>
 </div><!-- /dashboard -->
 
@@ -1278,7 +1278,7 @@ body { padding-top: 48px; }
 </div>
 
 <script>
-const API_BASE = window.location.hostname === 'jaaskel.com' ? '' : 'http://192.168.86.36:8080';
+const API_BASE = 'https://jaaskel.com';
 const MOMENTS_BASE = 'http://192.168.86.33:8090';
 
 // ========== CREDENTIALS ==========
@@ -1501,7 +1501,8 @@ async function finishWelcome() {
   loadProfile();
 }
 
-function initMokkiMap() {}
+function initVesselsMap() {}
+function loadVessels() {}
 
 // ========== DOCUMENTS ==========
 async function loadMokkiDocs() {
@@ -1704,7 +1705,7 @@ function showDashboard(num) {
   loadAISummary();
   loadSolar();
   loadWasteSchedule();
-  setTimeout(initMokkiMap, 500);
+  setTimeout(initVesselsMap, 500);
   renderFlagDays();
   applySectionVisibility();
 }
@@ -2311,6 +2312,9 @@ async function uploadCabinPhoto(input) {
   } catch(e) { msg.textContent = '❌ Verkkovirhe'; }
   input.value = '';
 }
+
+// ========== MOKKI MAP (now handled by Leaflet in loadVessels) ==========
+function initMokkiMap() {}
 
 // ========== MOKKI DAY AI ==========
 async function loadMokkiDay() {

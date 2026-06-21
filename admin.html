@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HKL-Kesämajat · Hallintapaneeli</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{--bg:#0a1a10;--bg2:#0f2416;--bg3:#162d1c;--border:rgba(82,183,136,0.12);--border2:rgba(82,183,136,0.25);--text:#e6f5ec;--muted:#7aaa90;--green:#52b788;--red:#f87171;--amber:#fbbf24;--blue:#38bdf8;--mono:'DM Mono','Courier New',monospace;--sans:system-ui,-apple-system,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+.topbar{background:rgba(10,26,16,0.97);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:0;z-index:200}
+.topbar-inner{max-width:1100px;margin:auto;height:52px;display:flex;align-items:center;justify-content:space-between}
+.topbar-logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px}
+.topbar-badge{font-family:var(--mono);font-size:10px;background:rgba(82,183,136,0.15);border:1px solid var(--border2);color:var(--green);padding:2px 8px;border-radius:10px;letter-spacing:.06em}
+.topbar-right{display:flex;gap:12px;align-items:center}
+#user-tag{font-family:var(--mono);font-size:11px;color:var(--muted);display:none}
+.btn-logout{display:none;background:transparent;border:1px solid var(--border2);color:var(--muted);padding:5px 12px;border-radius:7px;cursor:pointer;font-size:12px;font-family:var(--mono)}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+.layout{display:flex;max-width:1100px;margin:0 auto;min-height:calc(100vh - 52px)}
+.sidenav{width:200px;flex-shrink:0;border-right:1px solid var(--border);padding:20px 0;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto}
+.sidenav a{display:flex;align-items:center;gap:9px;padding:9px 20px;color:var(--muted);text-decoration:none;font-size:13px;transition:.15s;border-left:2px solid transparent}
+.sidenav a:hover,.sidenav a.active{color:var(--text);background:rgba(82,183,136,0.06);border-left-color:var(--green)}
+.sidenav-section{font-family:var(--mono);font-size:10px;color:rgba(82,183,136,0.4);letter-spacing:.1em;padding:14px 20px 4px;text-transform:uppercase}
+.main{flex:1;padding:28px;min-width:0}
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 52px);padding:24px}
+.login-card{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:40px 36px;width:100%;max-width:380px;text-align:center}
+.login-icon{font-size:42px;margin-bottom:14px}
+.login-card h2{font-size:20px;font-weight:600;margin-bottom:6px}
+.login-card p{color:var(--muted);font-size:13px;margin-bottom:26px}
+#login-err{font-size:12px;color:var(--red);margin-top:10px;min-height:1.2em}
+.sec-page{display:none}
+.sec-page.active{display:block}
+.page-title{font-size:20px;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:10px 13px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:.2s}
+.inp:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(82,183,136,.1)}
+select.inp{cursor:pointer}
+textarea.inp{resize:vertical;min-height:72px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:.15s;font-family:var(--sans)}
+.btn-primary{background:var(--green);color:#0a1a10}
+.btn-primary:hover{background:#74c69d}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--green);color:var(--green)}
+.btn-danger{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
+.btn-danger:hover{background:rgba(248,113,113,0.22)}
+.btn-amber{background:rgba(251,191,36,0.12);color:var(--amber);border:1px solid rgba(251,191,36,0.2)}
+.btn-amber:hover{background:rgba(251,191,36,0.22)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px}
+.card-title{font-size:13px;font-weight:600;margin-bottom:14px}
+.sensor-strip{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.scard{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;flex:1;min-width:120px}
+.scard-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.07em;margin-bottom:3px}
+.scard-val{font-size:20px;font-weight:600}
+.scard-sub{font-size:10px;color:var(--muted);margin-top:2px;font-family:var(--mono)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.field label{font-size:11px;color:var(--muted);font-family:var(--mono);letter-spacing:.06em}
+.msg{font-size:12px;min-height:1em;padding:4px 0}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+.tbl th{text-align:left;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;padding:5px 10px;border-bottom:1px solid var(--border)}
+.tbl td{padding:9px 10px;border-bottom:1px solid rgba(82,183,136,0.06);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(82,183,136,0.04)}
+.tbl-empty{text-align:center;color:var(--muted);padding:24px;font-style:italic;font-size:12px}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;font-family:var(--mono)}
+.badge-avoin{background:rgba(248,113,113,0.15);color:var(--red)}
+.badge-kasittelyssa{background:rgba(251,191,36,0.15);color:var(--amber)}
+.badge-ratkaistu{background:rgba(52,211,153,0.15);color:#34d399}
+.search-row{position:relative;margin-bottom:14px}
+.search-row::before{content:'🔍';position:absolute;left:13px;top:50%;transform:translateY(-50%);pointer-events:none}
+.search-row input{padding-left:38px}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px}
+.tab{padding:8px 16px;font-size:13px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:.15s;margin-bottom:-1px}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:center}
+.stat-num{font-size:26px;font-weight:700;font-family:var(--mono);color:var(--green)}
+.stat-label{font-size:10px;color:var(--muted);font-family:var(--mono);letter-spacing:.06em;margin-top:3px}
+#vesi-map{height:300px;border-radius:10px;border:1px solid var(--border);margin-top:14px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:28px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:18px}
+.modal-close{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;margin-top:-4px}
+.modal-close:hover{color:var(--text)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.ldot{display:inline-block;width:7px;height:7px;border-radius:50%;animation:pulse 2s infinite;vertical-align:middle;margin-right:4px}
+.ldot-g{background:var(--green)}
+.menu-btn{display:none;background:none;border:1px solid var(--border2);color:var(--muted);font-size:18px;padding:4px 10px;border-radius:7px;cursor:pointer;line-height:1}
+.menu-btn:hover{border-color:var(--green);color:var(--green)}
+.sidenav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:250}
+@media(max-width:750px){
+  .sidenav{position:fixed;left:-220px;top:52px;bottom:0;width:200px;z-index:260;background:var(--bg);border-right:1px solid var(--border);transition:left .25s ease;overflow-y:auto}
+  .sidenav.open{left:0}
+  .sidenav-overlay.open{display:block}
+  .menu-btn{display:block}
+  .main{padding:18px 16px}.form-row{grid-template-columns:1fr}.topbar{padding:0 16px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-logo">🏕️ HKL-Kesämajat <span class="topbar-badge">HALLINTAPANEELI</span></div>
+    <div class="topbar-right">
+      <span id="user-tag"></span>
+      <button class="btn-logout" id="logout-btn" onclick="logout()">Kirjaudu ulos</button>
+      <button class="menu-btn" id="menu-btn" onclick="toggleMenu()">☰</button>
+    </div>
+  </div>
+</div>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-icon">🔒</div>
+    <h2>Hallintapaneeli</h2>
+    <p>Anna admin-token kirjautuaksesi sisään.</p>
+    <div style="margin-bottom:12px"><input class="inp" id="token-inp" type="password" placeholder="Admin-token" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doLogin()">Kirjaudu sisään</button>
+    <div id="login-err"></div>
+  </div>
+</div>
+
+<div id="admin-wrap" style="display:none">
+<div class="sidenav-overlay" id="sidenav-overlay" onclick="toggleMenu()"></div>
+<div class="layout">
+  <nav class="sidenav" id="sidenav">
+    <div class="sidenav-section">Yleiskatsaus</div>
+    <a href="#" onclick="return nav('dash')" data-sec="dash" class="active">📊 Kojelauta</a>
+    <a href="#" onclick="return nav('kavijat')" data-sec="kavijat">👥 Kävijäseuranta</a>
+    <div class="sidenav-section">Hallinta</div>
+    <a href="#" onclick="return nav('asukkaat')" data-sec="asukkaat">🏠 Asukasrekisteri</a>
+    <a href="#" onclick="return nav('vikat')" data-sec="vikat">🔧 Vikailmoitukset</a>
+    <a href="#" onclick="return nav('tiedotteet')" data-sec="tiedotteet">📢 Tiedotteet</a>
+    <a href="#" onclick="return nav('laituri')" data-sec="laituri">🌊 Laituri-kirjaukset</a>
+    <a href="#" onclick="return nav('mokkit')" data-sec="mokkit">🏠 Mökit &amp; salasanat</a>
+    <a href="#" onclick="return nav('vesipisteet')" data-sec="vesipisteet">💧 Vesipisteet</a>
+    <a href="#" onclick="return nav('ilmoitukset')" data-sec="ilmoitukset">🏡 Ilmoitukset</a>
+    <a href="#" onclick="return nav('dokumentit')" data-sec="dokumentit">📄 Dokumentit</a>
+    <a href="#" onclick="return nav('vesiverkko')" data-sec="vesiverkko">🔧 Vesiverkko</a>
+    <div class="sidenav-section">Järjestelmä</div>
+    <a href="#" onclick="return nav('dokumentaatio')" data-sec="dokumentaatio">📖 Dokumentaatio</a>
+    <div class="sidenav-section">Sivusto</div>
+    <a href="/index.html" target="_blank">🌐 Pääsivu ↗</a>
+    <a href="/mokki.html" target="_blank">🏡 Mökkiläinen ↗</a>
+    <a href="/vierailija.html" target="_blank">🌿 Vierailija ↗</a>
+    <a href="/dashboard.html" target="_blank">📺 Dashboard ↗</a>
+    <a href="/tietosuoja.html" target="_blank">🔒 Tietosuoja ↗</a>
+  </nav>
+
+  <main class="main">
+
+    <!-- KOJELAUTA -->
+    <div id="sec-dash" class="sec-page active">
+      <div class="page-title">📊 Kojelauta</div>
+      <div class="sensor-strip" id="sensor-strip"><div class="scard"><div class="scard-label">LADATAAN</div><div class="scard-val">—</div></div></div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:16px" id="sensor-ts"></div>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-num" id="st-asukkaat">—</div><div class="stat-label">ASUKASTA</div></div>
+        <div class="stat-box"><div class="stat-num" id="st-vikat-avoin">—</div><div class="stat-label">VIKAA AUKI</div></div>
+        <div class="stat-box"><div class="stat-num" id="st-tiedotteet">—</div><div class="stat-label">TIEDOTETTA</div></div>
+        <div class="stat-box"><div class="stat-num" id="st-vesipisteet">—</div><div class="stat-label">VESIPISTETTÄ</div></div>
+        <div class="stat-box"><div class="stat-num" id="st-kavijat" style="color:var(--blue)">—</div><div class="stat-label">KÄVIJÄT TÄNÄÄN</div></div>
+        <div class="stat-box"><div class="stat-num" id="st-kavijat-7d" style="color:var(--blue)">—</div><div class="stat-label">KÄVIJÄT 7 PV</div></div>
+      </div>
+      <div class="card"><div class="card-title">🔧 Avoimet vikailmoitukset</div><div id="dash-vikat"></div></div>
+    </div>
+
+    <!-- KÄVIJÄSEURANTA -->
+    <div id="sec-kavijat" class="sec-page">
+      <div class="page-title">👥 Kävijäseuranta</div>
+      <div class="stats-row" id="vis-stats">
+        <div class="stat-box"><div class="stat-num" id="vis-today">—</div><div class="stat-label">TÄNÄÄN</div></div>
+        <div class="stat-box"><div class="stat-num" id="vis-7d">—</div><div class="stat-label">7 PÄIVÄÄ</div></div>
+        <div class="stat-box"><div class="stat-num" id="vis-pageviews">—</div><div class="stat-label">SIVULATAUKSET</div></div>
+        <div class="stat-box"><div class="stat-num" id="vis-avg-dur">—</div><div class="stat-label">KA. AIKA (s)</div></div>
+        <div class="stat-box"><div class="stat-num" id="vis-return">—</div><div class="stat-label">PALAAVAT</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📊 Päivittäiset kävijät — 14 pv</div>
+        <div id="vis-chart" style="display:flex;align-items:flex-end;gap:4px;height:140px;padding-top:10px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📄 HKL-sivut — katselukerrat</div>
+        <div id="vis-pages"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🕐 Viimeisimmät vierailut</div>
+        <table class="tbl"><thead><tr><th>AIKA</th><th>SIVU</th><th>KESTO</th><th>SCROLL</th><th>LÄHDE</th></tr></thead><tbody id="vis-sessions"></tbody></table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🌍 Aktiivisimmat kävijät</div>
+        <table class="tbl"><thead><tr><th>IP</th><th>KÄYNTEJÄ</th><th>VIIMEISIN</th></tr></thead><tbody id="vis-superusers"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ASUKASREKISTERI -->
+    <div id="sec-asukkaat" class="sec-page">
+      <div class="page-title">🏠 Asukasrekisteri</div>
+      <div class="card">
+        <div class="card-title">Lisää asukas</div>
+        <div class="form-row">
+          <div class="field"><label>PALSTA / MÖKIN NRO</label><input class="inp" id="a-palsta" placeholder="esim. A3 tai 42"></div>
+          <div class="field"><label>NIMI</label><input class="inp" id="a-nimi" placeholder="Etunimi Sukunimi"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>SÄHKÖPOSTI</label><input class="inp" id="a-email" type="email" placeholder="email@example.fi"></div>
+          <div class="field"><label>PUHELIN</label><input class="inp" id="a-puh" type="tel" placeholder="040 000 0000"></div>
+        </div>
+        <div class="field"><label>LISÄTIEDOT</label><input class="inp" id="a-lisatiedot" placeholder="esim. venelaituri, jäsenmaksu maksettu 2026"></div>
+        <div style="margin-top:12px"><button class="btn btn-primary" onclick="addAsukas()">➕ Lisää rekisteriin</button></div>
+        <div class="msg" id="a-msg"></div>
+      </div>
+      <div class="search-row"><input class="inp" id="a-search" placeholder="Hae nimellä tai palstalla..." oninput="renderAsukkaat()"></div>
+      <div id="asukkaat-tbl"></div>
+    </div>
+
+    <!-- VIKAILMOITUKSET -->
+    <div id="sec-vikat" class="sec-page">
+      <div class="page-title">🔧 Vikailmoitukset</div>
+      <div class="card">
+        <div class="card-title">Uusi vikailmoitus</div>
+        <div class="form-row">
+          <div class="field"><label>OTSIKKO</label><input class="inp" id="v-otsikko" placeholder="esim. Sauna ei lämpene"></div>
+          <div class="field"><label>SIJAINTI</label><input class="inp" id="v-sijainti" placeholder="esim. Itälaituri, sauna nro 2"></div>
+        </div>
+        <div class="field"><label>KUVAUS</label><textarea class="inp" id="v-kuvaus" placeholder="Tarkempi kuvaus viasta..."></textarea></div>
+        <div style="margin-top:12px"><button class="btn btn-primary" onclick="addVika()">🔧 Kirjaa vikailmoitus</button></div>
+        <div class="msg" id="v-msg"></div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="setVikaFilter('kaikki',this)">Kaikki</div>
+        <div class="tab" onclick="setVikaFilter('avoin',this)">Avoimet</div>
+        <div class="tab" onclick="setVikaFilter('kasittelyssa',this)">Käsittelyssä</div>
+        <div class="tab" onclick="setVikaFilter('ratkaistu',this)">Ratkaistut</div>
+      </div>
+      <div id="vikat-list"></div>
+    </div>
+
+    <!-- TIEDOTTEET -->
+    <div id="sec-tiedotteet" class="sec-page">
+      <div class="page-title">📢 Tiedotteet</div>
+      <div class="card">
+        <div class="card-title">Uusi tiedote</div>
+        <div class="field"><label>OTSIKKO</label><input class="inp" id="t-title" maxlength="100" placeholder="esim. Saunavuoro muuttuu"></div>
+        <div class="field"><label>TEKSTI</label><textarea class="inp" id="t-body" maxlength="500" placeholder="Tiedotteen sisältö..."></textarea></div>
+        <div style="margin-top:12px"><button class="btn btn-primary" onclick="addTiedote()">📢 Julkaise</button></div>
+        <div class="msg" id="t-msg"></div>
+      </div>
+      <div id="tiedotteet-list"></div>
+    </div>
+
+    <!-- LAITURI -->
+    <div id="sec-laituri" class="sec-page">
+      <div class="page-title">🌊 Laituri-lämpötila</div>
+      <div class="card">
+        <div class="card-title">Uusi mittaus</div>
+        <div class="form-row">
+          <div class="field"><label>LÄMPÖTILA (°C)</label><input class="inp" id="l-temp" type="number" step="0.1" min="-5" max="35" placeholder="18.5"></div>
+          <div class="field"><label>HUOMIO</label><input class="inp" id="l-note" placeholder="esim. Itälaiturilta mitattu"></div>
+          <div class="field"><label>MITTAAJA</label><input class="inp" id="l-name" placeholder="esim. Pertti"></div>
+        </div>
+        <button class="btn btn-primary" onclick="addLaituri()">💧 Tallenna mittaus</button>
+        <div class="msg" id="l-msg"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Kirjaushistoria</div>
+        <table class="tbl"><thead><tr><th>AIKA</th><th>LÄMPÖTILA</th><th>MITTAAJA</th><th>HUOMIO</th></tr></thead><tbody id="laituri-hist"></tbody></table>
+      </div>
+    </div>
+
+    <!-- VESIPISTEET -->
+    
+<div id="sec-mokkit" class="sec-page">
+  <div class="page-title">🏠 Mökkirekisteri</div>
+  <div class="card">
+    <div class="card-title">Lisää tai päivitä mökki</div>
+    <div class="form-row">
+      <div class="field"><label>MÖKIN NUMERO</label><input class="inp" id="m-num" placeholder="esim. 484"></div>
+      <div class="field"><label>SALASANA</label><input class="inp" id="m-pass" placeholder="esim. hkl2026"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>OMISTAJAN NIMI</label><input class="inp" id="m-name" placeholder="Pertti Jääskeläinen"></div>
+      <div class="field"><label>ROOLI</label>
+        <select class="inp" id="m-rooli">
+          <option value="asukas">🏡 Asukas</option>
+          <option value="venevastaava">⛵ Venevastaava</option>
+          <option value="huolto">🔧 Huolto</option>
+          <option value="hallitus">🏛️ Hallitus</option>
+          <option value="admin">🔑 Admin</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>SÄHKÖPOSTI</label><input class="inp" id="m-email" type="email" placeholder="email@example.fi"></div>
+      <div class="field"><label>PUHELIN</label><input class="inp" id="m-puh" type="tel" placeholder="040 000 0000"></div>
+    </div>
+    <div class="field"><label>KUVAUS</label><input class="inp" id="m-kuvaus" placeholder="Mökin kuvaus, erityistiedot..."></div>
+    <div class="field"><label>MÖKIN KUVA</label><input type="file" id="m-photo" accept="image/jpeg,image/png,image/webp" style="font-size:12px;color:var(--muted)"></div>
+    <div class="field"><label>OMISTAJAN KUVA</label><input type="file" id="m-owner-photo" accept="image/jpeg,image/png,image/webp" style="font-size:12px;color:var(--muted)"></div>
+    <div style="margin-top:12px"><button class="btn btn-primary" onclick="saveMokki()">💾 Tallenna</button></div>
+    <div class="msg" id="m-msg"></div>
+  </div>
+  <div class="search-row"><input class="inp" id="m-search" placeholder="Hae mökin numerolla tai nimellä..." oninput="renderMokit()"></div>
+  <div id="mokki-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px"></div>
+</div>
+
+<div id="sec-vesipisteet" class="sec-page">
+      <div class="page-title">💧 Vesipisteet &amp; alueen kartta</div>
+      <div class="card">
+        <div class="card-title">Lisää piste kartalle</div>
+        <div class="form-row">
+          <div class="field"><label>NIMI</label><input class="inp" id="vp-nimi" placeholder="esim. Vesipiste A-laituri"></div>
+          <div class="field"><label>TYYPPI</label>
+            <select class="inp" id="vp-tyyppi">
+              <option value="vesipiste">💧 Vesipiste</option>
+              <option value="wc">🚽 WC</option>
+              <option value="suihku">🚿 Suihku</option>
+              <option value="sahko">⚡ Sähköpiste</option>
+              <option value="jate">♻️ Jätepiste</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>LEVEYSASTE (lat)</label><input class="inp" id="vp-lat" type="number" step="0.000001" placeholder="60.155xx"></div>
+          <div class="field"><label>PITUUSASTE (lon)</label><input class="inp" id="vp-lon" type="number" step="0.000001" placeholder="24.854xx"></div>
+        </div>
+        <div class="field"><label>KUVAUS</label><input class="inp" id="vp-kuvaus" placeholder="Aukioloajat, lisätiedot..."></div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">💡 Klikkaa karttaa asettaaksesi koordinaatit.</div>
+        <button class="btn btn-primary" onclick="addVesipiste()">📍 Lisää karttaan</button>
+        <div class="msg" id="vp-msg"></div>
+      </div>
+      <div id="vesi-map"></div>
+      <div id="vesipisteet-tbl"></div>
+    </div>
+
+    <!-- DOKUMENTIT -->
+    <div id="sec-dokumentit" class="sec-page">
+      <div class="page-title">📄 Dokumentit &amp; Drive</div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div class="card-title" style="margin-bottom:0">Google Drive -synkronointi</div>
+          <button class="btn btn-primary btn-sm" onclick="triggerSync()">🔄 Synkronoi nyt</button>
+        </div>
+        <div class="stats-row" style="margin-bottom:0">
+          <div class="stat-box"><div class="stat-num" id="doc-count">—</div><div class="stat-label">DOKUMENTTIA</div></div>
+          <div class="stat-box"><div class="stat-num" id="doc-sync-status" style="font-size:14px">—</div><div class="stat-label">VIIMEISIN SYNC</div></div>
+        </div>
+        <div class="msg" id="sync-msg"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Pääsytasot</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--muted)">
+          <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:var(--green);display:inline-block"></span> kaikki</span>
+          <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:var(--blue);display:inline-block"></span> asukas</span>
+          <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#a78bfa;display:inline-block"></span> venevastaava</span>
+          <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:var(--amber);display:inline-block"></span> huolto</span>
+          <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:var(--red);display:inline-block"></span> hallitus/admin</span>
+        </div>
+      </div>
+      <div id="doc-list"></div>
+    </div>
+
+    <!-- ILMOITUKSET -->
+    <div id="sec-ilmoitukset" class="sec-page">
+      <div class="page-title">🏡 Myynti- & ostoilmoitukset</div>
+      <div class="card">
+        <div class="card-title">Uusi ilmoitus</div>
+        <div class="form-row">
+          <div class="field"><label>TYYPPI</label>
+            <select class="inp" id="li-tyyppi">
+              <option value="ostetaan">🏡 Ostetaan</option>
+              <option value="myydaan">🏷️ Myydään</option>
+            </select>
+          </div>
+          <div class="field"><label>NIMI</label><input class="inp" id="li-nimi" placeholder="Ilmoittajan nimi"></div>
+        </div>
+        <div class="field"><label>KUVAUS</label><textarea class="inp" id="li-kuvaus" placeholder="Mitä etsitään / myydään, sijainti, kunto..."></textarea></div>
+        <div class="form-row">
+          <div class="field"><label>PUHELIN</label><input class="inp" id="li-puh" type="tel" placeholder="040 000 0000"></div>
+          <div class="field"><label>SÄHKÖPOSTI</label><input class="inp" id="li-email" type="email" placeholder="email@example.fi"></div>
+        </div>
+        <div style="margin-top:12px"><button class="btn btn-primary" onclick="addListing()">➕ Julkaise ilmoitus</button></div>
+        <div class="msg" id="li-msg"></div>
+      </div>
+      <div class="tabs" id="li-tabs">
+        <div class="tab active" onclick="setListingFilter('kaikki',this)">Kaikki</div>
+        <div class="tab" onclick="setListingFilter('ostetaan',this)">🏡 Ostetaan</div>
+        <div class="tab" onclick="setListingFilter('myydaan',this)">🏷️ Myydään</div>
+      </div>
+      <div id="listings-list"></div>
+    </div>
+
+    <!-- VESIVERKKO -->
+    <div id="sec-vesiverkko" class="sec-page">
+      <div class="page-title">🔧 Vesiverkko — mökkikohtaiset kuvat</div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="card-title" style="margin-bottom:0">Vesiverkkokartta</div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted)" id="wn-stats">—</div>
+        </div>
+        <div id="wn-map" style="height:400px;border-radius:10px;border:1px solid var(--border);background:var(--bg3)"></div>
+      </div>
+      <div class="search-row"><input class="inp" id="wn-search" placeholder="Hae mökin numerolla..." oninput="renderWaterNetwork()"></div>
+      <div id="wn-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px"></div>
+    </div>
+
+    <!-- DOKUMENTAATIO -->
+    <div id="sec-dokumentaatio" class="sec-page">
+      <div class="page-title">📖 Järjestelmädokumentaatio</div>
+
+      <div class="card">
+        <div class="card-title">Yleiskuvaus</div>
+        <p style="color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:10px">
+          HKL-Kesämajat ry:n digitaalinen palvelukokonaisuus. Palvelee yhdistyksen hallitusta, mökkiläisiä ja vierailijoita. Tuotannossa osoitteissa <strong>jaaskel.com</strong> (demo) ja <strong>hklkesamajat.fi</strong> (julkinen).
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Sivukartta</div>
+        <table class="tbl">
+          <thead><tr><th>Sivu</th><th>Tiedosto</th><th>Kohderyhmä</th><th>Kuvaus</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Etusivu</strong></td><td style="font-family:var(--mono);font-size:11px">index.html</td><td>Kaikki</td><td style="color:var(--muted);font-size:12px">Aloitussivu, roolivalinta (vierailija / mökkiläinen / admin)</td></tr>
+            <tr><td><strong>Vierailija</strong></td><td style="font-family:var(--mono);font-size:11px">vierailija.html</td><td>Vierailijat</td><td style="color:var(--muted);font-size:12px">Sää, kartta, palvelut, uimarannat, HSL-reittiopas, ilmanlaatu, uutiset</td></tr>
+            <tr><td><strong>Mökkiläinen</strong></td><td style="font-family:var(--mono);font-size:11px">mokki.html</td><td>Asukkaat</td><td style="color:var(--muted);font-size:12px">Kirjautuminen mökkitunnuksella, profiili, sää, vikailmoitukset, tiedotteet, dokumentit</td></tr>
+            <tr><td><strong>Hallintapaneeli</strong></td><td style="font-family:var(--mono);font-size:11px">admin.html</td><td>Hallitus</td><td style="color:var(--muted);font-size:12px">Asukasrekisteri, mökit, vikat, tiedotteet, vesipisteet, vesiverkko, kävijäseuranta, dokumentit</td></tr>
+            <tr><td><strong>Dashboard</strong></td><td style="font-family:var(--mono);font-size:11px">dashboard.html</td><td>Näyttö</td><td style="color:var(--muted);font-size:12px">Kiosk-tila: sää, sensorit, tiedotteet, kamerat (TV/tabletti)</td></tr>
+            <tr><td><strong>Palvelukuvaus</strong></td><td style="font-family:var(--mono);font-size:11px">info.html</td><td>Kaikki</td><td style="color:var(--muted);font-size:12px">Tekninen palvelukuvaus ja käyttöehdot</td></tr>
+            <tr><td><strong>Tietosuojaseloste</strong></td><td style="font-family:var(--mono);font-size:11px">tietosuoja.html</td><td>Kaikki</td><td style="color:var(--muted);font-size:12px">GDPR-tietosuojaseloste, rekisteröidyn oikeudet</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Autentikaatio</div>
+        <table class="tbl">
+          <thead><tr><th>Taso</th><th>Menetelmä</th><th>Pääsy</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Admin</strong></td><td style="font-size:12px">API-avain (X-Api-Key header)</td><td style="color:var(--muted);font-size:12px">Hallintapaneeli, kaikki CRUD-operaatiot</td></tr>
+            <tr><td><strong>Mökkiläinen</strong></td><td style="font-size:12px">Mökin numero + salasana → sessio-token</td><td style="color:var(--muted);font-size:12px">Oma profiili, vikailmoitukset, dokumentit (roolin mukaan)</td></tr>
+            <tr><td><strong>Vierailija</strong></td><td style="font-size:12px">Ei autentikointia</td><td style="color:var(--muted);font-size:12px">Julkinen sisältö: sää, kartta, tiedotteet</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Backend API — 51 endpointia</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-bottom:6px">MÖKIT & ASUKKAAT</div>
+            <div style="font-size:12px;color:var(--muted);line-height:2;font-family:var(--mono)">
+              GET /api/hkl/cottages<br>
+              POST /api/hkl/cottages<br>
+              DELETE /api/hkl/cottage/{n}<br>
+              GET /api/hkl/cottage-photo/{n}<br>
+              POST /api/hkl/cottage/{n}/photo<br>
+              GET /api/hkl/asukkaat<br>
+              POST /api/hkl/asukas<br>
+              PUT /api/hkl/asukas/{id}<br>
+              DELETE /api/hkl/asukas/{id}
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--green);margin:12px 0 6px">VIKAILMOITUKSET</div>
+            <div style="font-size:12px;color:var(--muted);line-height:2;font-family:var(--mono)">
+              GET /api/hkl/vikat<br>
+              POST /api/hkl/vika<br>
+              PUT /api/hkl/vika/{id}<br>
+              DELETE /api/hkl/vika/{id}
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--green);margin:12px 0 6px">TIEDOTTEET</div>
+            <div style="font-size:12px;color:var(--muted);line-height:2;font-family:var(--mono)">
+              GET /api/hkl/announcements<br>
+              POST /api/hkl/announcement<br>
+              DELETE /api/hkl/announcement/{id}
+            </div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-bottom:6px">SENSORIT & MITTAUKSET</div>
+            <div style="font-size:12px;color:var(--muted);line-height:2;font-family:var(--mono)">
+              GET /api/hkl/local-sensor<br>
+              GET /api/hkl/local-history<br>
+              GET /api/hkl/laituri<br>
+              GET /api/hkl/laituri-history<br>
+              POST /api/hkl/laituri<br>
+              GET /api/hkl/environment<br>
+              GET /api/hkl/weather-stats
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--green);margin:12px 0 6px">VESIPISTEET & VESIVERKKO</div>
+            <div style="font-size:12px;color:var(--muted);line-height:2;font-family:var(--mono)">
+              GET /api/hkl/vesipisteet<br>
+              POST /api/hkl/vesipiste<br>
+              DELETE /api/hkl/vesipiste/{id}<br>
+              GET /api/hkl/water-network<br>
+              GET /api/hkl/water-image/{id}
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--green);margin:12px 0 6px">DOKUMENTIT & DRIVE</div>
+            <div style="font-size:12px;color:var(--muted);line-height:2;font-family:var(--mono)">
+              GET /api/hkl/documents<br>
+              GET /api/hkl/documents/{id}/download<br>
+              PUT /api/hkl/documents/{id}/access<br>
+              GET /api/hkl/drive-status<br>
+              POST /api/hkl/drive-sync
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Tietokanta (SQLite)</div>
+        <p style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px">/home/pjaaskel/web/data/hkl.db</p>
+        <table class="tbl">
+          <thead><tr><th>Taulu</th><th>Kuvaus</th><th>Rivejä</th></tr></thead>
+          <tbody>
+            <tr><td style="font-family:var(--mono)">cottages</td><td style="color:var(--muted);font-size:12px">Mökit: numero, salasana, nimi, rooli, email, puhelin, kuva</td><td style="font-family:var(--mono)">106</td></tr>
+            <tr><td style="font-family:var(--mono)">residents</td><td style="color:var(--muted);font-size:12px">Asukasrekisteri: palsta, nimi, email, puhelin</td><td>—</td></tr>
+            <tr><td style="font-family:var(--mono)">faults</td><td style="color:var(--muted);font-size:12px">Vikailmoitukset: otsikko, kuvaus, sijainti, tila</td><td>—</td></tr>
+            <tr><td style="font-family:var(--mono)">announcements</td><td style="color:var(--muted);font-size:12px">Tiedotteet: otsikko, teksti, aikaleima</td><td>—</td></tr>
+            <tr><td style="font-family:var(--mono)">water_points</td><td style="color:var(--muted);font-size:12px">Vesipisteet: nimi, tyyppi, lat/lon, kuvaus</td><td>—</td></tr>
+            <tr><td style="font-family:var(--mono)">laituri_readings</td><td style="color:var(--muted);font-size:12px">Laiturimitaukset: lämpötila, mittaaja, huomio</td><td>—</td></tr>
+            <tr><td style="font-family:var(--mono)">documents</td><td style="color:var(--muted);font-size:12px">Google Drive -dokumentit: tiedosto, pääsytaso</td><td>—</td></tr>
+            <tr><td style="font-family:var(--mono)">drive_sync_log</td><td style="color:var(--muted);font-size:12px">Drive-synkronointihistoria</td><td>—</td></tr>
+            <tr><td style="font-family:var(--mono)">sessions</td><td style="color:var(--muted);font-size:12px">Mökkiläisten kirjautumissessiot</td><td>—</td></tr>
+            <tr><td style="font-family:var(--mono)">page_views</td><td style="color:var(--muted);font-size:12px">Kävijäseuranta: sivu, IP, kesto, scroll</td><td>—</td></tr>
+            <tr><td style="font-family:var(--mono)">cottage_images</td><td style="color:var(--muted);font-size:12px">Mökkikohtaiset vesikuvat (Drive-linkki)</td><td>—</td></tr>
+            <tr><td style="font-family:var(--mono)">cached_content</td><td style="color:var(--muted);font-size:12px">Välimuisti: RSS-uutiset, säätiedot</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Ulkoiset integraatiot</div>
+        <table class="tbl">
+          <thead><tr><th>Palvelu</th><th>Käyttö</th><th>Sivu</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Open-Meteo</strong></td><td style="color:var(--muted);font-size:12px">Sää, tuuli, UV, merilämpötila, aaltodata, auringonnousu/-lasku</td><td style="font-size:11px">Vierailija, Mökki, Dashboard</td></tr>
+            <tr><td><strong>Open-Meteo Air Quality</strong></td><td style="color:var(--muted);font-size:12px">Ilmanlaatu (AQI), siitepöly (koivu, heinä, leppä)</td><td style="font-size:11px">Vierailija</td></tr>
+            <tr><td><strong>HSL Digitransit</strong></td><td style="color:var(--muted);font-size:12px">Joukkoliikenteen aikataulut Lounaisväylänpolku-pysäkiltä</td><td style="font-size:11px">Vierailija</td></tr>
+            <tr><td><strong>Google Maps API</strong></td><td style="color:var(--muted);font-size:12px">Interaktiivinen kartta, palveluhaku (kahvilat, kaupat)</td><td style="font-size:11px">Vierailija</td></tr>
+            <tr><td><strong>FVH Uiras</strong></td><td style="color:var(--muted);font-size:12px">Helsingin meriveden reaaliaikaiset lämpötilamittaukset</td><td style="font-size:11px">Vierailija</td></tr>
+            <tr><td><strong>Google Drive API</strong></td><td style="color:var(--muted);font-size:12px">Dokumenttien synkronointi, vesikuvat, mökkikuvat</td><td style="font-size:11px">Admin, Mökki</td></tr>
+            <tr><td><strong>Leaflet + OSM</strong></td><td style="color:var(--muted);font-size:12px">Karttapohjat (OSM, Esri satelliitti)</td><td style="font-size:11px">Admin, Vierailija</td></tr>
+            <tr><td><strong>jaaskel.com/api</strong></td><td style="color:var(--muted);font-size:12px">Levätilanne (beaches/algae-map)</td><td style="font-size:11px">Vierailija</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Infrastruktuuri</div>
+        <table class="tbl">
+          <thead><tr><th>Komponentti</th><th>Sijainti</th><th>Teknologia</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Frontend (demo)</strong></td><td style="font-family:var(--mono);font-size:11px">192.168.86.36:8080</td><td style="color:var(--muted);font-size:12px">Staattinen HTML/JS, Nginx proxy</td></tr>
+            <tr><td><strong>Frontend (julkinen)</strong></td><td style="font-family:var(--mono);font-size:11px">hklkesamajat.fi</td><td style="color:var(--muted);font-size:12px">cPanel, GitHub deploy (pjaaskela/hklkesamajat)</td></tr>
+            <tr><td><strong>Backend API</strong></td><td style="font-family:var(--mono);font-size:11px">192.168.86.33:8060</td><td style="color:var(--muted);font-size:12px">Python FastAPI (hkl_api.py), uvicorn, systemd</td></tr>
+            <tr><td><strong>API Proxy</strong></td><td style="font-family:var(--mono);font-size:11px">192.168.86.36:8080</td><td style="color:var(--muted);font-size:12px">FastAPI proxy (api.py) → .33 backend</td></tr>
+            <tr><td><strong>Tietokanta</strong></td><td style="font-family:var(--mono);font-size:11px">192.168.86.33</td><td style="color:var(--muted);font-size:12px">SQLite: /home/pjaaskel/web/data/hkl.db</td></tr>
+            <tr><td><strong>Drive Sync</strong></td><td style="font-family:var(--mono);font-size:11px">192.168.86.33</td><td style="color:var(--muted);font-size:12px">hkl_drive_sync.py, OAuth2 (webmaster@hklkesamajat.fi)</td></tr>
+            <tr><td><strong>Sensorit</strong></td><td style="font-family:var(--mono);font-size:11px">192.168.86.33</td><td style="color:var(--muted);font-size:12px">Paikallinen lämpötila/kosteus (mökin ulkomittari)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">GDPR & tietosuoja</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7">
+          <p style="margin-bottom:8px"><strong style="color:var(--text)">Kerättävät henkilötiedot:</strong> nimi, mökin numero, sähköposti, puhelin, kotiosoite, rooli</p>
+          <p style="margin-bottom:8px"><strong style="color:var(--text)">Oikeusperuste:</strong> yhdistyslaki (jäsenrekisteri), sopimus (maanvuokra), oikeutettu etu (alueen hallinnointi)</p>
+          <p style="margin-bottom:8px"><strong style="color:var(--text)">Tietosuojaseloste:</strong> <a href="/tietosuoja.html" target="_blank" style="color:var(--green)">tietosuoja.html</a></p>
+          <p style="margin-bottom:8px"><strong style="color:var(--text)">Kävijäseuranta:</strong> anonymisoitu IP, sivulataukset, kesto — ei kolmannen osapuolen evästeitä</p>
+          <p><strong style="color:var(--text)">Säilytysajat:</strong> jäsentiedot jäsenyyden ajan + 2v, kävijädata 90pv, vikailmoitukset 3v</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Ylläpito-ohjeet</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.8">
+          <p style="margin-bottom:6px"><strong style="color:var(--text)">Demo-deploy (.36):</strong> <span style="font-family:var(--mono);font-size:11px">scp tiedosto.html 192.168.86.36:/home/pjaaskel/web/</span></p>
+          <p style="margin-bottom:6px"><strong style="color:var(--text)">Julkinen deploy (hklkesamajat.fi):</strong> <span style="font-family:var(--mono);font-size:11px">git push → cPanel Git pull</span></p>
+          <p style="margin-bottom:6px"><strong style="color:var(--text)">API uudelleenkäynnistys:</strong> <span style="font-family:var(--mono);font-size:11px">ssh .33 "sudo systemctl restart hkl-api"</span></p>
+          <p style="margin-bottom:6px"><strong style="color:var(--text)">Drive-synkronointi:</strong> Admin-paneeli → Dokumentit → "Synkronoi nyt" tai <span style="font-family:var(--mono);font-size:11px">POST /api/hkl/drive-sync</span></p>
+          <p><strong style="color:var(--text)">Tietokannan varmuuskopio:</strong> <span style="font-family:var(--mono);font-size:11px">ssh .33 "cp /home/pjaaskel/web/data/hkl.db ~/backup/"</span></p>
+        </div>
+      </div>
+
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted);text-align:center;padding:16px 0">
+        Dokumentaatio päivitetty 20.6.2026 · HKL-Kesämajat ry
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- WATER IMAGE MODAL -->
+<div class="modal-overlay" id="water-modal">
+  <div class="modal" style="max-width:800px">
+    <button class="modal-close" onclick="closeWaterModal()">✕</button>
+    <h3 id="water-modal-title">—</h3>
+    <div id="water-modal-body" style="text-align:center"></div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3>Muokkaa asukasta</h3>
+    <input type="hidden" id="edit-id">
+    <div class="form-row">
+      <div class="field"><label>PALSTA</label><input class="inp" id="edit-palsta"></div>
+      <div class="field"><label>NIMI</label><input class="inp" id="edit-nimi"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>SÄHKÖPOSTI</label><input class="inp" id="edit-email" type="email"></div>
+      <div class="field"><label>PUHELIN</label><input class="inp" id="edit-puh" type="tel"></div>
+    </div>
+    <div class="field"><label>LISÄTIEDOT</label><input class="inp" id="edit-lisatiedot"></div>
+    <div style="margin-top:16px"><button class="btn btn-primary" onclick="saveEdit()">💾 Tallenna</button></div>
+    <div class="msg" id="edit-msg"></div>
+  </div>
+</div>
+
+<!-- INVITE MODAL -->
+<div class="modal-overlay" id="invite-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeInviteModal()">✕</button>
+    <h3 id="invite-modal-title">📨 Kutsu mökkiläinen</h3>
+    <div id="invite-modal-body">
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Luo kutsulinkki jolla mökkiläinen pääsee kirjautumaan automaattisesti. Linkki on voimassa 72 tuntia.</p>
+      <input type="hidden" id="invite-num">
+      <div class="field">
+        <label>SÄHKÖPOSTI</label>
+        <input class="inp" id="invite-email" type="email" placeholder="Lähetetään tähän osoitteeseen (valinnainen)">
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn btn-primary" onclick="generateInvite(false)">🔗 Luo linkki</button>
+        <button class="btn btn-primary" id="invite-email-btn" onclick="generateInvite(true)">📧 Luo & lähetä</button>
+      </div>
+      <div id="invite-result" style="display:none;margin-top:16px">
+        <div class="field">
+          <label>KUTSULINKKI</label>
+          <div style="display:flex;gap:6px">
+            <input class="inp" id="invite-url" readonly style="font-family:var(--mono);font-size:11px">
+            <button class="btn btn-ghost btn-sm" onclick="copyInviteUrl()">📋</button>
+          </div>
+        </div>
+        <div class="msg" id="invite-email-msg"></div>
+      </div>
+      <div class="msg" id="invite-msg"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE='https://jaaskel.com';
+let _token='',_data={asukkaat:[],vikat:[],tiedotteet:[],vesipisteet:[],mokkit:[],docs:[]},_vikaFilter='kaikki',_vesiMap=null,_vesiMarkers=[];
+function ah(){return{'Content-Type':'application/json','X-Api-Key':_token};}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function v(id){return(document.getElementById(id)?.value||'').trim();}
+function fmtDt(iso){if(!iso)return'—';const d=new Date(iso);return d.toLocaleDateString('fi-FI',{day:'numeric',month:'numeric',year:'2-digit'})+' '+d.toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit'});}
+function relTime(iso){const diff=Date.now()-new Date(iso).getTime();if(diff<60000)return'juuri nyt';if(diff<3600000)return Math.round(diff/60000)+' min sitten';if(diff<86400000)return Math.round(diff/3600000)+' h sitten';return Math.round(diff/86400000)+' pv sitten';}
+function showMsg(id,txt,ok){const el=document.getElementById(id);el.style.color=ok?'var(--green)':'var(--red)';el.textContent=txt;if(ok)setTimeout(()=>el.textContent='',3000);}
+
+function toggleMenu(){
+  document.getElementById('sidenav').classList.toggle('open');
+  document.getElementById('sidenav-overlay').classList.toggle('open');
+}
+function nav(sec){
+  document.querySelectorAll('.sec-page').forEach(e=>e.classList.remove('active'));
+  document.getElementById('sec-'+sec).classList.add('active');
+  document.querySelectorAll('.sidenav a[data-sec]').forEach(a=>a.classList.toggle('active',a.dataset.sec===sec));
+  if(sec==='vesipisteet'&&!_vesiMap)setTimeout(initVesiMap,100);
+  if(sec==='mokkit')loadMokit();
+  if(sec==='dokumentit')loadDocs();
+  if(sec==='ilmoitukset')loadListings();
+  if(sec==='vesiverkko')loadWaterNetwork();
+  document.getElementById('sidenav').classList.remove('open');
+  document.getElementById('sidenav-overlay').classList.remove('open');
+  return false;
+}
+
+async function doLogin(){
+  const tok=document.getElementById('token-inp').value.trim();
+  const err=document.getElementById('login-err');
+  if(!tok){err.textContent='Anna token';return;}
+  err.textContent='Tarkistetaan...';
+  try{
+    const r=await fetch(API_BASE+'/api/hkl/verify-key',{headers:{'X-Api-Key':tok}});
+    if(r.ok){
+      _token=tok;sessionStorage.setItem('hkl_admin_token',tok);
+      document.getElementById('login-screen').style.display='none';
+      document.getElementById('admin-wrap').style.display='block';
+      document.getElementById('logout-btn').style.display='block';
+      document.getElementById('user-tag').style.display='block';
+      document.getElementById('user-tag').textContent='● kirjautunut';
+      loadAll();setInterval(loadSensors,30000);
+    }else{err.textContent='❌ Väärä token';}
+  }catch(e){err.textContent='❌ Yhteysvirhe: '+e.message;}
+}
+function logout(){sessionStorage.removeItem('hkl_admin_token');location.reload();}
+
+function loadAll(){loadSensors();loadAsukkaat();loadVikat();loadTiedotteet();loadLaituriHist();loadVesipisteet();loadMokit();loadVisitors();loadDocs();}
+
+const HKL_PAGES=['/index.html','/vierailija.html','/mokki.html','/admin.html','/dashboard.html','/info.html'];
+function isHkl(page){return HKL_PAGES.some(p=>page===p)||page.startsWith('/hklkesamajat');}
+
+async function loadVisitors(){
+  try{
+    const[stats,visitors,sessions]=await Promise.all([
+      fetch(API_BASE+'/api/stats',{headers:{'X-Api-Key':_token}}).then(r=>r.json()),
+      fetch(API_BASE+'/api/visitors',{headers:{'X-Api-Key':_token}}).then(r=>r.json()),
+      fetch(API_BASE+'/api/sessions',{headers:{'X-Api-Key':_token}}).then(r=>r.json())
+    ]);
+
+    const hklSessions=sessions.filter(s=>isHkl(s.page));
+    const todayStr=new Date().toISOString().slice(0,10);
+    const hklToday=hklSessions.filter(s=>s.time_start&&s.time_start.startsWith(todayStr));
+    const hklIPs=new Set(hklSessions.map(s=>s.ip));
+    const hklTodayIPs=new Set(hklToday.map(s=>s.ip));
+
+    // Dashboard stats
+    document.getElementById('st-kavijat').textContent=hklTodayIPs.size;
+    document.getElementById('st-kavijat-7d').textContent=hklIPs.size;
+
+    // Kävijäseuranta page
+    document.getElementById('vis-today').textContent=hklTodayIPs.size;
+    document.getElementById('vis-7d').textContent=hklIPs.size;
+    document.getElementById('vis-pageviews').textContent=hklSessions.length;
+    const avgDur=hklSessions.length?Math.round(hklSessions.reduce((a,s)=>a+(s.duration||0),0)/hklSessions.length):0;
+    document.getElementById('vis-avg-dur').textContent=avgDur;
+    const returnIPs=new Map();
+    hklSessions.forEach(s=>{returnIPs.set(s.ip,(returnIPs.get(s.ip)||0)+1);});
+    const returnCount=[...returnIPs.values()].filter(c=>c>1).length;
+    document.getElementById('vis-return').textContent=returnCount;
+
+    // Daily chart
+    const daily=new Map();
+    hklSessions.forEach(s=>{
+      const d=(s.time_start||'').slice(0,10);
+      if(d)daily.set(d,(daily.get(d)||0)+1);
+    });
+    const chartEl=document.getElementById('vis-chart');
+    const days=[];
+    for(let i=13;i>=0;i--){
+      const dt=new Date(Date.now()-i*86400000);
+      const ds=dt.toISOString().slice(0,10);
+      days.push({d:ds,n:daily.get(ds)||0,label:dt.getDate()+'.'+(dt.getMonth()+1)});
+    }
+    const maxN=Math.max(1,...days.map(d=>d.n));
+    chartEl.innerHTML=days.map(d=>{
+      const h=Math.max(2,d.n/maxN*120);
+      const isToday=d.d===todayStr;
+      return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="font-family:var(--mono);font-size:10px;color:${isToday?'var(--green)':'var(--muted)'}">${d.n||''}</div><div style="width:100%;height:${h}px;background:${isToday?'var(--green)':'var(--border2)'};border-radius:4px;transition:height .3s"></div><div style="font-size:9px;color:var(--muted);white-space:nowrap">${d.label}</div></div>`;
+    }).join('');
+
+    // Pages breakdown
+    const pageCounts=new Map();
+    hklSessions.forEach(s=>{pageCounts.set(s.page,(pageCounts.get(s.page)||0)+1);});
+    const pageNames={'/index.html':'🏠 Etusivu','/vierailija.html':'🌿 Vierailija','/mokki.html':'🏡 Mökkiläinen','/admin.html':'🔑 Admin','/dashboard.html':'📺 Dashboard','/info.html':'ℹ️ Palvelukuvaus'};
+    const sorted=[...pageCounts.entries()].sort((a,b)=>b[1]-a[1]);
+    const pagesEl=document.getElementById('vis-pages');
+    if(!sorted.length){pagesEl.innerHTML='<div style="color:var(--muted);font-size:12px">Ei HKL-sivulatauksia vielä</div>';}
+    else{
+      const pMax=Math.max(1,sorted[0][1]);
+      pagesEl.innerHTML=sorted.map(([p,c])=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="min-width:160px;font-size:13px">${pageNames[p]||p}</span><div style="flex:1;background:var(--bg3);border-radius:4px;overflow:hidden;height:22px"><div style="height:100%;background:var(--green);border-radius:4px;width:${c/pMax*100}%;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;color:#0a1a10">${c}</div></div></div>`).join('');
+    }
+
+    // Recent sessions
+    const tbody=document.getElementById('vis-sessions');
+    const recent=hklSessions.slice(0,20);
+    if(!recent.length){tbody.innerHTML='<tr><td colspan="5" class="tbl-empty">Ei vierailuja vielä</td></tr>';}
+    else{tbody.innerHTML=recent.map(s=>{
+      const name=pageNames[s.page]||s.page;
+      const dur=s.duration?s.duration+'s':'–';
+      const scroll=s.scroll_depth?s.scroll_depth+'%':'–';
+      const ref=s.ref?new URL(s.ref).hostname:'suora';
+      return`<tr><td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${fmtDt(s.time_start)}</td><td>${name}</td><td>${dur}</td><td>${scroll}</td><td style="color:var(--muted);font-size:11px">${esc(ref)}</td></tr>`;
+    }).join('');}
+
+    // Superusers
+    const suEl=document.getElementById('vis-superusers');
+    const ipData=[...returnIPs.entries()].sort((a,b)=>b[1]-a[1]).slice(0,10);
+    if(!ipData.length){suEl.innerHTML='<tr><td colspan="3" class="tbl-empty">Ei dataa</td></tr>';}
+    else{
+      suEl.innerHTML=ipData.map(([ip,count])=>{
+        const lastVisit=hklSessions.filter(s=>s.ip===ip).sort((a,b)=>b.time_start.localeCompare(a.time_start))[0];
+        return`<tr><td style="font-family:var(--mono);font-size:11px">${esc(ip.substring(0,20))}</td><td style="font-weight:700">${count}</td><td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${relTime(lastVisit?.time_start)}</td></tr>`;
+      }).join('');
+    }
+  }catch(e){console.warn('loadVisitors error',e);}
+}
+
+function updateStats(){
+  document.getElementById('st-asukkaat').textContent=_data.asukkaat.length;
+  document.getElementById('st-vikat-avoin').textContent=_data.vikat.filter(v=>v.tila==='avoin').length;
+  document.getElementById('st-tiedotteet').textContent=_data.tiedotteet.length;
+  document.getElementById('st-vesipisteet').textContent=_data.vesipisteet.length;
+  const open=_data.vikat.filter(v=>v.tila!=='ratkaistu').slice(0,5);
+  const dv=document.getElementById('dash-vikat');
+  if(!open.length){dv.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0">Ei avoimia vikailmoituksia ✓</div>';return;}
+  dv.innerHTML=open.map(v=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)"><span class="badge badge-${v.tila}">${tilaNimi(v.tila)}</span><span style="flex:1">${esc(v.otsikko)}</span><span style="font-size:11px;color:var(--muted);font-family:var(--mono)">${fmtDt(v.created)}</span></div>`).join('');
+}
+
+async function loadSensors(){
+  try{
+    const[sR,lR]=await Promise.all([fetch(API_BASE+'/api/hkl/local-sensor').then(r=>r.json()).catch(()=>({})),fetch(API_BASE+'/api/hkl/laituri').then(r=>r.json()).catch(()=>({}))]);
+    const strip=document.getElementById('sensor-strip');const cards=[];
+    if(sR.temperature!=null)cards.push(`<div class="scard"><div class="scard-label">ULKOLÄMPÖTILA</div><div class="scard-val" style="color:var(--green)">${sR.temperature.toFixed(1)} °C</div><div class="scard-sub">${sR.stale?'⚠ vanha arvo':'mökki ulkomittari'}</div></div>`);
+    if(sR.humidity!=null)cards.push(`<div class="scard"><div class="scard-label">KOSTEUS</div><div class="scard-val">${Math.round(sR.humidity)} %</div><div class="scard-sub">suhteellinen kosteus</div></div>`);
+    if(lR.temp!=null)cards.push(`<div class="scard"><div class="scard-label">LAITURIMITAUS</div><div class="scard-val" style="color:var(--blue)">${lR.temp.toFixed(1)} °C</div><div class="scard-sub">${relTime(lR.time)}${lR.note?' · '+esc(lR.note):''}</div></div>`);
+    strip.innerHTML=cards.length?cards.join(''):'<div style="color:var(--muted);font-size:12px">Ei sensoridataa</div>';
+    document.getElementById('sensor-ts').innerHTML=`<span class="ldot ldot-g"></span> päivitetty ${new Date().toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit'})}`;
+  }catch(e){}
+}
+
+async function loadAsukkaat(){try{_data.asukkaat=await fetch(API_BASE+'/api/hkl/asukkaat',{headers:{'X-Api-Key':_token}}).then(r=>r.json());renderAsukkaat();updateStats();}catch(e){}}
+function renderAsukkaat(){
+  const q=(document.getElementById('a-search')?.value||'').toLowerCase();
+  const rows=_data.asukkaat.filter(a=>!q||a.nimi.toLowerCase().includes(q)||a.palsta.toLowerCase().includes(q)||(a.email||'').toLowerCase().includes(q));
+  const el=document.getElementById('asukkaat-tbl');
+  if(!rows.length){el.innerHTML=`<div class="tbl-empty">${q?'Ei hakutuloksia':'Ei asukkaita rekisterissä'}</div>`;return;}
+  el.innerHTML=`<table class="tbl"><thead><tr><th>PALSTA</th><th>NIMI</th><th>SÄHKÖPOSTI</th><th>PUHELIN</th><th>LISÄTIEDOT</th><th></th></tr></thead><tbody>${rows.map(a=>`<tr><td><strong>${esc(a.palsta)}</strong></td><td>${esc(a.nimi)}</td><td><a href="mailto:${esc(a.email)}" style="color:var(--green);text-decoration:none">${esc(a.email)||'—'}</a></td><td>${esc(a.puh)||'—'}</td><td style="color:var(--muted);font-size:12px">${esc(a.lisatiedot)||''}</td><td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" onclick="openEdit('${esc(a.id)}')">✏️</button> <button class="btn btn-danger btn-sm" onclick="delAsukas('${esc(a.id)}','${esc(a.nimi)}')">🗑</button></td></tr>`).join('')}</tbody></table>`;
+}
+async function addAsukas(){
+  const body={palsta:v('a-palsta'),nimi:v('a-nimi'),email:v('a-email'),puh:v('a-puh'),lisatiedot:v('a-lisatiedot')};
+  if(!body.palsta||!body.nimi){showMsg('a-msg','❌ Anna palsta ja nimi',false);return;}
+  const r=await fetch(API_BASE+'/api/hkl/asukas',{method:'POST',headers:ah(),body:JSON.stringify(body)});
+  if(r.ok){['a-palsta','a-nimi','a-email','a-puh','a-lisatiedot'].forEach(id=>document.getElementById(id).value='');showMsg('a-msg','✅ Lisätty!',true);loadAsukkaat();}
+  else showMsg('a-msg','❌ Virhe '+r.status,false);
+}
+async function delAsukas(id,nimi){if(!confirm(`Poistetaan "${nimi}"?`))return;const r=await fetch(API_BASE+'/api/hkl/asukas/'+id,{method:'DELETE',headers:ah()});if(r.ok)loadAsukkaat();}
+function openEdit(id){const a=_data.asukkaat.find(x=>x.id===id);if(!a)return;['id','palsta','nimi','email','puh','lisatiedot'].forEach(f=>document.getElementById('edit-'+f).value=a[f]||'');document.getElementById('edit-modal').classList.add('open');}
+function closeModal(){document.getElementById('edit-modal').classList.remove('open');}
+async function saveEdit(){
+  const id=v('edit-id');const body={palsta:v('edit-palsta'),nimi:v('edit-nimi'),email:v('edit-email'),puh:v('edit-puh'),lisatiedot:v('edit-lisatiedot')};
+  if(!body.palsta||!body.nimi){showMsg('edit-msg','❌ Anna palsta ja nimi',false);return;}
+  const r=await fetch(API_BASE+'/api/hkl/asukas/'+id,{method:'PUT',headers:ah(),body:JSON.stringify(body)});
+  if(r.ok){closeModal();loadAsukkaat();}else showMsg('edit-msg','❌ Virhe '+r.status,false);
+}
+
+function tilaNimi(t){return{avoin:'Avoin',kasittelyssa:'Käsittelyssä',ratkaistu:'Ratkaistu'}[t]||t;}
+async function loadVikat(){try{_data.vikat=await fetch(API_BASE+'/api/hkl/vikat',{headers:{'X-Api-Key':_token}}).then(r=>r.json());renderVikat();updateStats();}catch(e){}}
+function setVikaFilter(f,el){_vikaFilter=f;document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderVikat();}
+function renderVikat(){
+  const rows=_vikaFilter==='kaikki'?_data.vikat:_data.vikat.filter(v=>v.tila===_vikaFilter);
+  const el=document.getElementById('vikat-list');
+  if(!rows.length){el.innerHTML='<div class="tbl-empty">Ei vikailmoituksia</div>';return;}
+  el.innerHTML=rows.map(v=>`<div class="card"><div style="display:flex;align-items:flex-start;gap:10px"><div style="flex:1"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span class="badge badge-${v.tila}">${tilaNimi(v.tila)}</span><strong>${esc(v.otsikko)}</strong></div>${v.sijainti?`<div style="font-size:12px;color:var(--muted);margin-bottom:4px">📍 ${esc(v.sijainti)}</div>`:''}<div style="font-size:13px;color:var(--muted);line-height:1.5">${esc(v.kuvaus)}</div><div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:6px">${fmtDt(v.created)}</div></div><div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">${v.tila!=='ratkaistu'?`<button class="btn btn-ghost btn-sm" onclick="setVikaTila('${v.id}','kasittelyssa')">→ Käsittelyssä</button><button class="btn btn-ghost btn-sm" onclick="setVikaTila('${v.id}','ratkaistu')">✓ Ratkaistu</button>`:''}<button class="btn btn-danger btn-sm" onclick="delVika('${v.id}')">🗑</button></div></div></div>`).join('');
+}
+async function addVika(){
+  const body={otsikko:v('v-otsikko'),kuvaus:v('v-kuvaus'),sijainti:v('v-sijainti')};
+  if(!body.otsikko){showMsg('v-msg','❌ Anna otsikko',false);return;}
+  const r=await fetch(API_BASE+'/api/hkl/vika',{method:'POST',headers:ah(),body:JSON.stringify(body)});
+  if(r.ok){['v-otsikko','v-kuvaus','v-sijainti'].forEach(id=>document.getElementById(id).value='');showMsg('v-msg','✅ Kirjattu!',true);loadVikat();}
+  else showMsg('v-msg','❌ Virhe '+r.status,false);
+}
+async function setVikaTila(id,tila){const vika=_data.vikat.find(x=>x.id===id);if(!vika)return;const body={otsikko:vika.otsikko,kuvaus:vika.kuvaus||'',sijainti:vika.sijainti||'',tila};const r=await fetch(API_BASE+'/api/hkl/vika/'+id,{method:'PUT',headers:ah(),body:JSON.stringify(body)});if(r.ok)loadVikat();}
+async function delVika(id){if(!confirm('Poistetaan vikailmoitus?'))return;const r=await fetch(API_BASE+'/api/hkl/vika/'+id,{method:'DELETE',headers:ah()});if(r.ok)loadVikat();}
+
+async function loadTiedotteet(){try{_data.tiedotteet=await fetch(API_BASE+'/api/hkl/announcements').then(r=>r.json());renderTiedotteet();updateStats();}catch(e){}}
+function renderTiedotteet(){
+  const el=document.getElementById('tiedotteet-list');
+  if(!_data.tiedotteet.length){el.innerHTML='<div class="tbl-empty">Ei tiedotteita</div>';return;}
+  el.innerHTML=_data.tiedotteet.map(a=>`<div class="card"><div style="display:flex;align-items:flex-start;gap:10px"><div style="flex:1"><div style="font-weight:700;margin-bottom:5px">📢 ${esc(a.title)}</div><div style="color:var(--muted);font-size:13px;line-height:1.6">${esc(a.body)}</div><div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:8px">${fmtDt(a.created)}</div></div><button class="btn btn-danger btn-sm" onclick="delTiedote('${a.id}')">🗑</button></div></div>`).join('');
+}
+async function addTiedote(){
+  const body={title:v('t-title'),body:v('t-body')};
+  if(!body.title||!body.body){showMsg('t-msg','❌ Anna otsikko ja teksti',false);return;}
+  const r=await fetch(API_BASE+'/api/hkl/announcement',{method:'POST',headers:ah(),body:JSON.stringify(body)});
+  if(r.ok){['t-title','t-body'].forEach(id=>document.getElementById(id).value='');showMsg('t-msg','✅ Julkaistu!',true);loadTiedotteet();}
+  else showMsg('t-msg','❌ Virhe '+r.status,false);
+}
+async function delTiedote(id){if(!confirm('Poistetaan tiedote?'))return;const r=await fetch(API_BASE+'/api/hkl/announcement/'+id,{method:'DELETE',headers:ah()});if(r.ok)loadTiedotteet();}
+
+async function loadLaituriHist(){
+  try{
+    const hist=await fetch(API_BASE+'/api/hkl/laituri-history').then(r=>r.json());
+    const tbody=document.getElementById('laituri-hist');
+    if(!hist.length){tbody.innerHTML='<tr><td colspan="3" class="tbl-empty">Ei kirjauksia</td></tr>';return;}
+    tbody.innerHTML=hist.slice(0,15).map(h=>`<tr><td style="color:var(--muted)">${fmtDt(h.time)}</td><td style="font-weight:700;color:var(--blue)">${h.temp.toFixed(1)} °C</td><td style="color:var(--muted);font-weight:600">${esc(h.name)||'—'}</td><td style="color:var(--muted)">${esc(h.note)||'—'}</td></tr>`).join('');
+  }catch(e){}
+}
+async function addLaituri(){
+  const temp=parseFloat(document.getElementById('l-temp').value);const note=v('l-note');
+  if(isNaN(temp)){showMsg('l-msg','❌ Anna lämpötila',false);return;}
+  const name=v('l-name');
+  const r=await fetch(API_BASE+'/api/hkl/laituri',{method:'POST',headers:ah(),body:JSON.stringify({temp,note,name})});
+  if(r.ok){document.getElementById('l-temp').value='';document.getElementById('l-note').value='';document.getElementById('l-name').value='';showMsg('l-msg','✅ Tallennettu!',true);loadLaituriHist();loadSensors();}
+  else showMsg('l-msg','❌ Virhe '+r.status,false);
+}
+
+async function loadVesipisteet(){try{_data.vesipisteet=await fetch(API_BASE+'/api/hkl/vesipisteet').then(r=>r.json());renderVesipisteet();updateStats();if(_vesiMap)updateVesiMarkers();}catch(e){}}
+const VP_ICONS={vesipiste:'💧',wc:'🚽',suihku:'🚿',sahko:'⚡',jate:'♻️'};
+const VP_COLORS={vesipiste:'#38bdf8',wc:'#a78bfa',suihku:'#34d399',sahko:'#fbbf24',jate:'#6b7280'};
+function initVesiMap(){
+  if(_vesiMap)return;
+  _vesiMap=L.map('vesi-map').setView([60.1552,24.8545],17);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(_vesiMap);
+  _vesiMap.on('click',e=>{document.getElementById('vp-lat').value=e.latlng.lat.toFixed(6);document.getElementById('vp-lon').value=e.latlng.lng.toFixed(6);});
+  updateVesiMarkers();
+}
+function updateVesiMarkers(){
+  _vesiMarkers.forEach(m=>_vesiMap.removeLayer(m));_vesiMarkers=[];
+  _data.vesipisteet.forEach(vp=>{
+    const icon=L.divIcon({html:`<div style="background:${VP_COLORS[vp.tyyppi]||'#52b788'};border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:15px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4)">${VP_ICONS[vp.tyyppi]||'📍'}</div>`,className:'',iconSize:[30,30],iconAnchor:[15,15]});
+    const m=L.marker([vp.lat,vp.lon],{icon}).bindPopup(`<strong>${vp.nimi}</strong><br>${vp.kuvaus||''}`).addTo(_vesiMap);
+    _vesiMarkers.push(m);
+  });
+}
+function renderVesipisteet(){
+  const el=document.getElementById('vesipisteet-tbl');
+  if(!_data.vesipisteet.length){el.innerHTML='<div class="tbl-empty" style="margin-top:14px">Ei pisteitä lisätty. Klikkaa karttaa tai syötä koordinaatit.</div>';return;}
+  el.innerHTML=`<table class="tbl" style="margin-top:14px"><thead><tr><th>NIMI</th><th>TYYPPI</th><th>KOORDINAATIT</th><th>KUVAUS</th><th></th></tr></thead><tbody>${_data.vesipisteet.map(vp=>`<tr><td><strong>${VP_ICONS[vp.tyyppi]||'📍'} ${esc(vp.nimi)}</strong></td><td style="color:var(--muted)">${esc(vp.tyyppi)}</td><td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${vp.lat}, ${vp.lon}</td><td style="color:var(--muted);font-size:12px">${esc(vp.kuvaus)||'—'}</td><td><button class="btn btn-danger btn-sm" onclick="delVesipiste('${vp.id}')">🗑</button></td></tr>`).join('')}</tbody></table>`;
+}
+async function addVesipiste(){
+  const body={nimi:v('vp-nimi'),tyyppi:v('vp-tyyppi'),kuvaus:v('vp-kuvaus'),lat:parseFloat(v('vp-lat')),lon:parseFloat(v('vp-lon'))};
+  if(!body.nimi||isNaN(body.lat)||isNaN(body.lon)){showMsg('vp-msg','❌ Anna nimi ja koordinaatit (tai klikkaa karttaa)',false);return;}
+  const r=await fetch(API_BASE+'/api/hkl/vesipiste',{method:'POST',headers:ah(),body:JSON.stringify(body)});
+  if(r.ok){['vp-nimi','vp-kuvaus','vp-lat','vp-lon'].forEach(id=>document.getElementById(id).value='');showMsg('vp-msg','✅ Lisätty!',true);loadVesipisteet();}
+  else showMsg('vp-msg','❌ Virhe '+r.status,false);
+}
+async function delVesipiste(id){if(!confirm('Poistetaan piste?'))return;const r=await fetch(API_BASE+'/api/hkl/vesipiste/'+id,{method:'DELETE',headers:ah()});if(r.ok)loadVesipisteet();}
+
+
+const ROOLI_LABELS={asukas:'🏡 Asukas',venevastaava:'⛵ Venevastaava',huolto:'🔧 Huolto',hallitus:'🏛️ Hallitus',admin:'🔑 Admin'};
+const ROOLI_COLORS={asukas:'var(--green)',venevastaava:'#a78bfa',huolto:'var(--amber)',hallitus:'var(--red)',admin:'var(--red)'};
+async function loadMokit() {
+  try {
+    _data.mokkit = await fetch(API_BASE+'/api/hkl/cottages', {headers: ah()}).then(r=>r.json());
+    renderMokit();
+  } catch(e) {}
+}
+function renderMokit(){
+  const q=(document.getElementById('m-search')?.value||'').toLowerCase();
+  const rows=_data.mokkit.filter(c=>!q||c.number.toLowerCase().includes(q)||(c.name||'').toLowerCase().includes(q));
+  const el=document.getElementById('mokki-grid');
+  if(!rows.length){el.innerHTML=`<div class="tbl-empty" style="grid-column:1/-1">${q?'Ei hakutuloksia':'Ei mökkejä rekisterissä'}</div>`;return;}
+  el.innerHTML=rows.map(c=>{
+    const photoUrl=API_BASE+'/api/hkl/cottage-photo/'+c.number;
+    const ownerUrl=API_BASE+'/api/hkl/cottage-owner-photo/'+c.number;
+    const rooli=c.rooli||'asukas';
+    let interests='';
+    try{const ints=typeof c.interests==='string'?JSON.parse(c.interests||'{}'):c.interests||{};
+      const labels={lammitys:'🔥',kamera:'📹',aurinkopaneeli:'☀️',sahko:'⚡',sensorit:'📡'};
+      const active=Object.entries(ints).filter(([,v])=>v).map(([k])=>labels[k]||k);
+      if(active.length)interests=`<div style="margin-top:4px;font-size:11px;color:var(--green)">Kiinnostunut: ${active.join(' ')}</div>`;
+    }catch(e){}
+    return`<div class="card" style="margin-bottom:0">
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:center">
+          <div style="width:50px;height:50px;border-radius:50%;overflow:hidden;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.4rem;border:2px solid var(--green)">
+            <img src="${ownerUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.parentNode.innerHTML='👤'">
+          </div>
+          <div style="width:70px;height:50px;border-radius:8px;overflow:hidden;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.2rem;border:1px solid var(--border)">
+            <img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.parentNode.innerHTML='🏡'">
+          </div>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:18px;font-weight:700">Mökki ${esc(c.number)}</span>
+            <span class="badge" style="background:${ROOLI_COLORS[rooli]}20;color:${ROOLI_COLORS[rooli]}">${ROOLI_LABELS[rooli]||rooli}</span>
+          </div>
+          <div style="font-size:13px;margin-bottom:2px">${esc(c.name)||'—'}</div>
+          ${c.email?`<div style="font-size:12px;color:var(--muted)">📧 ${esc(c.email)}</div>`:''}
+          ${c.puh?`<div style="font-size:12px;color:var(--muted)">📱 ${esc(c.puh)}</div>`:''}
+          ${c.kuvaus?`<div style="font-size:12px;color:var(--muted);margin-top:4px">${esc(c.kuvaus)}</div>`:''}
+          ${interests}
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:6px">🔑 ${esc(c.password)}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+          <button class="btn btn-ghost btn-sm" onclick="openInvite('${esc(c.number)}','${esc(c.email||'')}')">📨</button>
+          <button class="btn btn-ghost btn-sm" onclick="editMokki('${esc(c.number)}')">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="delMokki('${esc(c.number)}')">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function editMokki(num){
+  const c=_data.mokkit.find(x=>x.number===num);if(!c)return;
+  document.getElementById('m-num').value=c.number;
+  document.getElementById('m-pass').value=c.password;
+  document.getElementById('m-name').value=c.name||'';
+  document.getElementById('m-rooli').value=c.rooli||'asukas';
+  document.getElementById('m-email').value=c.email||'';
+  document.getElementById('m-puh').value=c.puh||'';
+  document.getElementById('m-kuvaus').value=c.kuvaus||'';
+  window.scrollTo({top:document.getElementById('sec-mokkit').offsetTop,behavior:'smooth'});
+}
+async function delMokki(num){
+  if(!confirm(`Poistetaan mökki ${num}?`))return;
+  const r=await fetch(API_BASE+'/api/hkl/cottage/'+num,{method:'DELETE',headers:ah()});
+  if(r.ok)loadMokit();
+}
+async function saveMokki() {
+  const number=v('m-num'),password=v('m-pass'),name=v('m-name'),rooli=v('m-rooli'),email=v('m-email'),puh=v('m-puh'),kuvaus=v('m-kuvaus');
+  if(!number||!password){showMsg('m-msg','❌ Anna numero ja salasana',false);return;}
+  const r=await fetch(API_BASE+'/api/hkl/cottages',{method:'POST',headers:ah(),body:JSON.stringify({number,password,name,rooli,email,puh,kuvaus})});
+  if(!r.ok){showMsg('m-msg','❌ Virhe '+r.status,false);return;}
+  const fileInput=document.getElementById('m-photo');
+  const ownerInput=document.getElementById('m-owner-photo');
+  let pending=0;
+  const checkDone=()=>{if(--pending<=0)finishSaveMokki();};
+  if(fileInput.files.length>0){
+    pending++;
+    const reader=new FileReader();
+    reader.onload=async function(){
+      await fetch(API_BASE+'/api/hkl/cottage/'+number+'/photo',{method:'POST',headers:ah(),body:JSON.stringify({photo:reader.result})});
+      fileInput.value='';
+      checkDone();
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+  }
+  if(ownerInput.files.length>0){
+    pending++;
+    const reader2=new FileReader();
+    reader2.onload=async function(){
+      await fetch(API_BASE+'/api/hkl/cottage/'+number+'/owner-photo',{method:'POST',headers:ah(),body:JSON.stringify({photo:reader2.result})});
+      ownerInput.value='';
+      checkDone();
+    };
+    reader2.readAsDataURL(ownerInput.files[0]);
+  }
+  if(pending===0)finishSaveMokki();
+}
+function finishSaveMokki(){
+  showMsg('m-msg','✅ Tallennettu!',true);
+  ['m-num','m-pass','m-name','m-email','m-puh','m-kuvaus'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('m-rooli').value='asukas';
+  loadMokit();
+}
+
+// --- Kutsu ---
+function openInvite(num, email) {
+  document.getElementById('invite-num').value = num;
+  document.getElementById('invite-email').value = email;
+  document.getElementById('invite-result').style.display = 'none';
+  document.getElementById('invite-msg').textContent = '';
+  document.getElementById('invite-email-msg').textContent = '';
+  document.getElementById('invite-modal-title').textContent = '📨 Kutsu – Mökki ' + num;
+  document.getElementById('invite-email-btn').style.display = email ? '' : 'none';
+  document.getElementById('invite-modal').classList.add('open');
+}
+function closeInviteModal() { document.getElementById('invite-modal').classList.remove('open'); }
+async function generateInvite(sendEmail) {
+  const num = document.getElementById('invite-num').value;
+  const email = document.getElementById('invite-email').value.trim();
+  document.getElementById('invite-msg').textContent = '⏳ Luodaan...';
+  document.getElementById('invite-msg').style.color = 'var(--muted)';
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/cottage/' + num + '/invite', {
+      method: 'POST', headers: ah(),
+      body: JSON.stringify({send_email: sendEmail && !!email})
+    });
+    if (!r.ok) { showMsg('invite-msg', '❌ Virhe ' + r.status, false); return; }
+    const d = await r.json();
+    document.getElementById('invite-url').value = d.invite_url;
+    document.getElementById('invite-result').style.display = 'block';
+    showMsg('invite-msg', '✅ Kutsulinkki luotu!', true);
+    if (sendEmail && d.email_sent) {
+      showMsg('invite-email-msg', '✅ Sähköposti lähetetty: ' + email, true);
+    } else if (sendEmail && d.email_sent === false) {
+      showMsg('invite-email-msg', '⚠️ ' + (d.email_error || 'Sähköpostin lähetys epäonnistui'), false);
+    }
+  } catch(e) { showMsg('invite-msg', '❌ ' + e.message, false); }
+}
+function copyInviteUrl() {
+  const inp = document.getElementById('invite-url');
+  inp.select();
+  navigator.clipboard.writeText(inp.value).then(() => {
+    showMsg('invite-msg', '✅ Kopioitu leikepöydälle!', true);
+  });
+}
+
+// --- Dokumentit ---
+const DOC_ACCESS_COLORS={kaikki:'var(--green)',asukas:'var(--blue)',venevastaava:'#a78bfa',huolto:'var(--amber)',hallitus:'var(--red)',admin:'var(--red)'};
+async function loadDocs(){
+  try{
+    const[docs,status]=await Promise.all([
+      fetch(API_BASE+'/api/hkl/documents',{headers:ah()}).then(r=>r.json()),
+      fetch(API_BASE+'/api/hkl/drive-status').then(r=>r.json())
+    ]);
+    _data.docs=docs;
+    document.getElementById('doc-count').textContent=status.document_count||0;
+    if(status.last_sync){
+      document.getElementById('doc-sync-status').textContent=fmtDt(status.last_sync.synced_at);
+    }else{
+      document.getElementById('doc-sync-status').textContent='ei vielä';
+    }
+    renderDocs();
+  }catch(e){console.warn('loadDocs',e);}
+}
+function renderDocs(){
+  const el=document.getElementById('doc-list');
+  if(!_data.docs.length){el.innerHTML='<div class="card"><div class="tbl-empty">Ei dokumentteja. Synkronoi Google Drive tai lisää service account.</div></div>';return;}
+  const grouped={};
+  _data.docs.forEach(d=>{const f=d.parent_folder||'Juuri';if(!grouped[f])grouped[f]=[];grouped[f].push(d);});
+  let html='';
+  for(const[folder,docs]of Object.entries(grouped)){
+    html+=`<div class="card"><div class="card-title">📁 ${esc(folder)}</div><table class="tbl"><thead><tr><th>TIEDOSTO</th><th>KOKO</th><th>PÄÄSYTASO</th><th>MUOKATTU</th><th></th></tr></thead><tbody>`;
+    docs.forEach(d=>{
+      const al=d.access_level||'kaikki';
+      const size=d.file_size?(d.file_size>1048576?(d.file_size/1048576).toFixed(1)+' MB':(d.file_size/1024).toFixed(0)+' KB'):'—';
+      html+=`<tr>
+        <td><strong>${esc(d.title)}</strong><div style="font-size:10px;color:var(--muted);font-family:var(--mono)">${esc(d.mime_type)}</div></td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${size}</td>
+        <td><select class="inp" style="padding:4px 8px;font-size:11px;min-width:120px" onchange="setDocAccess(${d.id},this.value)">
+          ${ROLE_HIERARCHY.map(r=>`<option value="${r}"${r===al?' selected':''}>${r}</option>`).join('')}
+        </select></td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${fmtDt(d.drive_modified)}</td>
+        <td><a href="${API_BASE}/api/hkl/documents/${d.id}/download" class="btn btn-ghost btn-sm" target="_blank">📥</a></td>
+      </tr>`;
+    });
+    html+='</tbody></table></div>';
+  }
+  el.innerHTML=html;
+}
+const ROLE_HIERARCHY=['kaikki','asukas','venevastaava','huolto','hallitus','admin'];
+async function setDocAccess(id,level){
+  const r=await fetch(API_BASE+'/api/hkl/documents/'+id+'/access',{method:'PUT',headers:ah(),body:JSON.stringify({access_level:level})});
+  if(!r.ok)alert('Virhe: '+r.status);
+}
+async function triggerSync(){
+  showMsg('sync-msg','⏳ Synkronoidaan...',true);
+  try{
+    const r=await fetch(API_BASE+'/api/hkl/drive-sync',{method:'POST',headers:ah()});
+    const d=await r.json();
+    if(r.ok){showMsg('sync-msg','✅ Valmis!',true);loadDocs();}
+    else showMsg('sync-msg','❌ Virhe: '+JSON.stringify(d),false);
+  }catch(e){showMsg('sync-msg','❌ '+e.message,false);}
+}
+
+// --- Ilmoitukset ---
+let _listings=[], _listingFilter='kaikki';
+async function loadListings(){
+  try{_listings=await fetch(API_BASE+'/api/hkl/listings',{headers:ah()}).then(r=>r.json());renderListings();}catch(e){}
+}
+function setListingFilter(f,el){_listingFilter=f;document.querySelectorAll('#li-tabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderListings();}
+function renderListings(){
+  const rows=_listingFilter==='kaikki'?_listings:_listings.filter(l=>l.tyyppi===_listingFilter);
+  const el=document.getElementById('listings-list');
+  if(!rows.length){el.innerHTML='<div class="tbl-empty">Ei ilmoituksia</div>';return;}
+  el.innerHTML=rows.map(l=>{
+    const icon=l.tyyppi==='myydaan'?'🏷️':'🏡';
+    const badge=l.active?'':'<span class="badge" style="background:rgba(248,113,113,0.15);color:var(--red);margin-left:6px">piilotettu</span>';
+    return`<div class="card" style="opacity:${l.active?1:0.5}"><div style="display:flex;align-items:flex-start;gap:10px"><div style="flex:1"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:1.2rem">${icon}</span><strong>${esc(l.nimi)}</strong>${badge}</div><div style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:6px">${esc(l.kuvaus)}</div><div style="font-size:12px;color:var(--muted)">${l.puh?'📞 '+esc(l.puh):''}${l.puh&&l.email?' · ':''}${l.email?'📧 '+esc(l.email):''}</div><div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:4px">${fmtDt(l.created)}</div></div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0"><button class="btn ${l.active?'btn-amber':'btn-ghost'} btn-sm" onclick="toggleListing('${l.id}',${l.active?0:1})">${l.active?'👁 Piilota':'👁 Näytä'}</button><button class="btn btn-danger btn-sm" onclick="delListing('${l.id}','${esc(l.nimi)}')">🗑</button></div></div></div>`;
+  }).join('');
+}
+async function addListing(){
+  const body={tyyppi:v('li-tyyppi'),nimi:v('li-nimi'),kuvaus:v('li-kuvaus'),puh:v('li-puh'),email:v('li-email')};
+  if(!body.nimi){showMsg('li-msg','❌ Anna nimi',false);return;}
+  const r=await fetch(API_BASE+'/api/hkl/listing',{method:'POST',headers:ah(),body:JSON.stringify(body)});
+  if(r.ok){['li-nimi','li-kuvaus','li-puh','li-email'].forEach(id=>document.getElementById(id).value='');showMsg('li-msg','✅ Julkaistu!',true);loadListings();}
+  else showMsg('li-msg','❌ Virhe '+r.status,false);
+}
+async function toggleListing(id,active){
+  await fetch(API_BASE+'/api/hkl/listing/'+id,{method:'PUT',headers:ah(),body:JSON.stringify({active})});
+  loadListings();
+}
+async function delListing(id,nimi){if(!confirm('Poistetaan "'+nimi+'"?'))return;await fetch(API_BASE+'/api/hkl/listing/'+id,{method:'DELETE',headers:ah()});loadListings();}
+
+// --- Vesiverkko ---
+let _wnData=[], _wnMap=null, _wnCabinLayer=null, _wnVesipisteLayer=null;
+const IMG_TYPE_ICONS={Vesipiste:'💧',Haaroitus:'🔀',Sulkuventtiili:'🔒',Runkolinja:'📏',Jatkos:'🔗',Linjakatko:'✂️',Tyhjennys:'🚰',Aluesulku:'🔐',Runkovesipiste:'💧',Aluehana:'🚿'};
+const IMG_TYPE_COLORS={Vesipiste:'#38bdf8',Haaroitus:'#a78bfa',Sulkuventtiili:'#f87171',Runkolinja:'#52b788',Jatkos:'#fbbf24',Linjakatko:'#fb923c',Tyhjennys:'#6b7280',Aluesulku:'#ef4444'};
+
+async function loadWaterNetwork(){
+  try{
+    _wnData=await fetch(API_BASE+'/api/hkl/water-network').then(r=>r.json());
+    if(!_data.vesipisteet.length) await loadVesipisteet();
+    const withImgs=_wnData.filter(d=>d.image_count>0);
+    document.getElementById('wn-stats').textContent=`${_wnData.length} mökkiä · ${withImgs.length} vesikuvilla · ${_wnData.reduce((a,d)=>a+d.image_count,0)} kuvaa`;
+    renderWaterNetwork();
+    if(!_wnMap)setTimeout(initWnMap,100);
+    else{updateWnMarkers();updateWnVesipisteet();}
+  }catch(e){console.warn('loadWaterNetwork',e);}
+}
+
+function renderWaterNetwork(){
+  const q=(document.getElementById('wn-search')?.value||'').trim();
+  let rows=_wnData.filter(d=>d.image_count>0);
+  if(q)rows=rows.filter(d=>d.number.includes(q)||(d.name||'').toLowerCase().includes(q.toLowerCase()));
+  const el=document.getElementById('wn-grid');
+  if(!rows.length){el.innerHTML='<div class="tbl-empty" style="grid-column:1/-1">Ei hakutuloksia</div>';return;}
+  el.innerHTML=rows.map(c=>{
+    const imgs=c.images||[];
+    const types=[...new Set(imgs.map(i=>i.type))];
+    const typeBadges=types.map(t=>`<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:8px;background:${(IMG_TYPE_COLORS[t]||'#52b788')}20;color:${IMG_TYPE_COLORS[t]||'#52b788'}">${IMG_TYPE_ICONS[t]||'📷'} ${t}</span>`).join(' ');
+    const thumbs=imgs.slice(0,4).map(i=>`<div style="width:60px;height:45px;border-radius:6px;overflow:hidden;cursor:pointer;border:1px solid var(--border)" onclick="showWaterImage(${i.doc_id},'Mökki ${esc(c.number)} — ${esc(i.type)}')"><img src="${API_BASE}/api/hkl/water-image/${i.doc_id}" style="width:100%;height:100%;object-fit:cover" loading="lazy"></div>`).join('');
+    const extra=imgs.length>4?`<div style="width:60px;height:45px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);border:1px solid var(--border)">+${imgs.length-4}</div>`:'';
+    return`<div class="card" style="margin-bottom:0">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:16px;font-weight:700;color:var(--green)">Mökki ${esc(c.number)}</span>
+        <span style="font-size:11px;color:var(--muted)">${esc(c.name||'')}</span>
+        <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--muted)">${imgs.length} kuvaa</span>
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">${typeBadges}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">${thumbs}${extra}</div>
+    </div>`;
+  }).join('');
+}
+
+function initWnMap(){
+  if(_wnMap)return;
+  _wnMap=L.map('wn-map').setView([60.1552,24.8555],17);
+
+  _wnMap.createPane('cabinPane');
+  _wnMap.getPane('cabinPane').style.zIndex=650;
+  _wnMap.createPane('vesipistePane');
+  _wnMap.getPane('vesipistePane').style.zIndex=640;
+
+  const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(_wnMap);
+  const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19});
+
+  _wnCabinLayer=L.layerGroup().addTo(_wnMap);
+  _wnVesipisteLayer=L.layerGroup().addTo(_wnMap);
+
+  L.control.layers(
+    {'OSM':osm,'Satelliitti':sat},
+    {'🏠 Mökkien numerot':_wnCabinLayer,'💧 Vesipisteet & jakelu':_wnVesipisteLayer}
+  ).addTo(_wnMap);
+
+  updateWnMarkers();
+  updateWnVesipisteet();
+}
+
+function updateWnMarkers(){
+  if(!_wnCabinLayer)return;
+  _wnCabinLayer.clearLayers();
+  _wnData.forEach(c=>{
+    if(!c.lat||!c.lon)return;
+    const hasImgs=c.image_count>0;
+    const color=hasImgs?(c.image_count>3?'#f87171':c.image_count>1?'#fbbf24':'#52b788'):'#6b7280';
+    const num=c.number;
+    const icon=L.divIcon({
+      html:`<div style="background:${color};color:#fff;border-radius:6px;padding:1px 5px;font-size:11px;font-weight:700;white-space:nowrap;border:2px solid rgba(255,255,255,0.9);box-shadow:0 2px 6px rgba(0,0,0,.5);opacity:${hasImgs?1:0.5};font-family:monospace;line-height:18px">${esc(num)}</div>`,
+      className:'',iconSize:null,iconAnchor:[0,10],
+      pane:'cabinPane'
+    });
+    const imgs=c.images||[];
+    const thumbs=imgs.slice(0,3).map(i=>`<img src="${API_BASE}/api/hkl/water-image/${i.doc_id}" style="width:60px;height:40px;object-fit:cover;border-radius:4px;cursor:pointer" onclick="showWaterImage(${i.doc_id},'Mökki ${c.number} — ${i.type}')">`).join(' ');
+    const popup=`<div style="min-width:180px"><strong>Mökki ${c.number}</strong>${c.name?'<br>'+esc(c.name):''}<br><span style="color:#888">${c.image_count} vesikuvaa</span>${thumbs?'<br><div style="display:flex;gap:4px;margin-top:6px">'+thumbs+'</div>':''}<br><a href="#" onclick="document.getElementById('wn-search').value='${c.number}';renderWaterNetwork();return false;" style="color:#52b788">Näytä kaikki →</a></div>`;
+    L.marker([c.lat,c.lon],{icon,pane:'cabinPane'}).bindPopup(popup).addTo(_wnCabinLayer);
+  });
+}
+
+function updateWnVesipisteet(){
+  if(!_wnVesipisteLayer)return;
+  _wnVesipisteLayer.clearLayers();
+  (_data.vesipisteet||[]).forEach(vp=>{
+    const icon=L.divIcon({
+      html:`<div style="background:${VP_COLORS[vp.tyyppi]||'#52b788'};border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,.5)">${VP_ICONS[vp.tyyppi]||'📍'}</div>`,
+      className:'',iconSize:[32,32],iconAnchor:[16,16],
+      pane:'vesipistePane'
+    });
+    L.marker([vp.lat,vp.lon],{icon,pane:'vesipistePane'})
+      .bindPopup(`<strong>${VP_ICONS[vp.tyyppi]||'📍'} ${esc(vp.nimi)}</strong><br><span style="color:#888">${esc(vp.tyyppi)}</span>${vp.kuvaus?'<br>'+esc(vp.kuvaus):''}`)
+      .addTo(_wnVesipisteLayer);
+  });
+}
+
+function showWaterImage(docId,title){
+  document.getElementById('water-modal-title').textContent=title;
+  document.getElementById('water-modal-body').innerHTML=`<img src="${API_BASE}/api/hkl/water-image/${docId}" style="max-width:100%;max-height:70vh;border-radius:8px;">`;
+  document.getElementById('water-modal').classList.add('open');
+}
+function closeWaterModal(){document.getElementById('water-modal').classList.remove('open');}
+
+const saved=sessionStorage.getItem('hkl_admin_token');
+if(saved){_token=saved;document.getElementById('login-screen').style.display='none';document.getElementById('admin-wrap').style.display='block';document.getElementById('logout-btn').style.display='block';document.getElementById('user-tag').style.display='block';document.getElementById('user-tag').textContent='● kirjautunut';loadAll();setInterval(loadSensors,30000);}
+</script>
+</body>
+</html>
