@@ -822,15 +822,6 @@ footer strong { color: white; }
     <p style="font-size:0.9rem;color:var(--text-muted);line-height:1.7;margin:0;">Henrietta Ikonen · Katriina Matilainen · Raili Rinne <span style="font-size:0.78rem;">(varajäsen)</span></p>
   </div>
 
-  <!-- OSTETAAN / MYYDÄÄN MÖKKEJÄ -->
-  <div id="listings-section" class="reveal" style="margin-top:28px;display:none;">
-    <div class="section-header"><h2 id="listings-title">🏡 Kesämajojen osto ja myynti-ilmoitukset</h2><div class="divider"></div><p id="listings-sub"></p></div>
-    <div id="listings-cards" style="display:flex;flex-direction:column;gap:12px;"></div>
-    <div style="text-align:center;margin-top:12px;">
-      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px;">Haluatko jättää ilmoituksen?</p>
-      <a href="mailto:sihteeri@hklkesamajat.fi" class="btn" style="font-size:0.85rem;">📧 Ota yhteyttä sihteeriin</a>
-    </div>
-  </div>
 
   <!-- VENEPAIKAT -->
   <div class="card reveal" style="margin-top:28px;background:linear-gradient(135deg,#0a4a6e 0%,#1e6b8a 50%,#0e5c3a 100%);color:#fff;padding:0;overflow:hidden;">
@@ -1600,52 +1591,6 @@ async function loadVessels() {
 loadVessels();
 setInterval(loadVessels, 180_000);
 
-// ── Ilmoitukset ──
-async function loadListings() {
-  try {
-    const all = await fetch(API_BASE + '/api/hkl/listings').then(r => r.json());
-    const active = all.filter(l => l.active);
-    if (!active.length) return;
-    const sec = document.getElementById('listings-section');
-    sec.style.display = '';
-    const ostetaan = active.filter(l => l.tyyppi === 'ostetaan');
-    const myydaan = active.filter(l => l.tyyppi === 'myydaan');
-    const title = document.getElementById('listings-title');
-    const sub = document.getElementById('listings-sub');
-    if (ostetaan.length && myydaan.length) {
-      title.textContent = '🏡 Ostetaan & myydään kesämajoja';
-      sub.textContent = 'Mökkien myynti- ja ostoilmoitukset';
-    } else if (myydaan.length) {
-      title.textContent = '🏷️ Myydään kesämajoja';
-      sub.textContent = 'Alueen myynti-ilmoitukset';
-    } else {
-      title.textContent = '🏡 Ostetaan kesämajoja';
-      sub.textContent = 'Nämä perheet etsivät omaa kesämajaa Lauttasaaren alueelta.';
-    }
-    const icons = {ostetaan:'🏡', myydaan:'🏷️'};
-    const colors = {ostetaan:'var(--green)', myydaan:'#f59e0b'};
-    const esc = s => (s||'').replace(/</g,'&lt;');
-    document.getElementById('listings-cards').innerHTML = active.map(l => {
-      const icon = icons[l.tyyppi] || '🏡';
-      const col = colors[l.tyyppi] || 'var(--green)';
-      const contacts = [
-        l.puh ? `<a href="tel:${l.puh.replace(/\s/g,'')}" style="font-size:0.82rem;color:var(--green);font-weight:600;text-decoration:none;">📞 ${esc(l.puh)}</a>` : '',
-        l.email ? `<a href="mailto:${esc(l.email)}" style="font-size:0.82rem;color:var(--green);font-weight:600;text-decoration:none;">📧 ${esc(l.email)}</a>` : ''
-      ].filter(Boolean).join(' &nbsp; ');
-      return `<div class="card" style="border-left:4px solid ${col};padding:18px 20px;">
-        <div style="display:flex;align-items:flex-start;gap:14px;">
-          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#d8f3dc,#b7e4c7);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">${icon}</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px;">${esc(l.nimi)}</div>
-            <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">${esc(l.kuvaus)}</p>
-            <div style="display:flex;gap:14px;flex-wrap:wrap;">${contacts}</div>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-  } catch(e) { console.warn('loadListings', e); }
-}
-loadListings();
 
 // Section tabs — show after scrolling past hero, highlight active section
 (function() {

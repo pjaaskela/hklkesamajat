@@ -1199,6 +1199,21 @@ body { padding-top: 48px; }
       </div>
     </div>
 
+    <!-- OSTO/MYYNTI-ILMOITUKSET -->
+    <div class="card" id="listings-card" data-collapse="true">
+      <div class="card-header" onclick="toggleCardCollapse('listings-card')" style="cursor:pointer;">
+        <div class="card-title">🏡 Kesämajojen osto ja myynti-ilmoitukset</div>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
+      </div>
+      <div class="card-body card-collapse-body" style="display:none;">
+        <div id="listings-cards" style="display:flex;flex-direction:column;gap:10px;"></div>
+        <div id="listings-empty" style="display:none;text-align:center;padding:10px;color:var(--text-muted);font-size:0.82rem;">Ei aktiivisia ilmoituksia.</div>
+        <div style="text-align:center;margin-top:12px;">
+          <a href="mailto:sihteeri@hklkesamajat.fi" style="font-size:0.82rem;color:var(--green);font-weight:600;text-decoration:none;">📧 Jätä ilmoitus sihteerille</a>
+        </div>
+      </div>
+    </div>
+
     <!-- LISÄPALVELUT (compact) -->
     <div id="interests-section">
     <div class="card" data-collapse="true">
@@ -1738,6 +1753,7 @@ function showDashboard(num) {
   loadProfileHero();
   loadMokkiDay();
   loadMokkiDocs();
+  loadListings();
 
   // Background preview
   const bgPreview = document.getElementById('set-bg-preview');
@@ -1958,6 +1974,36 @@ function renderSaunaCard() {
       <div class="sauna-slot-type">${sl.w} ${sl.t}</div>
     </div>`;
   }).join('');
+}
+
+// ========== LISTINGS (osto/myynti) ==========
+async function loadListings() {
+  try {
+    const all = await fetch(API_BASE + '/api/hkl/listings').then(r => r.json());
+    const active = all.filter(l => l.active);
+    const cards = document.getElementById('listings-cards');
+    const empty = document.getElementById('listings-empty');
+    if (!active.length) { if(empty) empty.style.display=''; return; }
+    const esc = s => (s||'').replace(/</g,'&lt;');
+    const icons = {ostetaan:'🏡', myydaan:'🏷️'};
+    const colors = {ostetaan:'var(--green)', myydaan:'#f59e0b'};
+    cards.innerHTML = active.map(l => {
+      const icon = icons[l.tyyppi] || '🏡';
+      const col = colors[l.tyyppi] || 'var(--green)';
+      const contacts = [
+        l.puh ? `<a href="tel:${l.puh.replace(/\s/g,'')}" style="font-size:0.82rem;color:var(--green);font-weight:600;text-decoration:none;">📞 ${esc(l.puh)}</a>` : '',
+        l.email ? `<a href="mailto:${esc(l.email)}" style="font-size:0.82rem;color:var(--green);font-weight:600;text-decoration:none;">📧 ${esc(l.email)}</a>` : ''
+      ].filter(Boolean).join(' &nbsp; ');
+      return `<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f0f0f0;">
+        <div style="font-size:1.3rem;flex-shrink:0;">${icon}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:0.88rem;margin-bottom:3px;">${esc(l.nimi)}</div>
+          <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.5;margin:0 0 6px;">${esc(l.kuvaus)}</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">${contacts}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {}
 }
 
 // ========== DOCUMENT DOWNLOAD (with token) ==========
@@ -2645,6 +2691,7 @@ const SECTION_DEFS = [
   { key: 'docs', label: '📄 Dokumentit', sel: '#docs-card' },
   { key: 'kierratys', label: '♻️ Kierrätyspiste', sel: '#kierratys-card' },
   { key: 'hallitus', label: '🏛️ Hallitus', sel: '#hallitus-card' },
+  { key: 'listings', label: '🏡 Ilmoitukset', sel: '#listings-card' },
   { key: 'interests', label: '💡 Lisäpalvelut', sel: '#interests-section' },
 ];
 
