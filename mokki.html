@@ -91,6 +91,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--sand); 
   padding: 14px 18px 0;
   display: flex; align-items: center; justify-content: space-between;
 }
+.card[data-collapse] > .card-header { padding: 16px 18px; min-height: 52px; }
 .card-title {
   font-size: 0.82rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.07em; color: var(--text-muted);
@@ -368,7 +369,182 @@ body { padding-top: 48px; }
 }
 .settings-bg-preview img { width: 100%; height: 100%; object-fit: cover; }
 
+/* ========== PROFILE HERO CARD ========== */
+.profile-hero {
+  background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+}
+.profile-hero-photos {
+  display: flex; gap: 16px; padding: 18px; align-items: flex-start;
+}
+.profile-owner-photo {
+  width: 90px; height: 90px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
+  background: var(--green-pale); display: flex; align-items: center; justify-content: center;
+  font-size: 2.8rem; border: 3px solid var(--green-light);
+}
+.profile-owner-photo img { width: 100%; height: 100%; object-fit: cover; }
+.profile-info { flex: 1; min-width: 0; }
+.profile-info h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 2px; color: var(--text); }
+.profile-info .profile-mokki-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--green-pale); color: var(--green); font-size: 0.72rem;
+  font-weight: 700; padding: 2px 10px; border-radius: 12px; margin-bottom: 6px;
+}
+.profile-info .profile-contact { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
+.profile-cabin-photo {
+  width: 100%; height: 160px; overflow: hidden; position: relative;
+}
+.profile-cabin-photo img { width: 100%; height: 100%; object-fit: cover; }
+.profile-cabin-photo .cabin-caption {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.65));
+  padding: 20px 16px 10px; color: #fff; font-size: 0.82rem; font-style: italic;
+}
+.profile-photo-actions {
+  display: flex; gap: 8px; padding: 10px 18px 14px; flex-wrap: wrap;
+}
+.profile-photo-btn {
+  padding: 7px 14px; border-radius: 8px; font-size: 0.75rem; font-weight: 600;
+  border: 1.5px solid #e0e7ef; background: #f8fafc; color: var(--text);
+  cursor: pointer; transition: border-color .2s, background .2s;
+}
+.profile-photo-btn:hover { border-color: var(--green-light); background: var(--green-pale); }
+
+
+/* ========== MOKKI DAY AI ========== */
+.mokki-day-card {
+  background: linear-gradient(145deg, #0a3d2a 0%, #0e5c46 50%, #0a4a6e 100%);
+  border-radius: var(--radius); padding: 20px 18px; position: relative; overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.mokki-day-card .md-orb {
+  position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.15;
+}
+.mokki-day-card .md-orb-1 { width: 180px; height: 180px; background: #52b788; top: -50px; left: -30px; }
+.mokki-day-card .md-orb-2 { width: 120px; height: 120px; background: #48b5d3; bottom: -20px; right: -20px; }
+.mokki-day-card .md-inner { position: relative; z-index: 1; }
+.mokki-day-card .md-label {
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: rgba(255,255,255,0.55); margin-bottom: 8px;
+}
+.mokki-day-card .md-text {
+  font-size: 0.92rem; line-height: 1.65; color: white; font-weight: 500;
+}
+.mokki-day-card .md-time {
+  font-size: 0.6rem; color: rgba(255,255,255,0.4); margin-top: 10px;
+}
+
+/* ========== INTEREST CARDS ========== */
+.interest-section-title {
+  font-size: 0.78rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-muted); margin: 20px 0 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.interest-section-title::after {
+  content: ''; flex: 1; height: 1px; background: #e2e8f0;
+}
+.interest-card {
+  background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 18px; display: flex; align-items: flex-start; gap: 14px;
+  border-left: 4px solid #e2e8f0; transition: border-color .3s, box-shadow .3s;
+}
+.interest-card.interested { border-left-color: var(--green); box-shadow: 0 4px 20px rgba(22,163,74,0.12); }
+.interest-icon { font-size: 2rem; flex-shrink: 0; }
+.interest-body { flex: 1; min-width: 0; }
+.interest-body h4 { font-size: 0.92rem; font-weight: 800; margin-bottom: 3px; }
+.interest-body p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 8px; }
+.interest-price { font-size: 0.72rem; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+.interest-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;
+  border: 1.5px solid #e2e8f0; background: #f8fafc; color: var(--text-muted);
+  cursor: pointer; transition: all .25s;
+}
+.interest-toggle.active {
+  background: var(--green-pale); border-color: var(--green-light); color: var(--green);
+}
+.interest-toggle:hover { border-color: var(--green-light); }
+.interest-msg {
+  font-size: 0.72rem; color: var(--green); margin-top: 6px; min-height: 1em;
+}
+
 @media (max-width: 380px) {
+  .profile-hero-photos { flex-direction: column; align-items: center; text-align: center; }
+}
+
+/* ========== FLAG DAYS ========== */
+.flag-card {
+  background: linear-gradient(135deg, #002f6c 0%, #003580 50%, #1a4a8a 100%);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 16px 18px; color: #fff; overflow: hidden; position: relative;
+}
+.flag-card::before {
+  content: ''; position: absolute; top: -20px; right: -10px; width: 80px; height: 80px;
+  background: rgba(255,255,255,0.04); border-radius: 50%; filter: blur(20px);
+}
+.flag-card .card-title { color: rgba(255,255,255,0.7); }
+.flag-items { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.flag-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.07); transition: background .2s;
+}
+.flag-item.flag-today {
+  background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3);
+}
+.flag-item.flag-next { background: rgba(255,255,255,0.12); }
+.flag-emoji { font-size: 1.4rem; flex-shrink: 0; }
+.flag-date { font-weight: 800; font-size: 0.82rem; min-width: 50px; color: #fff; }
+.flag-info { flex: 1; min-width: 0; }
+.flag-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.95); }
+.flag-desc { font-size: 0.68rem; color: rgba(255,255,255,0.5); margin-top: 1px; }
+.flag-badge {
+  font-size: 0.62rem; font-weight: 700; padding: 2px 8px; border-radius: 6px;
+  background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); flex-shrink: 0;
+}
+.flag-badge.flag-badge-today { background: #f59e0b; color: #fff; }
+
+/* ========== SECTION TOGGLE PANEL ========== */
+.section-panel-overlay {
+  position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px); display: none; align-items: flex-end; justify-content: center;
+}
+.section-panel-overlay.active { display: flex; }
+.section-panel {
+  background: #fff; border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 640px; max-height: 80vh; overflow-y: auto;
+  padding: 20px 16px; box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+  animation: panelSlideUp .25s ease-out;
+}
+@keyframes panelSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.section-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.section-panel-header h3 { font-size: 1rem; font-weight: 800; color: var(--text); margin: 0; }
+.section-panel-close {
+  background: var(--sand); border: none; width: 32px; height: 32px; border-radius: 50%;
+  font-size: 1.1rem; cursor: pointer; color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+}
+.section-toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.section-toggle-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; border-radius: 10px;
+  background: var(--sand); cursor: pointer; transition: background .15s;
+  user-select: none;
+}
+.section-toggle-item:hover { background: var(--green-pale); }
+.section-toggle-item input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--green); flex-shrink: 0; cursor: pointer; }
+.section-toggle-item span { font-size: 0.75rem; font-weight: 600; color: var(--text); cursor: pointer; }
+.dash-settings-btn {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7); font-size: 1rem; width: 32px; height: 32px;
+  border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.dash-settings-btn:hover { background: rgba(255,255,255,0.15); }
+@media (max-width: 380px) {
+  .section-toggles { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -376,7 +552,7 @@ body { padding-top: 48px; }
 
 <!-- TOP NAV -->
 <nav class="mn">
-  <a href="index.html" class="mn-back">← Etusivu</a>
+  <a href="hklkesamajat.html" class="mn-back">← Etusivu</a>
   <span class="mn-title">🏡 Oma mökki</span>
 </nav>
 
@@ -407,13 +583,56 @@ body { padding-top: 48px; }
       <h2>Oma mökki</h2>
       <span class="dash-header-mokki" id="dash-mokki-badge">484</span>
     </div>
-    <button class="dash-logout" onclick="doLogout()">Kirjaudu ulos</button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="dash-settings-btn" onclick="toggleSectionPanel()" title="Näytä/piilota osiot">⚙</button>
+      <button class="dash-logout" onclick="doLogout()">Kirjaudu ulos</button>
+    </div>
   </div>
 
   <!-- TIEDOTTEET BANNER -->
   <div id="ann-mokki" style="display:none;background:#1a3522;border-bottom:2px solid #52b788;border-radius:10px;margin-bottom:12px;padding:12px 16px;">
     <div style="font-size:0.7rem;font-weight:700;color:#52b788;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">📢 Tiedotteet</div>
     <div id="ann-mokki-items" style="display:flex;flex-direction:column;gap:6px;"></div>
+  </div>
+
+  <!-- PROFILE HERO -->
+  <div class="profile-hero" id="profile-hero-card" style="margin:0 16px 14px;">
+    <div class="profile-hero-photos">
+      <div class="profile-owner-photo" id="owner-photo-wrap">
+        <span id="owner-photo-placeholder">👤</span>
+      </div>
+      <div class="profile-info">
+        <h3 id="hero-name">Mökkiläinen</h3>
+        <div class="profile-mokki-tag" id="hero-mokki-tag">🏡 Mökki –</div>
+        <div class="profile-contact">
+          <div id="hero-email"></div>
+          <div id="hero-puh"></div>
+        </div>
+      </div>
+    </div>
+    <div class="profile-cabin-photo" id="cabin-photo-wrap">
+      <div style="display:flex;align-items:center;justify-content:center;height:100%;background:var(--sand);color:var(--text-muted);font-size:0.85rem;">
+        Lisää mökin kuva alta
+      </div>
+    </div>
+    <div class="profile-photo-actions">
+      <button class="profile-photo-btn" onclick="document.getElementById('owner-photo-file').click()">📷 Omistajan kuva</button>
+      <button class="profile-photo-btn" onclick="document.getElementById('cabin-photo-file').click()">🏠 Mökin kuva</button>
+      <input type="file" id="owner-photo-file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadOwnerPhoto(this)">
+      <input type="file" id="cabin-photo-file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadCabinPhoto(this)">
+    </div>
+    <div id="hero-photo-msg" style="padding:0 18px 10px;font-size:0.78rem;color:var(--green);min-height:1em;"></div>
+  </div>
+
+  <!-- MÖKKIPÄIVÄ AI-KUVAUS -->
+  <div class="mokki-day-card" id="mokki-day-card" style="margin:0 16px 14px;display:none;">
+    <div class="md-orb md-orb-1"></div>
+    <div class="md-orb md-orb-2"></div>
+    <div class="md-inner">
+      <div class="md-label">🚌 Mökkipäivä · saapuminen julkisilla</div>
+      <div class="md-text" id="mokki-day-text"><span class="skel" style="width:90%;height:3em;display:block;border-radius:8px;"></span></div>
+      <div class="md-time" id="mokki-day-time"></div>
+    </div>
   </div>
 
   <!-- AI PÄIVÄNKUVAUS + LIVE SNAPSHOT -->
@@ -435,8 +654,18 @@ body { padding-top: 48px; }
 
   <div class="dash-main">
 
+    <!-- SECTION TOGGLE BAR -->
+    <div onclick="toggleSectionPanel()" style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;transition:box-shadow .15s;border:1px solid #e8ede9;" onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)'">
+      <span style="font-size:1.2rem;">⚙️</span>
+      <div style="flex:1;">
+        <div style="font-size:0.82rem;font-weight:700;color:var(--text);">Muokkaa etusivua</div>
+        <div style="font-size:0.7rem;color:var(--text-muted);">Valitse mitkä osiot näytetään</div>
+      </div>
+      <span style="font-size:0.9rem;color:var(--text-muted);">›</span>
+    </div>
+
     <!-- 1. MÖKKI STATUS CARD -->
-    <div class="card">
+    <div class="card" id="sensor-card" data-mokki="484">
       <div class="card-header">
         <div class="card-title">📡 Mökki <span id="status-mokki-num">484</span> · Live-tila</div>
         <div id="motion-badge" class="motion-badge motion-idle">
@@ -476,7 +705,7 @@ body { padding-top: 48px; }
     </div>
 
     <!-- 2. SÄHKÖNKULUTUS CARD -->
-    <div class="card">
+    <div class="card" id="elec-card" data-mokki="484">
       <div class="card-header">
         <div class="card-title">⚡ Sähkönkulutus</div>
         <span style="font-size:0.72rem;color:var(--text-muted);">Helen + laitemittarit</span>
@@ -511,93 +740,60 @@ body { padding-top: 48px; }
       </div>
     </div>
 
-    <!-- 3. LÄMPÖTILASÄÄTÖ CARD -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">🌡️ Lämpötilasäätö</div>
-        <span style="font-size:0.72rem;color:var(--text-muted);">Tavoitelämpötila</span>
+    <!-- 3+5b. LÄMPÖTILA & AVOKADO (compact 2-col) -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" data-mokki="484">
+      <!-- Lämpötilasäätö -->
+      <div class="card" id="thermo-card" style="margin:0;">
+        <div class="card-body" style="padding:14px;">
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:6px;">🌡️ Lämpötila</div>
+          <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px;">
+            <span id="thermo-current" style="font-size:1.4rem;font-weight:900;">–</span>
+            <span style="color:var(--text-muted);font-size:0.8rem;">→</span>
+            <span id="thermo-target-display" style="font-size:1.4rem;font-weight:900;color:var(--green);">20°C</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button class="thermo-btn" onclick="adjustTemp(-1)" style="width:32px;height:32px;font-size:1.2rem;">−</button>
+            <button class="thermo-save" onclick="saveTemp()" style="flex:1;padding:8px;font-size:0.75rem;">Aseta</button>
+            <button class="thermo-btn" onclick="adjustTemp(+1)" style="width:32px;height:32px;font-size:1.2rem;">+</button>
+          </div>
+          <div class="thermo-msg" id="thermo-msg" style="font-size:0.7rem;"></div>
+        </div>
       </div>
-      <div class="card-body">
-        <div class="thermo-display">
-          <div class="thermo-current">
-            <div class="val" id="thermo-current">–</div>
-            <div class="lbl">Nyt sisällä</div>
+      <!-- Avokado -->
+      <div class="card" id="avocado-card" style="margin:0;">
+        <div class="card-body" style="padding:14px;">
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:6px;">🥑 Avokado</div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>🌡️ Maaperä</span><strong id="avo-temp">–</strong></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>💧 Kosteus</span><strong id="avo-moisture">–</strong></div>
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;"><span>🔋 Akku</span><strong id="avo-battery">–</strong></div>
           </div>
-          <div class="thermo-arrow">→</div>
-          <div class="thermo-target">
-            <div class="val" id="thermo-target-display">20°C</div>
-            <div class="lbl">Tavoite</div>
-          </div>
+          <div id="avo-status" style="margin-top:6px;padding:5px 8px;border-radius:6px;font-size:0.72rem;font-weight:600;"></div>
         </div>
-        <div class="thermo-controls">
-          <button class="thermo-btn" onclick="adjustTemp(-1)">−</button>
-          <button class="thermo-save" onclick="saveTemp()">Aseta lämpötila</button>
-          <button class="thermo-btn" onclick="adjustTemp(+1)">+</button>
-        </div>
-        <div class="thermo-msg" id="thermo-msg"></div>
       </div>
     </div>
 
     <!-- 4. POISSA-TILA CARD -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">🌙 Poissa-tila</div>
-      </div>
-      <div class="card-body">
+    <div class="card" id="away-card" data-mokki="484">
+      <div class="card-body" style="padding:12px 16px;">
         <div class="away-row">
           <div class="away-label">
-            <h3 id="away-title">Kotona</h3>
-            <p>Poissa-tilassa kameravalvonta aktivoituu ja lämmitys laskee automaattisesti.</p>
+            <h3 id="away-title" style="font-size:0.9rem;">Kotona</h3>
+            <p style="font-size:0.72rem;">Poissa → kamera aktivoituu, lämmitys laskee.</p>
           </div>
           <div class="toggle-wrap">
             <input type="checkbox" id="away-toggle" class="toggle-input" onchange="toggleAway()">
             <label for="away-toggle" class="toggle-label"></label>
           </div>
         </div>
-        <div id="away-status-bar" class="away-status away-off">
-          Mökki on aktiivikäytössä. Kamera tallentaa normaalisti.
-        </div>
-      </div>
-    </div>
-
-    <!-- 5. AURINKOPANEELI CARD -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">☀️ Aurinkopaneeli</div>
-        <span style="font-size:0.72rem;color:var(--text-muted);">2 m² arvio</span>
-      </div>
-      <div class="card-body">
-        <div class="sensor-grid">
-          <div class="sensor-item">
-            <div class="sensor-label">⚡ Teho nyt</div>
-            <div class="sensor-value" id="sol-power"><span class="skel" style="width:70px"></span></div>
-            <div class="sensor-sub">W (arvio)</div>
-          </div>
-          <div class="sensor-item">
-            <div class="sensor-label">📅 Tänään</div>
-            <div class="sensor-value" id="sol-today"><span class="skel" style="width:60px"></span></div>
-            <div class="sensor-sub">Wh tuotto</div>
-          </div>
-          <div class="sensor-item">
-            <div class="sensor-label">☀️ Säteily nyt</div>
-            <div class="sensor-value" id="sol-irr"><span class="skel" style="width:65px"></span></div>
-            <div class="sensor-sub">W/m²</div>
-          </div>
-          <div class="sensor-item">
-            <div class="sensor-label">📊 Vuosiarvio</div>
-            <div class="sensor-value" id="sol-annual">~380</div>
-            <div class="sensor-sub">kWh/vuosi</div>
-          </div>
-        </div>
-        <div style="margin-top:10px;font-size:0.72rem;color:var(--text-muted);">
-          2 m² · 20% hyötysuhde · etelä-suunta · Open-Meteo säteily ·
-          <a href="solar.html" style="color:var(--green);font-weight:600;">Tarkempi analyysi →</a>
+        <div id="away-status-bar" class="away-status away-off" style="font-size:0.72rem;padding:7px 10px;">
+          Mökki on aktiivikäytössä.
         </div>
       </div>
     </div>
 
     <!-- 6. SAUNA CARD -->
-    <div class="card">
+    <div class="card" id="sauna-card">
       <div class="card-header">
         <div class="card-title">🛁 Yhteissauna</div>
         <div id="sauna-live" class="sauna-live-badge sauna-inactive">–</div>
@@ -609,11 +805,40 @@ body { padding-top: 48px; }
           Pre-kausi (touko–18.6.): <strong>ti + la</strong> &nbsp;·&nbsp;
           Huippukausi (19.6.–31.8.): <strong>pe + la</strong>
         </div>
+
+        <!-- Saunan vierasmaksu -->
+        <div style="margin-top:16px;background:linear-gradient(135deg,#fef3c7 0%,#fff7ed 100%);border-radius:14px;padding:16px 18px;border:1px solid #fde68a;">
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div style="font-size:2.2rem;line-height:1;flex-shrink:0;">🧖‍♂️</div>
+            <div style="flex:1;">
+              <div style="font-weight:800;font-size:0.9rem;color:#92400e;margin-bottom:4px;">Tuotko vieraita saunaan?</div>
+              <p style="font-size:0.82rem;color:#78350f;line-height:1.5;margin:0 0 10px;">Tervetuloa! Saunamaksu on <strong>3 € / vieras</strong>. Samassa taloudessa asuvat ja alle 12-vuotiaat lapset ovat vapautettuja.</p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <div style="background:rgba(255,255,255,0.7);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;flex:1;min-width:140px;">
+                  <div style="font-size:1.3rem;">💰</div>
+                  <div>
+                    <div style="font-size:0.72rem;color:#888;font-weight:600;letter-spacing:0.04em;">KÄTEINEN</div>
+                    <div style="font-size:0.82rem;font-weight:700;color:#78350f;">Lipas pukuhuoneessa</div>
+                  </div>
+                </div>
+                <div style="background:rgba(255,255,255,0.7);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;flex:1;min-width:140px;">
+                  <div style="width:30px;height:30px;background:#5a31f4;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 3H7C4.79 3 3 4.79 3 7v10c0 2.21 1.79 4 4 4h10c2.21 0 4-1.79 4-4V7c0-2.21-1.79-4-4-4z" fill="#fff"/><path d="M15.5 12.5l-2.3-4c-.2-.4-.7-.5-1.1-.3l-2 1.2c-.4.2-.5.7-.3 1.1l2.3 4c.2.4.7.5 1.1.3l2-1.2c.4-.2.5-.7.3-1.1z" fill="#5a31f4"/></svg>
+                  </div>
+                  <div>
+                    <div style="font-size:0.72rem;color:#888;font-weight:600;letter-spacing:0.04em;">MOBILEPAY</div>
+                    <div style="font-size:1rem;font-weight:800;color:#5a31f4;letter-spacing:0.02em;">#24434</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- 6b. JÄTTEET & TYHJENNYKSET -->
-    <div class="card">
+    <div class="card" id="waste-card">
       <div class="card-header">
         <div class="card-title">♻️ Jätteet & tyhjennykset</div>
       </div>
@@ -652,18 +877,87 @@ body { padding-top: 48px; }
               <div style="font-size:0.82rem;color:var(--text-muted);" id="waste-next-date"></div>
             </div>
           </div>
-          <div style="font-size:0.68rem;color:var(--text-muted);margin-top:8px;">HSY · Lounaisväylänpolku, Helsinki</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);margin-top:8px;">HSY · jätehuolto</div>
         </div>
       </div>
     </div>
 
-    <!-- 7. KUVAGALLERIA CARD -->
-    <div class="card">
+    <!-- 6c. LIPUTUSPÄIVÄT -->
+    <div class="flag-card" id="flag-card" data-collapse="true">
+      <div class="card-title" style="margin-bottom:2px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;" onclick="toggleCardCollapse('flag-card')">
+        <span>🇫🇮 Suomen liputuspäivät</span>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:rgba(255,255,255,0.5);transition:transform .2s;">▸</span>
+      </div>
+      <div class="card-collapse-body" style="display:none;">
+        <div class="flag-items" id="flag-items"></div>
+        <div style="font-size:0.62rem;color:rgba(255,255,255,0.35);margin-top:8px;">Lähde: Sisäministeriö · viralliset liputuspäivät</div>
+      </div>
+    </div>
+
+    <!-- 6d. LÄHIRANNAT -->
+    <div class="card" id="beaches-card">
       <div class="card-header">
-        <div class="card-title">📷 Omat kuvat</div>
-        <span id="photos-count" style="font-size:0.72rem;color:var(--text-muted);"></span>
+        <div class="card-title">🏖️ Lähirannat</div>
+        <a href="https://jaaskel.com/rannat.html?lat=60.155&lon=24.855&near=1" target="_blank" style="font-size:0.72rem;color:var(--green);text-decoration:none;font-weight:600;">Kartta →</a>
       </div>
       <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:8px;" id="nearby-beaches">
+          <a href="https://jaaskel.com/beach.html?id=1254" target="_blank" class="beach-link" style="display:flex;align-items:center;gap:12px;background:#e0f2fe;border-radius:10px;padding:10px 14px;text-decoration:none;color:inherit;border:1px solid #bae6fd;">
+            <div style="font-size:1.3rem;">⭐</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:0.85rem;color:#0369a1;">Lentokapteeninkujan rannat</div>
+              <div style="font-size:0.75rem;color:#64748b;">HKL-alueen omat hiekkarannat · lämpimin vesi · helppo</div>
+            </div>
+            <div style="font-size:0.72rem;color:#0ea5e9;font-weight:700;">~100m</div>
+          </a>
+          <a href="https://jaaskel.com/beach.html?id=1253" target="_blank" class="beach-link" style="display:flex;align-items:center;gap:12px;background:#f8fafc;border-radius:10px;padding:10px 14px;text-decoration:none;color:inherit;border:1px solid #e2e8f0;">
+            <div style="font-size:1.3rem;">🧗</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:0.85rem;">Länsiulapanniemen kalliot</div>
+              <div style="font-size:0.75rem;color:#64748b;">Metalliportaat, kalliouinti · vaativa</div>
+            </div>
+            <div style="font-size:0.72rem;color:#94a3b8;font-weight:700;">~200m</div>
+          </a>
+          <a href="https://jaaskel.com/beach.html?id=1252" target="_blank" class="beach-link" style="display:flex;align-items:center;gap:12px;background:#f8fafc;border-radius:10px;padding:10px 14px;text-decoration:none;color:inherit;border:1px solid #e2e8f0;">
+            <div style="font-size:1.3rem;">🌅</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:0.85rem;">Takaniemenranta</div>
+              <div style="font-size:0.75rem;color:#64748b;">Kauniit näkymät, kallio · vaativa</div>
+            </div>
+            <div style="font-size:0.72rem;color:#94a3b8;font-weight:700;">~600m</div>
+          </a>
+          <a href="https://jaaskel.com/beach.html?id=1257" target="_blank" class="beach-link" style="display:flex;align-items:center;gap:12px;background:#f8fafc;border-radius:10px;padding:10px 14px;text-decoration:none;color:inherit;border:1px solid #e2e8f0;">
+            <div style="font-size:1.3rem;">🏝️</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:0.85rem;">Lemissaaren nokka</div>
+              <div style="font-size:0.75rem;color:#64748b;">Iltaaurinko, kivi/sora · keskitaso</div>
+            </div>
+            <div style="font-size:0.72rem;color:#94a3b8;font-weight:700;">~900m</div>
+          </a>
+          <a href="https://jaaskel.com/beach.html?id=1251" target="_blank" class="beach-link" style="display:flex;align-items:center;gap:12px;background:#f8fafc;border-radius:10px;padding:10px 14px;text-decoration:none;color:inherit;border:1px solid #e2e8f0;">
+            <div style="font-size:1.3rem;">🏖️</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:0.85rem;">Kasinonranta</div>
+              <div style="font-size:0.75rem;color:#64748b;">Pääuimaranta · rantapelastajat, ravintola, WC · helppo</div>
+            </div>
+            <div style="font-size:0.72rem;color:#94a3b8;font-weight:700;">~1.2km</div>
+          </a>
+        </div>
+        <div style="margin-top:10px;text-align:center;">
+          <a href="https://jaaskel.com/rannat.html?lat=60.155&lon=24.855&near=1" target="_blank" style="font-size:0.78rem;color:var(--green);font-weight:600;text-decoration:none;">Näytä kaikki 18 Lauttasaaren rantaa kartalla →</a>
+        </div>
+        <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;">Lähde: Lauttasaari-Seura · jaaskel.com/rannat</div>
+      </div>
+    </div>
+
+
+    <!-- 7. KUVAGALLERIA CARD (collapsed default) -->
+    <div class="card" id="photos-card" data-collapse="true">
+      <div class="card-header" onclick="toggleCardCollapse('photos-card')" style="cursor:pointer;">
+        <div class="card-title">📷 Omat kuvat <span id="photos-count" style="font-size:0.72rem;color:var(--text-muted);font-weight:400;"></span></div>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
+      </div>
+      <div class="card-body card-collapse-body" style="display:none;">
         <div id="photos-grid" class="photos-grid"></div>
         <input type="file" id="photo-input" class="photo-input" accept="image/*" multiple onchange="handlePhotoUpload(this)">
         <div id="photos-empty" class="photos-empty" style="display:none;">
@@ -672,116 +966,319 @@ body { padding-top: 48px; }
       </div>
     </div>
 
-    <!-- 7. LAITURILÄMPÖTILA CARD -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">🌊 Laiturilämpötila</div>
-        <span style="font-size:0.72rem;color:var(--text-muted);">Manuaalinen mittaus</span>
-      </div>
-      <div class="card-body">
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-          <div style="flex:0 0 90px;">
-            <label style="font-size:0.7rem;color:var(--text-muted);font-weight:700;letter-spacing:.05em;display:block;margin-bottom:4px;">LÄMPÖTILA (°C)</label>
-            <input type="number" id="laituri-temp" step="0.1" min="-5" max="35" placeholder="18.5" style="width:100%;padding:8px 10px;border:1.5px solid #e0e7ef;border-radius:8px;font-size:1rem;font-weight:600;background:#f8fafc;">
-          </div>
-          <div style="flex:1;min-width:120px;">
-            <label style="font-size:0.7rem;color:var(--text-muted);font-weight:700;letter-spacing:.05em;display:block;margin-bottom:4px;">MITTAAJAN NIMI</label>
-            <input type="text" id="laituri-name" placeholder="Oma nimesi" style="width:100%;padding:8px 10px;border:1.5px solid #e0e7ef;border-radius:8px;font-size:0.9rem;background:#f8fafc;">
+    <!-- 7b. LAITURILÄMPÖTILA (compact) -->
+    <div class="card" id="laituri-card">
+      <div class="card-body" style="padding:12px 16px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.3rem;">🌊</span>
+          <div style="flex:1;">
+            <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Laiturilämpötila</div>
+            <div id="laituri-last" style="font-size:0.82rem;color:var(--text);margin-top:2px;"></div>
           </div>
         </div>
-        <button onclick="submitLaituri()" style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:700;font-size:0.95rem;cursor:pointer;width:100%;">💧 Tallenna mittaus</button>
-        <div id="laituri-msg" style="margin-top:8px;font-size:0.85rem;text-align:center;min-height:20px;"></div>
-        <div id="laituri-last" style="margin-top:10px;font-size:0.82rem;color:var(--text-muted);"></div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:8px;">
+          <input type="number" id="laituri-temp" step="0.1" min="-5" max="35" placeholder="°C" style="width:60px;padding:6px 8px;border:1.5px solid #e0e7ef;border-radius:6px;font-size:0.85rem;font-weight:600;background:#f8fafc;">
+          <input type="text" id="laituri-name" placeholder="Nimi" style="flex:1;padding:6px 8px;border:1.5px solid #e0e7ef;border-radius:6px;font-size:0.82rem;background:#f8fafc;">
+          <button onclick="submitLaituri()" style="background:var(--green);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-weight:700;font-size:0.78rem;cursor:pointer;white-space:nowrap;">Tallenna</button>
+        </div>
+        <div id="laituri-msg" style="margin-top:4px;font-size:0.72rem;text-align:center;min-height:14px;"></div>
       </div>
     </div>
 
-    <!-- 8. KAMERAVALVONTA CARD -->
-    <div class="card">
+    <!-- 8. KAMERAVALVONTA CARD (compact) -->
+    <div class="card" id="camera-card" data-mokki="484">
       <div class="card-header">
-        <div class="card-title">📹 Kameravalvonta</div>
-        <span style="font-size:0.72rem;color:var(--text-muted);">Esee C2 Pro · Alue</span>
+        <div class="card-title">📹 Kamera</div>
+        <span style="font-size:0.72rem;color:var(--text-muted);" id="cam-motion-indicator">⚪ Ei liikettä</span>
       </div>
-      <div class="card-body">
-        <div class="cam-wrap">
-          <video id="cam-video" muted playsinline loop preload="metadata"
-            poster="" style="background:#111;display:block;">
-            Selaimesi ei tue videoita.
-          </video>
-          <div class="cam-overlay">
-            <div class="cam-top">
-              <div class="cam-rec">
-                <div class="cam-rec-dot"></div> REC
-              </div>
-              <div class="cam-ts" id="cam-ts">–</div>
-            </div>
-            <div class="cam-bottom">
-              <div class="cam-label">CH1 · Esee C2 Pro · Alue</div>
-              <div class="cam-motion" id="cam-motion-indicator">⚪ Ei liikettä</div>
+      <div class="card-body" style="padding:10px 14px 14px;">
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div style="width:120px;height:68px;border-radius:8px;overflow:hidden;flex-shrink:0;position:relative;background:#111;">
+            <img src="esee-demo.jpg" style="width:100%;height:100%;object-fit:cover;opacity:0.85;">
+            <div style="position:absolute;top:4px;left:4px;display:flex;align-items:center;gap:3px;background:rgba(0,0,0,0.6);border-radius:4px;padding:2px 5px;">
+              <div style="width:5px;height:5px;border-radius:50%;background:#ef4444;animation:recBlink 1.5s infinite;"></div>
+              <span style="font-size:0.55rem;color:#fff;font-weight:600;">REC</span>
             </div>
           </div>
-        </div>
-        <div class="cam-offline" id="cam-offline">
-          ⚠️ Kamera ei saatavilla – vaatii lähiverkkoyhteyden (192.168.86.x)
-        </div>
-        <div class="cam-controls">
-          <button class="cam-ctrl-btn secondary" onclick="camPrev()">◀ Edellinen</button>
-          <button class="cam-ctrl-btn primary" onclick="camPlay()">▶ Toista</button>
-          <button class="cam-ctrl-btn secondary" onclick="camNext()">Seuraava ▶</button>
-        </div>
-        <div class="cam-info" id="cam-info">
-          <span>📂</span>
-          <span id="cam-filename">Ladataan…</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.78rem;font-weight:700;color:var(--text);">Esee C2 Pro</div>
+            <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px;">CH1 · Piha-alue · 2304×1296</div>
+            <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px;" id="cam-ts">–</div>
+            <div id="cam-offline" style="display:none;font-size:0.68rem;color:#991b1b;margin-top:3px;">⚠️ Vain lähiverkossa</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 9. ASETUKSET CARD -->
-    <div class="card" id="settings-card" style="display:none;">
+
+    <!-- AURINKOPANEELI (collapsed default) -->
+    <div class="card" id="solar-card" data-collapse="true">
+      <div class="card-header" onclick="toggleCardCollapse('solar-card')" style="cursor:pointer;">
+        <div class="card-title">☀️ Aurinkopaneeli</div>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
+      </div>
+      <div class="card-body card-collapse-body" style="display:none;">
+        <div class="sensor-grid">
+          <div class="sensor-item">
+            <div class="sensor-label">⚡ Teho nyt</div>
+            <div class="sensor-value" id="sol-power"><span class="skel" style="width:70px"></span></div>
+            <div class="sensor-sub">W (arvio)</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-label">📅 Tänään</div>
+            <div class="sensor-value" id="sol-today"><span class="skel" style="width:60px"></span></div>
+            <div class="sensor-sub">Wh tuotto</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-label">☀️ Säteily nyt</div>
+            <div class="sensor-value" id="sol-irr"><span class="skel" style="width:65px"></span></div>
+            <div class="sensor-sub">W/m²</div>
+          </div>
+          <div class="sensor-item">
+            <div class="sensor-label">📊 Vuosiarvio</div>
+            <div class="sensor-value" id="sol-annual">~380</div>
+            <div class="sensor-sub">kWh/vuosi</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:0.72rem;color:var(--text-muted);">
+          2 m² · 20% hyötysuhde · etelä-suunta ·
+          <a href="solar.html" style="color:var(--green);font-weight:600;">Tarkempi analyysi →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. OMA PROFIILI CARD -->
+    <div class="card" id="profile-card">
       <div class="card-header">
-        <div class="card-title">⚙️ Mökin asetukset</div>
+        <div class="card-title">👤 Oma profiili</div>
+        <button class="cam-ctrl-btn secondary" style="font-size:0.72rem;padding:4px 10px;" onclick="toggleProfileEdit()">✏️ Muokkaa</button>
       </div>
       <div class="card-body">
-        <div id="settings-profile">
+        <div id="profile-view" style="display:flex;gap:14px;align-items:flex-start;">
+          <div id="profile-photo-wrap" style="width:80px;height:80px;border-radius:14px;overflow:hidden;flex-shrink:0;background:var(--sand);display:flex;align-items:center;justify-content:center;font-size:2.5rem;border:2px solid #e0e7ef;">
+            🏡
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:1.1rem;font-weight:800;margin-bottom:2px;" id="prof-name">—</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:6px;" id="prof-mokki">Mökki —</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);" id="prof-email"></div>
+            <div style="font-size:0.8rem;color:var(--text-muted);" id="prof-puh"></div>
+            <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;font-style:italic;" id="prof-kuvaus"></div>
+          </div>
+        </div>
+        <div id="profile-edit" style="display:none;margin-top:14px;">
           <div class="settings-field">
             <label>Nimi</label>
-            <input type="text" id="set-name" class="settings-input">
-          </div>
-          <div class="settings-field">
-            <label>Puhelin</label>
-            <input type="tel" id="set-phone" class="settings-input">
+            <input type="text" id="set-name" class="settings-input" maxlength="100">
           </div>
           <div class="settings-field">
             <label>Sähköposti</label>
-            <input type="email" id="set-email" class="settings-input">
+            <input type="email" id="set-email" class="settings-input" maxlength="200">
+          </div>
+          <div class="settings-field">
+            <label>Puhelin</label>
+            <input type="tel" id="set-phone" class="settings-input" maxlength="30">
+          </div>
+          <div class="settings-field">
+            <label>Mökin kuvaus</label>
+            <input type="text" id="set-kuvaus" class="settings-input" maxlength="500" placeholder="Kerro mökistäsi...">
+          </div>
+          <div class="settings-field">
+            <label>Mökin kuva</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button class="cam-ctrl-btn secondary" onclick="document.getElementById('profile-photo-input').click()">📷 Vaihda kuva</button>
+              <span id="profile-photo-name" style="font-size:0.72rem;color:var(--text-muted);"></span>
+            </div>
+            <input type="file" id="profile-photo-input" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleProfilePhoto(this)">
+          </div>
+          <div class="settings-bg-section">
+            <label>Taustakuva (paikallinen)</label>
+            <div class="settings-bg-preview" id="set-bg-preview">
+              <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:0.82rem;">Ei taustakuvaa</div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button class="cam-ctrl-btn secondary" onclick="document.getElementById('set-bg-input').click()">📷 Vaihda kuva</button>
+              <button class="cam-ctrl-btn secondary" onclick="removeBgPhoto()">🗑️ Poista</button>
+            </div>
+            <input type="file" id="set-bg-input" accept="image/*" style="display:none;" onchange="handleSettingsBgUpload(this)">
+          </div>
+          <button class="thermo-save" style="margin-top:14px;" onclick="saveProfile()">Tallenna profiili</button>
+          <div id="profile-msg" class="thermo-msg"></div>
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid #e5e5e0;">
+            <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">🔒 Vaihda salasana</div>
+            <div class="settings-field">
+              <label>Nykyinen salasana</label>
+              <input type="password" id="pw-current" class="settings-input" maxlength="100" autocomplete="current-password">
+            </div>
+            <div class="settings-field">
+              <label>Uusi salasana</label>
+              <input type="password" id="pw-new" class="settings-input" maxlength="100" autocomplete="new-password">
+            </div>
+            <div class="settings-field">
+              <label>Vahvista uusi salasana</label>
+              <input type="password" id="pw-confirm" class="settings-input" maxlength="100" autocomplete="new-password">
+            </div>
+            <button class="thermo-save" style="margin-top:8px;" onclick="changePassword()">Vaihda salasana</button>
+            <div id="pw-msg" class="thermo-msg"></div>
           </div>
         </div>
-        <div class="settings-bg-section">
-          <label>Taustakuva</label>
-          <div class="settings-bg-preview" id="set-bg-preview">
-            <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:0.82rem;">Ei taustakuvaa</div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:8px;">
-            <button class="cam-ctrl-btn secondary" onclick="document.getElementById('set-bg-input').click()">📷 Vaihda kuva</button>
-            <button class="cam-ctrl-btn secondary" onclick="removeBgPhoto()">🗑️ Poista</button>
-          </div>
-          <input type="file" id="set-bg-input" accept="image/*" style="display:none;" onchange="handleSettingsBgUpload(this)">
-        </div>
-        <button class="thermo-save" style="margin-top:14px;" onclick="saveSettings()">Tallenna asetukset</button>
-        <div id="settings-msg" class="thermo-msg"></div>
       </div>
     </div>
 
+    <!-- 10. DOKUMENTIT & OHJEET CARD (collapsed default) -->
+    <div class="card" id="docs-card" data-collapse="true">
+      <div class="card-header" onclick="toggleCardCollapse('docs-card')" style="cursor:pointer;">
+        <div class="card-title">📄 Dokumentit & ohjeet</div>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
+      </div>
+      <div class="card-body card-collapse-body" style="display:none;">
+        <div id="docs-list" style="font-size:0.85rem;color:var(--text-muted);">Ladataan...</div>
+      </div>
+    </div>
+
+    <!-- LISÄPALVELUT (compact) -->
+    <div id="interests-section">
+    <div class="card" data-collapse="true">
+      <div class="card-header" onclick="toggleCardCollapse('int-panel')" style="cursor:pointer;" id="int-panel">
+        <div class="card-title">💡 Lisäpalvelut — Kiinnostuitko?</div>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
+      </div>
+      <div class="card-body card-collapse-body" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="int-grid">
+          <label class="section-toggle-item" id="int-lammitys" data-interest="lammitys" onclick="toggleInterest('lammitys', this.querySelector('.interest-toggle'))">
+            <span style="font-size:1.1rem;">🔥</span><span style="flex:1;font-size:0.75rem;">Lämmitys</span>
+            <button class="interest-toggle" style="font-size:0.65rem;padding:3px 8px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;color:var(--text-muted);cursor:pointer;">👍</button>
+          </label>
+          <label class="section-toggle-item" id="int-kamera" data-interest="kamera" onclick="toggleInterest('kamera', this.querySelector('.interest-toggle'))">
+            <span style="font-size:1.1rem;">📹</span><span style="flex:1;font-size:0.75rem;">Kamera</span>
+            <button class="interest-toggle" style="font-size:0.65rem;padding:3px 8px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;color:var(--text-muted);cursor:pointer;">👍</button>
+          </label>
+          <label class="section-toggle-item" id="int-aurinkopaneeli" data-interest="aurinkopaneeli" onclick="toggleInterest('aurinkopaneeli', this.querySelector('.interest-toggle'))">
+            <span style="font-size:1.1rem;">☀️</span><span style="flex:1;font-size:0.75rem;">Aurinkopaneeli</span>
+            <button class="interest-toggle" style="font-size:0.65rem;padding:3px 8px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;color:var(--text-muted);cursor:pointer;">👍</button>
+          </label>
+          <label class="section-toggle-item" id="int-sahko" data-interest="sahko" onclick="toggleInterest('sahko', this.querySelector('.interest-toggle'))">
+            <span style="font-size:1.1rem;">⚡</span><span style="flex:1;font-size:0.75rem;">Sähköseuranta</span>
+            <button class="interest-toggle" style="font-size:0.65rem;padding:3px 8px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;color:var(--text-muted);cursor:pointer;">👍</button>
+          </label>
+          <label class="section-toggle-item" id="int-sensorit" data-interest="sensorit" onclick="toggleInterest('sensorit', this.querySelector('.interest-toggle'))">
+            <span style="font-size:1.1rem;">📡</span><span style="flex:1;font-size:0.75rem;">Live-sensorit</span>
+            <button class="interest-toggle" style="font-size:0.65rem;padding:3px 8px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;color:var(--text-muted);cursor:pointer;">👍</button>
+          </label>
+        </div>
+        <div style="font-size:0.68rem;color:var(--text-muted);margin-top:8px;">Ei sido mihinkään — keräämme kiinnostusta suunnittelua varten.</div>
+      </div>
+    </div>
+    </div><!-- /interests-section -->
   </div><!-- /dash-main -->
 
   <div class="page-footer">
-    <a href="index.html">← Palaa pääsivulle</a>
+    <a href="hklkesamajat.html">← Palaa pääsivulle</a>
     &nbsp;·&nbsp;
-    <a href="dashboard.html">📊 Tilannekuva</a>
+    <a href="hklkesamajat-dashboard.html">📊 Tilannekuva</a>
   </div>
 </div><!-- /dashboard -->
 
+<!-- SECTION VISIBILITY PANEL -->
+<div id="section-panel-overlay" class="section-panel-overlay" onclick="if(event.target===this)toggleSectionPanel()">
+  <div class="section-panel">
+    <div class="section-panel-header">
+      <h3>Näytettävät osiot</h3>
+      <button class="section-panel-close" onclick="toggleSectionPanel()">✕</button>
+    </div>
+    <div class="section-toggles" id="section-toggles"></div>
+  </div>
+</div>
+
+<!-- WELCOME MODAL (first login) -->
+<div id="welcome-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);padding:20px;overflow-y:auto;">
+  <div style="max-width:460px;margin:40px auto;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="background:linear-gradient(135deg,#0a2e1c,#1a5c3a);padding:32px 28px;text-align:center;">
+      <div style="font-size:3rem;margin-bottom:8px;">🏡</div>
+      <h2 style="color:#fff;margin:0;font-size:1.4rem;font-weight:800;">Tervetuloa HKL-Kesämajat!</h2>
+      <p style="color:rgba(255,255,255,0.6);margin:8px 0 0;font-size:0.85rem;" id="welcome-sub"></p>
+    </div>
+    <div style="padding:24px 28px;">
+      <div id="welcome-steps">
+        <div class="welcome-step" data-step="1" style="display:block;">
+          <div style="font-size:1.5rem;margin-bottom:8px;">👋</div>
+          <h3 style="font-size:1rem;margin-bottom:8px;color:#1a5c3a;">Ensimmäinen kirjautumisesi</h3>
+          <p style="color:#666;font-size:0.85rem;line-height:1.6;">Tämä on mökkiläisten oma palvelu. Täältä löydät kaiken tarpeellisen: sää, saunavuorot, tiedotteet ja paljon muuta.</p>
+        </div>
+        <div class="welcome-step" data-step="2" style="display:none;">
+          <div style="font-size:1.5rem;margin-bottom:8px;">📝</div>
+          <h3 style="font-size:1rem;margin-bottom:8px;color:#1a5c3a;">Täytä profiilisi</h3>
+          <p style="color:#666;font-size:0.85rem;line-height:1.6;margin-bottom:12px;">Lisää nimesi ja yhteystietosi, niin muut mökkiläiset tunnistavat sinut.</p>
+          <div style="background:#f8f9f5;border-radius:10px;padding:14px;">
+            <div style="margin-bottom:8px;"><label style="font-size:0.72rem;color:#888;font-weight:700;">NIMI</label><br><input type="text" id="wlc-name" class="settings-input" maxlength="100" style="margin-top:4px;"></div>
+            <div style="margin-bottom:8px;"><label style="font-size:0.72rem;color:#888;font-weight:700;">SÄHKÖPOSTI</label><br><input type="email" id="wlc-email" class="settings-input" maxlength="200" style="margin-top:4px;"></div>
+            <div><label style="font-size:0.72rem;color:#888;font-weight:700;">PUHELIN</label><br><input type="tel" id="wlc-phone" class="settings-input" maxlength="30" style="margin-top:4px;"></div>
+          </div>
+        </div>
+        <div class="welcome-step" data-step="3" style="display:none;">
+          <div style="font-size:1.5rem;margin-bottom:8px;">🔒</div>
+          <h3 style="font-size:1rem;margin-bottom:8px;color:#1a5c3a;">Vaihda salasanasi</h3>
+          <p style="color:#666;font-size:0.85rem;line-height:1.6;margin-bottom:12px;">Suosittelemme salasanan vaihtamista. Voit myös tehdä tämän myöhemmin.</p>
+          <div style="background:#f8f9f5;border-radius:10px;padding:14px;">
+            <div style="margin-bottom:8px;"><label style="font-size:0.72rem;color:#888;font-weight:700;">UUSI SALASANA</label><br><input type="password" id="wlc-pw" class="settings-input" maxlength="100" style="margin-top:4px;" autocomplete="new-password"></div>
+            <div><label style="font-size:0.72rem;color:#888;font-weight:700;">VAHVISTA</label><br><input type="password" id="wlc-pw2" class="settings-input" maxlength="100" style="margin-top:4px;" autocomplete="new-password"></div>
+          </div>
+          <div id="wlc-pw-msg" style="font-size:0.78rem;margin-top:6px;min-height:1em;"></div>
+        </div>
+        <div class="welcome-step" data-step="4" style="display:none;">
+          <div style="font-size:1.5rem;margin-bottom:8px;">⚡</div>
+          <h3 style="font-size:1rem;margin-bottom:8px;color:#1a5c3a;">Lisäpalvelut</h3>
+          <p style="color:#666;font-size:0.85rem;line-height:1.6;margin-bottom:14px;">HKL-Kesämajat tarjoaa mökkeihin lisäpalveluita. Merkitse kiinnostavat — ei sido mihinkään, keräämme kiinnostusta suunnittelua varten.</p>
+          <div style="display:flex;flex-direction:column;gap:8px;" id="wlc-interests">
+            <label class="wlc-int-row" style="display:flex;align-items:center;gap:12px;background:#f8f9f5;border-radius:10px;padding:12px 14px;cursor:pointer;transition:background .15s;">
+              <input type="checkbox" data-key="lammitys" style="width:18px;height:18px;accent-color:#52b788;">
+              <div style="flex:1;"><div style="font-weight:700;font-size:0.85rem;">🔥 Lämmityksen hallinta</div><div style="font-size:0.75rem;color:#888;">Etäohjattava termostaatti ja poissa-tila</div></div>
+            </label>
+            <label class="wlc-int-row" style="display:flex;align-items:center;gap:12px;background:#f8f9f5;border-radius:10px;padding:12px 14px;cursor:pointer;transition:background .15s;">
+              <input type="checkbox" data-key="kamera" style="width:18px;height:18px;accent-color:#52b788;">
+              <div style="flex:1;"><div style="font-weight:700;font-size:0.85rem;">📹 Kameravalvonta</div><div style="font-size:0.75rem;color:#888;">24/7 tallennus ja etäkatselu</div></div>
+            </label>
+            <label class="wlc-int-row" style="display:flex;align-items:center;gap:12px;background:#f8f9f5;border-radius:10px;padding:12px 14px;cursor:pointer;transition:background .15s;">
+              <input type="checkbox" data-key="aurinkopaneeli" style="width:18px;height:18px;accent-color:#52b788;">
+              <div style="flex:1;"><div style="font-weight:700;font-size:0.85rem;">☀️ Aurinkopaneeli</div><div style="font-size:0.75rem;color:#888;">2 m² paneeli, tuoton seuranta</div></div>
+            </label>
+            <label class="wlc-int-row" style="display:flex;align-items:center;gap:12px;background:#f8f9f5;border-radius:10px;padding:12px 14px;cursor:pointer;transition:background .15s;">
+              <input type="checkbox" data-key="sahko" style="width:18px;height:18px;accent-color:#52b788;">
+              <div style="flex:1;"><div style="font-weight:700;font-size:0.85rem;">⚡ Sähkön seuranta</div><div style="font-size:0.75rem;color:#888;">Reaaliaikainen kulutus, Helen-integraatio</div></div>
+            </label>
+            <label class="wlc-int-row" style="display:flex;align-items:center;gap:12px;background:#f8f9f5;border-radius:10px;padding:12px 14px;cursor:pointer;transition:background .15s;">
+              <input type="checkbox" data-key="sensorit" style="width:18px;height:18px;accent-color:#52b788;">
+              <div style="flex:1;"><div style="font-weight:700;font-size:0.85rem;">📡 Live-sensorit</div><div style="font-size:0.75rem;color:#888;">Lämpö, kosteus, liike, valaistus</div></div>
+            </label>
+          </div>
+        </div>
+        <div class="welcome-step" data-step="5" style="display:none;">
+          <div style="font-size:1.5rem;margin-bottom:8px;">🎉</div>
+          <h3 style="font-size:1rem;margin-bottom:8px;color:#1a5c3a;">Kaikki valmista!</h3>
+          <p style="color:#666;font-size:0.85rem;line-height:1.6;">Profiilisi on tallennettu. Tutustu palveluun rauhassa — löydät sää- ja sensoridataa, saunavuorot, tiedotteet ja paljon muuta.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">
+            <span style="background:#e8f5ec;color:#1a5c3a;padding:5px 12px;border-radius:20px;font-size:0.78rem;font-weight:600;">📡 Live-sensorit</span>
+            <span style="background:#e8f5ec;color:#1a5c3a;padding:5px 12px;border-radius:20px;font-size:0.78rem;font-weight:600;">🛁 Saunavuorot</span>
+            <span style="background:#e8f5ec;color:#1a5c3a;padding:5px 12px;border-radius:20px;font-size:0.78rem;font-weight:600;">📢 Tiedotteet</span>
+            <span style="background:#e8f5ec;color:#1a5c3a;padding:5px 12px;border-radius:20px;font-size:0.78rem;font-weight:600;">📄 Dokumentit</span>
+            <span style="background:#e8f5ec;color:#1a5c3a;padding:5px 12px;border-radius:20px;font-size:0.78rem;font-weight:600;">📷 Omat kuvat</span>
+          </div>
+          <div id="wlc-interests-summary" style="margin-top:12px;font-size:0.82rem;color:#52b788;font-weight:600;"></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
+        <div id="welcome-dots" style="display:flex;gap:6px;"></div>
+        <div style="display:flex;gap:8px;">
+          <button id="wlc-skip" onclick="finishWelcome()" style="background:none;border:1px solid #ddd;color:#888;padding:8px 16px;border-radius:8px;font-size:0.82rem;cursor:pointer;">Ohita</button>
+          <button id="wlc-next" onclick="nextWelcomeStep()" style="background:#52b788;color:#fff;border:none;padding:8px 20px;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;">Seuraava →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-const API_BASE = 'https://jaaskel.com';
+const API_BASE = window.location.hostname === 'jaaskel.com' ? '' : 'http://192.168.86.36:8080';
 const MOMENTS_BASE = 'http://192.168.86.33:8090';
 
 // ========== CREDENTIALS ==========
@@ -790,9 +1287,12 @@ const CREDS = { '484': 'hkl2026' };
 
 let _currentMokki = null;
 let _hklToken = '';
+let _mokkiRooli = 'asukas';
 let _targetTemp = 20;
 let _photos = [];
 let _sensorData = null;
+let _invitePassword = '';
+let _isFirstLogin = false;
 
 // Camera state
 const ESEE_VIDEOS = [
@@ -802,24 +1302,248 @@ const ESEE_VIDEOS = [
 ];
 let _camIdx = 0;
 
-// ========== ONBOARDING ==========
-// ========== SETTINGS ==========
-function saveSettings() {
-  if (!_currentMokki) return;
-  const key = 'hkl_onboard_' + _currentMokki;
-  const existing = JSON.parse(localStorage.getItem(key) || '{}');
-  existing.name = document.getElementById('set-name').value.trim();
-  existing.phone = document.getElementById('set-phone').value.trim();
-  existing.email = document.getElementById('set-email').value.trim();
-  localStorage.setItem(key, JSON.stringify(existing));
-  const session = JSON.parse(localStorage.getItem('hkl_mokki_session') || '{}');
-  if (session.local) {
-    session.name = existing.name;
-    localStorage.setItem('hkl_mokki_session', JSON.stringify(session));
+// ========== PROFILE ==========
+async function loadProfile() {
+  if (!_hklToken) return;
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/my-cottage', {headers: {'X-Hkl-Token': _hklToken}});
+    if (!r.ok) return;
+    const p = await r.json();
+    const esc = s => (s||'').replace(/</g,'&lt;');
+    document.getElementById('prof-name').textContent = p.name || 'Mökkiläinen';
+    document.getElementById('prof-mokki').textContent = 'Mökki ' + p.number;
+    document.getElementById('prof-email').textContent = p.email ? '📧 ' + p.email : '';
+    document.getElementById('prof-puh').textContent = p.puh ? '📱 ' + p.puh : '';
+    document.getElementById('prof-kuvaus').textContent = p.kuvaus || '';
+    document.getElementById('set-name').value = p.name || '';
+    document.getElementById('set-email').value = p.email || '';
+    document.getElementById('set-phone').value = p.puh || '';
+    document.getElementById('set-kuvaus').value = p.kuvaus || '';
+    const photoWrap = document.getElementById('profile-photo-wrap');
+    const photoUrl = API_BASE + '/api/hkl/cottage-photo/' + p.number;
+    photoWrap.innerHTML = `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentNode.innerHTML='🏡'">`;
+  } catch(e) {}
+}
+
+function toggleProfileEdit() {
+  const edit = document.getElementById('profile-edit');
+  edit.style.display = edit.style.display === 'none' ? 'block' : 'none';
+}
+
+async function saveProfile() {
+  if (!_hklToken) return;
+  const body = {
+    name: document.getElementById('set-name').value.trim(),
+    email: document.getElementById('set-email').value.trim(),
+    puh: document.getElementById('set-phone').value.trim(),
+    kuvaus: document.getElementById('set-kuvaus').value.trim()
+  };
+  const msg = document.getElementById('profile-msg');
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/my-cottage', {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken},
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) { msg.textContent = '❌ Virhe'; msg.style.color='#ef4444'; return; }
+    const photoInput = document.getElementById('profile-photo-input');
+    if (photoInput.files.length > 0) {
+      await uploadProfilePhoto(photoInput.files[0]);
+      photoInput.value = '';
+    }
+    msg.textContent = '✓ Profiili tallennettu';
+    msg.style.color = 'var(--green)';
+    setTimeout(() => { msg.textContent = ''; }, 3000);
+    loadProfile();
+    document.getElementById('profile-edit').style.display = 'none';
+  } catch(e) { msg.textContent = '❌ Verkkovirhe'; msg.style.color='#ef4444'; }
+}
+
+async function uploadProfilePhoto(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = async function() {
+      try {
+        await fetch(API_BASE + '/api/hkl/my-cottage/photo', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken},
+          body: JSON.stringify({photo: reader.result})
+        });
+      } catch(e) {}
+      resolve();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function handleProfilePhoto(input) {
+  if (input.files.length > 0) {
+    document.getElementById('profile-photo-name').textContent = input.files[0].name;
   }
-  const msg = document.getElementById('settings-msg');
-  msg.textContent = '✓ Asetukset tallennettu';
-  setTimeout(() => { msg.textContent = ''; }, 3000);
+}
+
+// ========== PASSWORD CHANGE ==========
+async function changePassword() {
+  const cur = document.getElementById('pw-current').value;
+  const np = document.getElementById('pw-new').value;
+  const np2 = document.getElementById('pw-confirm').value;
+  const msg = document.getElementById('pw-msg');
+  if (!cur || !np) { msg.textContent = '❌ Täytä kaikki kentät'; msg.style.color='#ef4444'; return; }
+  if (np.length < 4) { msg.textContent = '❌ Salasana vähintään 4 merkkiä'; msg.style.color='#ef4444'; return; }
+  if (np !== np2) { msg.textContent = '❌ Salasanat eivät täsmää'; msg.style.color='#ef4444'; return; }
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/my-cottage/password', {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken},
+      body: JSON.stringify({current_password: cur, new_password: np})
+    });
+    if (r.status === 403) { msg.textContent = '❌ Nykyinen salasana on väärin'; msg.style.color='#ef4444'; return; }
+    if (!r.ok) { msg.textContent = '❌ Virhe ' + r.status; msg.style.color='#ef4444'; return; }
+    msg.textContent = '✓ Salasana vaihdettu!'; msg.style.color='var(--green)';
+    document.getElementById('pw-current').value = '';
+    document.getElementById('pw-new').value = '';
+    document.getElementById('pw-confirm').value = '';
+    setTimeout(() => { msg.textContent = ''; }, 4000);
+  } catch(e) { msg.textContent = '❌ Verkkovirhe'; msg.style.color='#ef4444'; }
+}
+
+// ========== WELCOME / FIRST LOGIN ==========
+let _welcomeStep = 1;
+const WELCOME_TOTAL = 5;
+
+function showWelcomeModal() {
+  _welcomeStep = 1;
+  const modal = document.getElementById('welcome-modal');
+  modal.style.display = 'block';
+  document.getElementById('welcome-sub').textContent = 'Mökki ' + (_currentMokki || '');
+  updateWelcomeUI();
+}
+
+function updateWelcomeUI() {
+  document.querySelectorAll('.welcome-step').forEach(el => {
+    el.style.display = el.dataset.step == _welcomeStep ? 'block' : 'none';
+  });
+  const dots = document.getElementById('welcome-dots');
+  dots.innerHTML = Array.from({length: WELCOME_TOTAL}, (_, i) =>
+    `<div style="width:8px;height:8px;border-radius:50%;background:${i+1===_welcomeStep?'#52b788':'#ddd'};transition:.2s;"></div>`
+  ).join('');
+  document.getElementById('wlc-next').textContent = _welcomeStep === WELCOME_TOTAL ? 'Valmis ✓' : 'Seuraava →';
+  document.getElementById('wlc-skip').style.display = _welcomeStep === WELCOME_TOTAL ? 'none' : '';
+}
+
+async function nextWelcomeStep() {
+  if (_welcomeStep === 2) {
+    const name = document.getElementById('wlc-name').value.trim();
+    const email = document.getElementById('wlc-email').value.trim();
+    const phone = document.getElementById('wlc-phone').value.trim();
+    if (name || email || phone) {
+      try {
+        await fetch(API_BASE + '/api/hkl/my-cottage', {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken},
+          body: JSON.stringify({name, email, puh: phone})
+        });
+      } catch(e) {}
+    }
+  }
+  if (_welcomeStep === 3) {
+    const pw = document.getElementById('wlc-pw').value;
+    const pw2 = document.getElementById('wlc-pw2').value;
+    const msg = document.getElementById('wlc-pw-msg');
+    if (pw) {
+      if (pw.length < 4) { msg.textContent = '❌ Vähintään 4 merkkiä'; msg.style.color='#ef4444'; return; }
+      if (pw !== pw2) { msg.textContent = '❌ Salasanat eivät täsmää'; msg.style.color='#ef4444'; return; }
+      try {
+        const r = await fetch(API_BASE + '/api/hkl/my-cottage/password', {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken},
+          body: JSON.stringify({current_password: _invitePassword || '', new_password: pw})
+        });
+        if (!r.ok) { msg.textContent = '❌ Virhe salasanan vaihdossa'; msg.style.color='#ef4444'; return; }
+      } catch(e) { msg.textContent = '❌ Verkkovirhe'; msg.style.color='#ef4444'; return; }
+    }
+  }
+  if (_welcomeStep === 4) {
+    const ints = {};
+    document.querySelectorAll('#wlc-interests input[type=checkbox]').forEach(cb => {
+      ints[cb.dataset.key] = cb.checked;
+    });
+    const selected = Object.entries(ints).filter(([,v]) => v);
+    if (selected.length > 0) {
+      try {
+        await fetch(API_BASE + '/api/hkl/my-cottage/interests', {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken},
+          body: JSON.stringify({interests: ints})
+        });
+      } catch(e) {}
+      const labels = {lammitys:'🔥 Lämmitys',kamera:'📹 Kamera',aurinkopaneeli:'☀️ Aurinkopaneeli',sahko:'⚡ Sähkö',sensorit:'📡 Sensorit'};
+      document.getElementById('wlc-interests-summary').textContent =
+        '✓ Kiinnostus tallennettu: ' + selected.map(([k]) => labels[k] || k).join(', ');
+    }
+  }
+  if (_welcomeStep >= WELCOME_TOTAL) {
+    finishWelcome();
+  } else {
+    _welcomeStep++;
+    updateWelcomeUI();
+  }
+}
+
+async function finishWelcome() {
+  document.getElementById('welcome-modal').style.display = 'none';
+  try {
+    await fetch(API_BASE + '/api/hkl/my-cottage/first-login-done', {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken}
+    });
+  } catch(e) {}
+  loadProfile();
+}
+
+function initMokkiMap() {}
+
+// ========== DOCUMENTS ==========
+async function loadMokkiDocs() {
+  const el = document.getElementById('docs-list');
+  const countEl = document.getElementById('docs-count');
+  try {
+    const headers = {};
+    if (_hklToken) headers['X-Hkl-Token'] = _hklToken;
+    const docs = await fetch(API_BASE + '/api/hkl/documents', {headers}).then(r => r.json());
+    if (!docs.length) {
+      el.innerHTML = '<div style="text-align:center;padding:10px;color:var(--text-muted);font-size:0.82rem;">Ei dokumentteja saatavilla.</div>';
+      countEl.textContent = '';
+      return;
+    }
+    countEl.textContent = docs.length + ' kpl';
+    const grouped = {};
+    docs.forEach(d => {
+      const f = d.parent_folder || 'Yleiset';
+      if (!grouped[f]) grouped[f] = [];
+      grouped[f].push(d);
+    });
+    let html = '';
+    for (const [folder, items] of Object.entries(grouped)) {
+      html += `<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:6px;">📁 ${folder}</div>`;
+      items.forEach(d => {
+        const size = d.file_size ? (d.file_size > 1048576 ? (d.file_size/1048576).toFixed(1)+' MB' : (d.file_size/1024).toFixed(0)+' KB') : '';
+        const downloadUrl = API_BASE + '/api/hkl/documents/' + d.id + '/download';
+        html += `<a href="${downloadUrl}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:var(--sand);margin-bottom:6px;text-decoration:none;color:var(--text);transition:background .15s;">
+          <span style="font-size:1.2rem;">📄</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:600;font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.title}</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">${size}${d.drive_modified ? ' · ' + new Date(d.drive_modified).toLocaleDateString('fi-FI') : ''}</div>
+          </div>
+          <span style="font-size:0.8rem;color:var(--green);">📥</span>
+        </a>`;
+      });
+      html += '</div>';
+    }
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;">Dokumentteja ei voitu ladata.</div>';
+  }
 }
 
 function handleSettingsBgUpload(input) {
@@ -851,9 +1575,9 @@ function removeBgPhoto() {
 }
 
 // ========== LOGIN ==========
-async function doLogin() {
-  const num = document.getElementById('login-num').value.trim();
-  const pass = document.getElementById('login-pass').value;
+async function doLogin(autoNum, autoPass) {
+  const num = autoNum || document.getElementById('login-num').value.trim();
+  const pass = autoPass || document.getElementById('login-pass').value;
   const err = document.getElementById('login-error');
   if (!num || !pass) { err.textContent = 'Syötä mökin numero ja salasana'; return; }
   err.textContent = '';
@@ -865,10 +1589,14 @@ async function doLogin() {
     });
     if (!r.ok) { err.textContent = 'Väärä mökin numero tai salasana'; return; }
     const d = await r.json();
-    localStorage.setItem('hkl_mokki_session', JSON.stringify({number: d.number, name: d.name, token: d.token}));
+    localStorage.setItem('hkl_mokki_session', JSON.stringify({number: d.number, name: d.name, rooli: d.rooli||'asukas', token: d.token}));
     _currentMokki = d.number;
     _hklToken = d.token;
+    _mokkiRooli = d.rooli || 'asukas';
+    _isFirstLogin = d.first_login === true;
+    _invitePassword = pass;
     showDashboard(d.number);
+    if (_isFirstLogin) setTimeout(showWelcomeModal, 600);
   } catch(e) { err.textContent = 'Verkkovirhe – yritä uudelleen'; }
 }
 
@@ -898,8 +1626,10 @@ async function checkSession() {
       if (s.token) {
         const r = await fetch(API_BASE + '/api/hkl/session', {headers: {'X-Hkl-Token': s.token}});
         if (r.ok) {
+          const sess = await r.json();
           _currentMokki = s.number;
           _hklToken = s.token;
+          _mokkiRooli = sess.rooli || s.rooli || 'asukas';
           showDashboard(s.number);
           return;
         }
@@ -939,23 +1669,16 @@ function showDashboard(num) {
     bgEl.classList.remove('active');
   }
 
-  // Show settings card if this is an onboarded user
-  const onboard = localStorage.getItem('hkl_onboard_' + num);
-  const settingsCard = document.getElementById('settings-card');
-  if (settingsCard && onboard) {
-    settingsCard.style.display = 'block';
-    const profile = JSON.parse(onboard);
-    document.getElementById('set-name').value = profile.name || '';
-    document.getElementById('set-phone').value = profile.phone || '';
-    document.getElementById('set-email').value = profile.email || '';
-    const bgPreview = document.getElementById('set-bg-preview');
-    if (bgData) {
-      bgPreview.innerHTML = '<img src="' + bgData + '" alt="Taustakuva">';
-    } else {
-      bgPreview.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:0.82rem;">Ei taustakuvaa</div>';
-    }
-  } else if (settingsCard) {
-    settingsCard.style.display = 'none';
+  // Load profile from API
+  loadProfile();
+  loadProfileHero();
+  loadMokkiDay();
+  loadMokkiDocs();
+
+  // Background preview
+  const bgPreview = document.getElementById('set-bg-preview');
+  if (bgPreview && bgData) {
+    bgPreview.innerHTML = '<img src="' + bgData + '" alt="Taustakuva">';
   }
 
   // Load state from localStorage
@@ -966,8 +1689,13 @@ function showDashboard(num) {
   document.getElementById('away-toggle').checked = awayOn;
   updateAwayUI(awayOn);
 
+  // Piilota mökkikohtaiset kortit muilta kuin 484
+  document.querySelectorAll('[data-mokki]').forEach(el => {
+    el.style.display = el.dataset.mokki === num ? '' : 'none';
+  });
+
   loadPhotos(num);
-  loadSensorData();
+  if (num === '484') { loadSensorData(); loadAvocado(); }
   renderSaunaCard();
   setInterval(renderSaunaCard, 60000);
   loadCamera();
@@ -976,6 +1704,9 @@ function showDashboard(num) {
   loadAISummary();
   loadSolar();
   loadWasteSchedule();
+  setTimeout(initMokkiMap, 500);
+  renderFlagDays();
+  applySectionVisibility();
 }
 
 // ========== SENSOR DATA ==========
@@ -1469,13 +2200,377 @@ function getNextDay(from, targetDay, weekInterval) {
   return d;
 }
 
+// ========== AVOCADO ==========
+async function loadAvocado() {
+  try {
+    const d = await fetch(API_BASE + '/api/hkl/avocado').then(r => r.json());
+    if (d.temp != null) document.getElementById('avo-temp').textContent = d.temp.toFixed(1) + '°C';
+    if (d.moisture != null) document.getElementById('avo-moisture').textContent = Math.round(d.moisture) + '%';
+    if (d.battery != null) document.getElementById('avo-battery').textContent = Math.round(d.battery) + '%';
+    const status = document.getElementById('avo-status');
+    if (d.moisture != null) {
+      if (d.moisture < 15) {
+        status.textContent = '🚨 Kasvi tarvitsee kastelua!';
+        status.style.background = '#fef2f2'; status.style.color = '#991b1b';
+      } else if (d.moisture < 30) {
+        status.textContent = '⚠️ Kosteus alhainen — kastele pian';
+        status.style.background = '#fef3c7'; status.style.color = '#92400e';
+      } else {
+        status.textContent = '✅ Kasvi voi hyvin';
+        status.style.background = '#d8f3dc'; status.style.color = '#166534';
+      }
+    }
+  } catch(e) {}
+}
+
+// ========== PROFILE HERO ==========
+let _profileData = null;
+
+async function loadProfileHero() {
+  if (!_hklToken) return;
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/my-cottage', {headers: {'X-Hkl-Token': _hklToken}});
+    if (!r.ok) return;
+    _profileData = await r.json();
+    const p = _profileData;
+
+    document.getElementById('hero-name').textContent = p.name || 'Mökkiläinen';
+    document.getElementById('hero-mokki-tag').textContent = '🏡 Mökki ' + p.number;
+    document.getElementById('hero-email').textContent = p.email ? '📧 ' + p.email : '';
+    document.getElementById('hero-puh').textContent = p.puh ? '📱 ' + p.puh : '';
+
+    const ownerWrap = document.getElementById('owner-photo-wrap');
+    const ownerUrl = API_BASE + '/api/hkl/cottage-owner-photo/' + p.number;
+    const img = new Image();
+    img.onload = () => {
+      ownerWrap.innerHTML = `<img src="${ownerUrl}" style="width:100%;height:100%;object-fit:cover;">`;
+    };
+    img.src = ownerUrl;
+
+    const cabinWrap = document.getElementById('cabin-photo-wrap');
+    const cabinUrl = API_BASE + '/api/hkl/cottage-photo/' + p.number;
+    const cabImg = new Image();
+    cabImg.onload = () => {
+      cabinWrap.innerHTML = `<img src="${cabinUrl}" style="width:100%;height:100%;object-fit:cover;">` +
+        (p.kuvaus ? `<div class="cabin-caption">${p.kuvaus.replace(/</g,'&lt;')}</div>` : '');
+    };
+    cabImg.src = cabinUrl;
+
+    loadInterestStates(p.interests || {});
+
+    if (p.lat && p.lon) {
+      initMokkiMap(p.lat, p.lon, p.number);
+    } else {
+      initMokkiMap(60.15524, 24.85453, p.number);
+    }
+  } catch(e) { console.warn('loadProfileHero', e); }
+}
+
+async function uploadOwnerPhoto(input) {
+  const file = input.files[0];
+  if (!file || !file.type.startsWith('image/')) { input.value = ''; return; }
+  const msg = document.getElementById('hero-photo-msg');
+  msg.textContent = 'Ladataan...';
+  try {
+    const dataUrl = await resizeImage(file, 800, 0.8);
+    const r = await fetch(API_BASE + '/api/hkl/my-cottage/owner-photo', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken},
+      body: JSON.stringify({photo: dataUrl})
+    });
+    if (r.ok) {
+      msg.textContent = '✓ Omistajan kuva päivitetty';
+      setTimeout(() => { msg.textContent = ''; }, 3000);
+      loadProfileHero();
+    } else {
+      msg.textContent = '❌ Virhe';
+    }
+  } catch(e) { msg.textContent = '❌ Verkkovirhe'; }
+  input.value = '';
+}
+
+async function uploadCabinPhoto(input) {
+  const file = input.files[0];
+  if (!file || !file.type.startsWith('image/')) { input.value = ''; return; }
+  const msg = document.getElementById('hero-photo-msg');
+  msg.textContent = 'Ladataan...';
+  try {
+    const dataUrl = await resizeImage(file, 1200, 0.8);
+    const r = await fetch(API_BASE + '/api/hkl/my-cottage/photo', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken},
+      body: JSON.stringify({photo: dataUrl})
+    });
+    if (r.ok) {
+      msg.textContent = '✓ Mökin kuva päivitetty';
+      setTimeout(() => { msg.textContent = ''; }, 3000);
+      loadProfileHero();
+    } else {
+      msg.textContent = '❌ Virhe';
+    }
+  } catch(e) { msg.textContent = '❌ Verkkovirhe'; }
+  input.value = '';
+}
+
+// ========== MOKKI DAY AI ==========
+async function loadMokkiDay() {
+  if (!_hklToken) return;
+  const card = document.getElementById('mokki-day-card');
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/mokki-day', {headers: {'X-Hkl-Token': _hklToken}});
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.text) {
+      document.getElementById('mokki-day-text').textContent = d.text;
+      if (d.generated) {
+        const t = new Date(d.generated);
+        document.getElementById('mokki-day-time').textContent = 'Päivitetty ' + t.toLocaleTimeString('fi-FI', {hour:'2-digit', minute:'2-digit'});
+      }
+      card.style.display = '';
+    }
+  } catch(e) { console.warn('loadMokkiDay', e); }
+}
+
+// ========== INTERESTS ==========
+let _interests = {};
+
+function loadInterestStates(interests) {
+  _interests = interests || {};
+  const keys = ['lammitys', 'kamera', 'aurinkopaneeli', 'sahko', 'sensorit'];
+  keys.forEach(key => {
+    const card = document.getElementById('int-' + key);
+    const btn = card?.querySelector('.interest-toggle');
+    if (!card || !btn) return;
+    if (_interests[key]) {
+      card.classList.add('interested');
+      btn.classList.add('active');
+      btn.textContent = '✓ Kiinnostus ilmoitettu';
+    } else {
+      card.classList.remove('interested');
+      btn.classList.remove('active');
+      btn.textContent = 'Kiinnostaa 👍';
+    }
+  });
+}
+
+async function toggleInterest(key, btn) {
+  _interests[key] = !_interests[key];
+  const card = btn.closest('.interest-card');
+  const msgEl = card.querySelector('.interest-msg');
+
+  if (_interests[key]) {
+    card.classList.add('interested');
+    btn.classList.add('active');
+    btn.textContent = '✓ Kiinnostus ilmoitettu';
+    msgEl.textContent = 'Kiitos! Tieto tallennettu.';
+  } else {
+    card.classList.remove('interested');
+    btn.classList.remove('active');
+    btn.textContent = 'Kiinnostaa 👍';
+    msgEl.textContent = 'Kiinnostus peruttu.';
+  }
+  setTimeout(() => { msgEl.textContent = ''; }, 3000);
+
+  try {
+    await fetch(API_BASE + '/api/hkl/my-cottage/interests', {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken},
+      body: JSON.stringify({interests: _interests})
+    });
+  } catch(e) { console.warn('saveInterests', e); }
+}
+
+// ========== INVITE URL HANDLING ==========
+async function handleInviteUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const inviteToken = params.get('invite');
+  if (!inviteToken) return false;
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/invite/' + encodeURIComponent(inviteToken));
+    if (!r.ok) {
+      const err = document.getElementById('login-error');
+      if (r.status === 410) err.textContent = 'Kutsulinkki on vanhentunut. Pyydä uusi linkki.';
+      else err.textContent = 'Kutsulinkki ei ole voimassa.';
+      return false;
+    }
+    const inv = await r.json();
+    window.history.replaceState({}, '', window.location.pathname);
+    await doLogin(inv.number, inv.password);
+    return true;
+  } catch(e) { return false; }
+}
+
 // ========== INIT ==========
-checkSession();
+(async function init() {
+  const handled = await handleInviteUrl();
+  if (!handled) checkSession();
+})();
 
 // Enter key on number field
 document.getElementById('login-num').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('login-pass').focus();
 });
+
+// ========== COLLAPSIBLE CARDS ==========
+function toggleCardCollapse(id) {
+  let card = document.getElementById(id);
+  if (!card) return;
+  if (!card.querySelector('.card-collapse-body')) card = card.closest('.card') || card.parentElement;
+  const body = card.querySelector('.card-collapse-body');
+  const chevron = card.querySelector('.collapse-chevron');
+  if (!body) return;
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : '';
+  if (chevron) chevron.style.transform = open ? '' : 'rotate(90deg)';
+}
+
+// ========== FLAG DAYS (LIPUTUSPÄIVÄT) ==========
+function getNthWeekday(year, month, weekday, n) {
+  const d = new Date(year, month, 1);
+  let count = 0;
+  while (count < n || d.getDay() !== weekday) {
+    if (d.getDay() === weekday) count++;
+    if (count < n) d.setDate(d.getDate() + 1);
+  }
+  return d;
+}
+
+function getFlagDays(year) {
+  const mothersDay = getNthWeekday(year, 4, 0, 2);
+  const fathersDay = getNthWeekday(year, 10, 0, 2);
+  let midsummer = new Date(year, 5, 20);
+  while (midsummer.getDay() !== 6) midsummer.setDate(midsummer.getDate() + 1);
+
+  return [
+    { d: new Date(year, 1, 5), name: 'J.L. Runebergin päivä' },
+    { d: new Date(year, 1, 28), name: 'Kalevalan päivä', desc: 'Suomalaisen kulttuurin päivä' },
+    { d: new Date(year, 2, 19), name: 'Minna Canthin päivä', desc: 'Tasa-arvon päivä' },
+    { d: new Date(year, 3, 9), name: 'Mikael Agricolan päivä', desc: 'Suomen kielen päivä' },
+    { d: new Date(year, 3, 27), name: 'Veteraanipäivä', desc: 'Kansallinen veteraanipäivä' },
+    { d: new Date(year, 4, 1), name: 'Vappu', desc: 'Suomalaisen työn päivä' },
+    { d: new Date(year, 4, 9), name: 'Eurooppa-päivä' },
+    { d: mothersDay, name: 'Äitienpäivä' },
+    { d: new Date(year, 4, 12), name: 'J.V. Snellmanin päivä', desc: 'Suomalaisuuden päivä' },
+    { d: new Date(year, 5, 4), name: 'Puolustusvoimain lippujuhla' },
+    { d: midsummer, name: 'Juhannuspäivä' },
+    { d: new Date(year, 6, 6), name: 'Eino Leinon päivä', desc: 'Runon ja kesän päivä' },
+    { d: new Date(year, 9, 10), name: 'Aleksis Kiven päivä', desc: 'Kirjallisuuden päivä' },
+    { d: new Date(year, 9, 24), name: 'YK:n päivä' },
+    { d: new Date(year, 10, 6), name: 'Svenska dagen', desc: 'Ruotsalaisuuden päivä' },
+    { d: fathersDay, name: 'Isänpäivä' },
+    { d: new Date(year, 11, 6), name: 'Itsenäisyyspäivä' },
+    { d: new Date(year, 11, 8), name: 'Jean Sibeliuksen päivä', desc: 'Musiikin päivä' },
+  ].sort((a, b) => a.d - b.d);
+}
+
+function renderFlagDays() {
+  const el = document.getElementById('flag-items');
+  if (!el) return;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const year = now.getFullYear();
+  let allDays = getFlagDays(year);
+  const upcoming = allDays.filter(f => f.d >= now);
+  if (upcoming.length < 4) {
+    allDays = allDays.concat(getFlagDays(year + 1));
+  }
+  const futureOrToday = allDays.filter(f => f.d >= now);
+  const show = futureOrToday.slice(0, 4);
+
+  el.innerHTML = show.map((f, i) => {
+    const isToday = f.d.getTime() === now.getTime();
+    const daysUntil = Math.round((f.d - now) / 86400000);
+    let badge = '';
+    if (isToday) badge = '<span class="flag-badge flag-badge-today">Tänään!</span>';
+    else if (daysUntil === 1) badge = '<span class="flag-badge">Huomenna</span>';
+    else if (daysUntil <= 7) badge = `<span class="flag-badge">${daysUntil} pv</span>`;
+    const dateStr = f.d.toLocaleDateString('fi-FI', { day: 'numeric', month: 'numeric' });
+    const cls = isToday ? 'flag-item flag-today' : (i === 0 ? 'flag-item flag-next' : 'flag-item');
+    return `<div class="${cls}">
+      <div class="flag-emoji">🇫🇮</div>
+      <div class="flag-date">${dateStr}</div>
+      <div class="flag-info">
+        <div class="flag-name">${f.name}</div>
+        ${f.desc ? `<div class="flag-desc">${f.desc}</div>` : ''}
+      </div>
+      ${badge}
+    </div>`;
+  }).join('');
+}
+
+// ========== SECTION VISIBILITY ==========
+const SECTION_DEFS = [
+  { key: 'ai', label: '✨ AI-kuvaus', sel: '#ai-hero' },
+  { key: 'mokkiday', label: '🚌 Mökkipäivä', sel: '#mokki-day-card' },
+  { key: 'sensor', label: '📡 Live-tila', sel: '#sensor-card', mokki: true },
+  { key: 'elec', label: '⚡ Sähkö', sel: '#elec-card', mokki: true },
+  { key: 'thermo', label: '🌡️ Lämpötila', sel: '#thermo-card', mokki: true },
+  { key: 'away', label: '🌙 Poissa-tila', sel: '#away-card', mokki: true },
+  { key: 'solar', label: '☀️ Aurinko', sel: '#solar-card' },
+  { key: 'avocado', label: '🥑 Avokado', sel: '#avocado-card', mokki: true },
+  { key: 'sauna', label: '🛁 Sauna', sel: '#sauna-card' },
+  { key: 'waste', label: '♻️ Jätteet', sel: '#waste-card' },
+  { key: 'flags', label: '🇫🇮 Liputus', sel: '#flag-card' },
+  { key: 'beaches', label: '🏖️ Rannat', sel: '#beaches-card' },
+  { key: 'photos', label: '📷 Kuvat', sel: '#photos-card' },
+  { key: 'laituri', label: '🌊 Laituri', sel: '#laituri-card' },
+  { key: 'camera', label: '📹 Kamera', sel: '#camera-card', mokki: true },
+  { key: 'profile', label: '👤 Profiili', sel: '#profile-card' },
+  { key: 'docs', label: '📄 Dokumentit', sel: '#docs-card' },
+  { key: 'interests', label: '💡 Lisäpalvelut', sel: '#interests-section' },
+];
+
+function getSectionPrefs() {
+  try {
+    return JSON.parse(localStorage.getItem('hkl_sections_' + _currentMokki) || '{}');
+  } catch(e) { return {}; }
+}
+
+function saveSectionPrefs(prefs) {
+  localStorage.setItem('hkl_sections_' + _currentMokki, JSON.stringify(prefs));
+}
+
+function applySectionVisibility() {
+  const prefs = getSectionPrefs();
+  SECTION_DEFS.forEach(s => {
+    const el = document.querySelector(s.sel);
+    if (!el) return;
+    const visible = prefs[s.key] !== false;
+    el.style.display = visible ? '' : 'none';
+  });
+}
+
+function renderSectionToggles() {
+  const container = document.getElementById('section-toggles');
+  if (!container) return;
+  const prefs = getSectionPrefs();
+  const visibleSections = SECTION_DEFS.filter(s => !s.mokki || _currentMokki === '484');
+  container.innerHTML = visibleSections.map(s => {
+    const checked = prefs[s.key] !== false ? 'checked' : '';
+    return `<label class="section-toggle-item">
+      <input type="checkbox" ${checked} onchange="onSectionToggle('${s.key}', this.checked)">
+      <span>${s.label}</span>
+    </label>`;
+  }).join('');
+}
+
+function onSectionToggle(key, checked) {
+  const prefs = getSectionPrefs();
+  if (checked) delete prefs[key]; else prefs[key] = false;
+  saveSectionPrefs(prefs);
+  applySectionVisibility();
+}
+
+function toggleSectionPanel() {
+  const overlay = document.getElementById('section-panel-overlay');
+  const active = overlay.classList.contains('active');
+  if (active) {
+    overlay.classList.remove('active');
+  } else {
+    renderSectionToggles();
+    overlay.classList.add('active');
+  }
+}
 </script>
 </body>
 </html>
