@@ -540,6 +540,16 @@ footer strong { color: white; }
         <div class="glass-pill-value" id="h-wave">–</div>
         <div class="glass-pill-sub" id="h-wave-sub">Open-Meteo Marine</div>
       </div>
+      <div class="glass-pill">
+        <div class="glass-pill-label">🌬️ Ilmanlaatu</div>
+        <div class="glass-pill-value" id="h-aqi">–</div>
+        <div class="glass-pill-sub" id="h-aqi-label">–</div>
+      </div>
+      <div class="glass-pill">
+        <div class="glass-pill-label">🌊 Vedenpinta</div>
+        <div class="glass-pill-value" id="h-sealevel">–</div>
+        <div class="glass-pill-sub" id="h-sealevel-label">FMI</div>
+      </div>
     </div>
 
     <p style="max-width:540px;margin:0 auto 28px;font-size:clamp(0.82rem,2vw,0.92rem);color:rgba(255,255,255,0.6);line-height:1.7;text-align:center;">
@@ -586,7 +596,7 @@ footer strong { color: white; }
 
 <div class="live-section">
 
-<!-- Hidden placeholders for JS compatibility (removed weather/live sections) -->
+<!-- Hidden placeholders for JS compatibility (removed basic weather grid) -->
 <div style="display:none;">
   <span id="s-local-temp"></span><span id="s-local-hum"></span><span id="s-local-meta"></span>
   <span id="s-temp"></span><span id="s-feels"></span>
@@ -597,15 +607,44 @@ footer strong { color: white; }
   <span id="s-sealevel"></span><span id="s-sealevel-label"></span>
   <span id="live-time"></span>
   <div id="rain-7d-bars"><div id="rain-7d-chart"></div></div>
-  <span id="s-algae-badge"></span><span id="s-algae-sub"></span>
-  <span id="s-pollen-src"></span><span id="s-pollen"></span>
-  <span id="s-sea"></span><span id="s-wave"></span>
-  <div id="laituri-row"></div><div id="uiras-list"></div>
-  <div id="vedenlampo"></div>
-  <div id="local-history-chart"><canvas id="local-history-canvas"></canvas></div>
   <div id="hourly-row"></div>
   <div id="forecast-row"></div>
 </div>
+
+  <!-- Levätilanne + Siitepöly -->
+  <div class="grid-2 reveal" style="margin-top:16px;">
+    <div class="stat-card">
+      <div class="stat-label">🌿 Levätilanne</div>
+      <div id="s-algae-badge" style="margin-top:6px;"><div class="skeleton" style="width:120px;height:1.6rem;"></div></div>
+      <div class="stat-sub" id="s-algae-sub" style="margin-top:5px;">–</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🌸 Siitepöly <span id="s-pollen-src" style="font-size:0.65rem;color:var(--text-muted);font-weight:400;"></span></div>
+      <div id="s-pollen" style="margin-top:8px;flex-wrap:wrap;display:flex;gap:4px;"><div class="skeleton" style="width:90px;height:1.4rem;"></div></div>
+    </div>
+  </div>
+
+  <!-- Vedenlämpö -->
+  <div id="vedenlampo" class="card reveal" style="margin-top:16px;">
+    <div class="card-title"><span>🌡️</span> Vedenlämpötila</div>
+    <div id="laituri-row"></div>
+    <div id="uiras-list"><div class="skeleton" style="height:1rem;margin-bottom:6px;width:80%;"></div><div class="skeleton" style="height:1rem;width:60%;"></div></div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid #eee;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;">
+      <span style="font-size:0.75rem;color:var(--text-muted);">🌊 Malliennuste (Open-Meteo Marine):</span>
+      <span id="s-sea" style="font-size:0.88rem;font-weight:700;color:var(--blue);">–</span>
+      <span id="s-wave" style="font-size:0.75rem;color:var(--text-muted);"></span>
+    </div>
+    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;">Oma laituri: manuaalinen · Muut: UIRAS/FVH · Malli: Open-Meteo</div>
+  </div>
+
+  <!-- Historiakuvaaja -->
+  <div id="local-history-chart" class="card reveal" style="margin-top:16px;display:none;">
+    <div class="card-title" style="margin-bottom:10px;"><span>📈</span> Lämpötila &amp; kosteus — 48h</div>
+    <div style="position:relative;height:180px;">
+      <canvas id="local-history-canvas"></canvas>
+    </div>
+    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;">Mökki ulkomittari · Home Assistant</div>
+  </div>
 
   <!-- KARTTA -->
   <div id="kartta" class="section-header reveal" style="margin-top:16px;"><h2>🗺️ Sijainti</h2><div class="divider"></div><p>Lounaisväylänpolku, 00200 Helsinki</p></div>
@@ -1044,6 +1083,10 @@ async function loadEnvironment() {
       const arrow = sl.trend === 'nouseva' ? '↑' : sl.trend === 'laskeva' ? '↓' : '→';
       document.getElementById('s-sealevel').textContent = `${sl.cm > 0 ? '+' : ''}${sl.cm} cm`;
       document.getElementById('s-sealevel-label').textContent = `${arrow} ${sl.trend} · FMI`;
+      const hSl = document.getElementById('h-sealevel');
+      if (hSl) hSl.textContent = `${sl.cm > 0 ? '+' : ''}${sl.cm} cm`;
+      const hSlL = document.getElementById('h-sealevel-label');
+      if (hSlL) hSlL.textContent = `${arrow} ${sl.trend}`;
     }
     // Google Pollen (korvaa Open-Meteo jos saatavilla)
     if (d.pollen && Object.keys(d.pollen).length > 0) {
@@ -1133,6 +1176,10 @@ async function loadAirQuality() {
   const aqi = c.european_aqi; const [cls,label] = aqiClass(aqi);
   document.getElementById('s-aqi').textContent = aqi;
   document.getElementById('s-aqi-label').innerHTML = `<span class="aqi-badge ${cls}">${label}</span> · PM2.5 ${fmt1(c.pm2_5)} µg/m³`;
+  const hAqi = document.getElementById('h-aqi');
+  if (hAqi) { hAqi.textContent = aqi; }
+  const hAqiL = document.getElementById('h-aqi-label');
+  if (hAqiL) { hAqiL.textContent = label; }
   dayState.aqiLabel = label;
 
   const pollens = [{name:'Koivu',val:c.birch_pollen,type:'birch'},{name:'Heinä',val:c.grass_pollen,type:'grass'},{name:'Leppä',val:c.alder_pollen,type:'birch'},{name:'Pujo',val:c.mugwort_pollen,type:'birch'}].filter(p=>p.val>0);
