@@ -554,7 +554,7 @@ footer strong { color: white; }
 <!-- STICKY SECTION TABS -->
 <div id="section-tabs" style="display:none;position:sticky;top:56px;z-index:90;background:rgba(248,244,232,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #e2e8f0;padding:0 16px;">
   <div style="max-width:1020px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:8px 0;">
-    <a href="#live-tilanne" class="stab" data-sec="live-tilanne">🌡️ Sää</a>
+    <a href="#vedenlampo" class="stab" data-sec="vedenlampo">🌡️ Sää</a>
     <a href="#vedenlampo" class="stab" data-sec="vedenlampo">🌊 Vesi</a>
     <a href="#uutiset" class="stab" data-sec="uutiset">📰 Uutiset</a>
     <a href="#kartta" class="stab" data-sec="kartta">🗺️ Kartta</a>
@@ -578,86 +578,32 @@ footer strong { color: white; }
 
 
 
-<!-- LIVE TILANNE -->
-<div id="live-tilanne" class="section-header reveal">
-  <h2>Live-tilanne</h2>
+<!-- YHDISTYKSEN INGRESSI -->
+<div class="section-header reveal" style="margin-top:28px;">
+  <h2>Tervetuloa</h2>
   <div class="divider"></div>
+</div>
+<div class="card reveal" style="margin-bottom:24px;">
+  <p style="font-size:1rem;color:var(--text);line-height:1.7;margin:0;">
+    Yhdistyksemme vuokraa Helsingin kaupungilta kesämaja-aluetta ja hoitaa sitä. Tarkoituksenamme on edistää ja kehittää kesämajatoimintaa Helsingin Lauttasaaren Länsiulapanniemellä. Järjestämme talkoita, kokouksia, juhlia ja muita yhteisöllisiä tilaisuuksia. Alueemme erityisyytenä ovat oma tanssilava, grillikatos ja venelaiturit.
+  </p>
 </div>
 </main>
 
 <div class="live-section">
-  <div class="live-bar">
-    <div class="live-dot"></div>
-    <span class="live-label">Reaaliaikainen tieto</span>
-    <span id="live-time" style="font-size:0.75rem;color:var(--text-muted);margin-left:4px;"></span>
-  </div>
 
-  <div class="grid-4 reveal">
-    <div class="stat-card">
-      <div class="stat-label">📍 Paikallinen</div>
-      <div class="stat-value" id="s-local-temp"><div class="skeleton" style="height:2rem;width:80%;"></div></div>
-      <div class="stat-sub" id="s-local-hum">–</div>
-      <div class="stat-sub" id="s-local-meta">–</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">🌡️ Ennuste</div>
-      <div class="stat-value" id="s-temp"><div class="skeleton" style="height:2rem;width:70%;"></div></div>
-      <div class="stat-sub" id="s-feels">–</div>
-    </div>
-    <div id="tuuli" class="stat-card">
-      <div class="stat-label">💨 Tuuli</div>
-      <div class="stat-value" id="s-wind"><div class="skeleton" style="height:2rem;width:75%;"></div></div>
-      <div class="stat-sub" id="s-wind-dir">–</div>
-    </div>
-    <div class="stat-card" style="flex-direction:row;align-items:center;gap:12px;">
-      <div style="font-size:2.4rem;" id="s-wx-ico">⏳</div>
-      <div>
-        <div class="stat-label">Sää</div>
-        <div style="font-size:0.95rem;font-weight:700;" id="s-wx-desc">Ladataan…</div>
-        <div class="stat-sub" id="s-humidity">–</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">🌬️ Ilmanlaatu</div>
-      <div class="stat-value" id="s-aqi"><div class="skeleton" style="height:2rem;width:50%;"></div></div>
-      <div class="stat-sub" id="s-aqi-label">–</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">☀️ UV-indeksi</div>
-      <div class="stat-value" id="s-uv"><div class="skeleton" style="height:2rem;width:40%;"></div></div>
-      <div class="stat-sub" id="s-uv-label">–</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">🌊 Vedenpinta</div>
-      <div class="stat-value" id="s-sealevel"><div class="skeleton" style="height:2rem;width:50%;"></div></div>
-      <div class="stat-sub" id="s-sealevel-label">–</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">🌧️ Sade tänään</div>
-      <div class="stat-value" id="s-rain-min"><div class="skeleton" style="height:2rem;width:50%;"></div></div>
-      <div class="stat-sub" id="s-rain-label">–</div>
-    </div>
-  </div>
-
-  <!-- Sadehistoria 7 pv -->
-  <div id="rain-7d-bars" class="stat-card reveal" style="display:none;margin-top:12px;padding:14px 16px;">
-    <div class="stat-label">🌧️ Sadehistoria — 7 päivää (mm)</div>
-    <div id="rain-7d-chart" style="display:flex;align-items:flex-end;gap:2px;height:44px;margin-top:8px;"></div>
-  </div>
-
-  <!-- Aurinko / Pilvisyys -->
-  <div class="reveal" style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-    <div class="stat-card" style="text-align:center;">
-      <div class="stat-label">☀️ Aurinkoista</div>
-      <div class="stat-value" id="s-sun-min" style="color:#f59e0b;">–</div>
-      <div class="stat-sub">min tänään</div>
-    </div>
-    <div class="stat-card" style="text-align:center;">
-      <div class="stat-label">☁️ Pilvistä</div>
-      <div class="stat-value" id="s-cloud-min" style="color:#94a3b8;">–</div>
-      <div class="stat-sub">min tänään</div>
-    </div>
-  </div>
+<!-- Hidden placeholders for JS compatibility (removed weather grid) -->
+<div style="display:none;">
+  <span id="s-local-temp"></span><span id="s-local-hum"></span><span id="s-local-meta"></span>
+  <span id="s-temp"></span><span id="s-feels"></span>
+  <span id="s-wind"></span><span id="s-wind-dir"></span>
+  <span id="s-wx-ico"></span><span id="s-wx-desc"></span><span id="s-humidity"></span>
+  <span id="s-aqi"></span><span id="s-aqi-label"></span>
+  <span id="s-uv"></span><span id="s-uv-label"></span>
+  <span id="s-sealevel"></span><span id="s-sealevel-label"></span>
+  <span id="live-time"></span>
+  <div id="rain-7d-bars"><div id="rain-7d-chart"></div></div>
+</div>
 
   <!-- Levätilanne + Siitepöly -->
   <div class="grid-2 reveal" style="margin-top:16px;">
@@ -791,12 +737,6 @@ footer strong { color: white; }
       <div class="service-desc">Laituripaikkoja jäsenille. Tiedustelut laiturivastaavalta.</div>
       <span class="service-badge badge-vene">Kausi käynnissä</span>
     </a>
-    <a href="#lajittelu" class="service-card service-card-lajit reveal reveal-d2">
-      <span class="service-icon">♻️</span>
-      <div class="service-title">Jätteiden lajittelu</div>
-      <div class="service-desc">Sekajäte, biojäte, lasi, metalli, kartonki ja paperi alueella.</div>
-      <span class="service-badge badge-lajit">6 jaetta</span>
-    </a>
   </div>
 
   <div class="section-header reveal" style="margin-top:48px;">
@@ -812,13 +752,14 @@ footer strong { color: white; }
     </div>
     <div class="card">
       <div class="card-title"><span>📋</span> Asiakirjat</div>
-      <ul style="list-style:none;">
-        <li style="padding:8px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;font-size:0.9rem;"><span>📜</span> Yhdistyksen säännöt 2010</li>
-        <li style="padding:8px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;font-size:0.9rem;"><span>📋</span> Järjestyssäännöt</li>
-        <li style="padding:8px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;font-size:0.9rem;"><span>🏗️</span> Rakennustapaohje</li>
-        <li style="padding:8px 0;display:flex;align-items:center;gap:8px;font-size:0.9rem;"><span>🎨</span> Maalisävyjen vastaavuudet</li>
+      <ul style="list-style:none;margin:0;padding:0;">
+        <li style="padding:8px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;font-size:0.9rem;"><span>📜</span> <a href="mailto:sihteeri@hklkesamajat.fi?subject=Yhdistyksen säännöt" style="color:var(--green);text-decoration:none;font-weight:600;">Yhdistyksen säännöt 2010</a></li>
+        <li style="padding:8px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;font-size:0.9rem;"><span>📋</span> <a href="mailto:sihteeri@hklkesamajat.fi?subject=Järjestyssäännöt" style="color:var(--green);text-decoration:none;font-weight:600;">Järjestyssäännöt</a></li>
+        <li style="padding:8px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;font-size:0.9rem;"><span>🏗️</span> <a href="mailto:sihteeri@hklkesamajat.fi?subject=Rakennustapaohje" style="color:var(--green);text-decoration:none;font-weight:600;">Rakennustapaohje</a></li>
+        <li style="padding:8px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;font-size:0.9rem;"><span>🎨</span> <a href="mailto:sihteeri@hklkesamajat.fi?subject=Maalisävyjen vastaavuudet" style="color:var(--green);text-decoration:none;font-weight:600;">Maalisävyjen vastaavuudet</a></li>
+        <li style="padding:8px 0;display:flex;align-items:center;gap:8px;font-size:0.9rem;"><span>📝</span> <a href="mailto:sihteeri@hklkesamajat.fi?subject=Kauppakirjapohja" style="color:var(--green);text-decoration:none;font-weight:600;">Kauppakirjapohja</a></li>
       </ul>
-      <p style="margin-top:10px;font-size:0.8rem;color:var(--text-muted);">Asiakirjat: ota yhteyttä sihteeriin</p>
+      <p style="margin-top:10px;font-size:0.8rem;color:var(--text-muted);">Pyydä asiakirja sähköpostilla — linkki avaa viestin sihteerille</p>
     </div>
   </div>
 
@@ -826,16 +767,26 @@ footer strong { color: white; }
     <div class="contact-card">
       <div class="contact-avatar">🏛️</div>
       <div class="contact-role">Puheenjohtaja</div>
-      <div class="contact-name">Hallitus</div>
+      <div class="contact-name">Lauri Hackman</div>
       <a href="tel:+358413101495" class="contact-link">📞 +358 41 310 1495</a>
       <a href="mailto:puheenjohtaja@hklkesamajat.fi" class="contact-link">📧 puheenjohtaja@</a>
     </div>
     <div class="contact-card">
       <div class="contact-avatar">✍️</div>
       <div class="contact-role">Sihteeri</div>
-      <div class="contact-name">Sihteeristö</div>
-      <a href="mailto:sihteeri@hklkesamajat.fi" class="contact-link">📧 sihteeri@hklkesamajat.fi</a>
+      <div class="contact-name">Juha Sivula</div>
+      <a href="tel:+358407531731" class="contact-link">📞 +358 40 753 1731</a>
+      <a href="mailto:sihteeri@hklkesamajat.fi" class="contact-link">📧 sihteeri@</a>
     </div>
+    <div class="contact-card">
+      <div class="contact-avatar">💰</div>
+      <div class="contact-role">Taloudenhoitaja</div>
+      <div class="contact-name">Raija Hermansson</div>
+      <a href="tel:+358505415484" class="contact-link">📞 +358 50 541 5484</a>
+      <a href="mailto:taloudenhoitaja@hklkesamajat.fi" class="contact-link">📧 taloudenhoitaja@</a>
+    </div>
+  </div>
+  <div class="grid-3 reveal reveal-d2" style="margin-top:12px;">
     <div class="contact-card">
       <div class="contact-avatar">⚓</div>
       <div class="contact-role">Laiturivastaava</div>
@@ -843,11 +794,26 @@ footer strong { color: white; }
       <a href="tel:+358440748796" class="contact-link">📞 +358 44 074 8796</a>
       <a href="mailto:laiturivastaava@hklkesamajat.fi" class="contact-link">📧 laiturivastaava@</a>
     </div>
+    <div class="contact-card">
+      <div class="contact-avatar">🔧</div>
+      <div class="contact-role">Vesiverkkovastaava</div>
+      <div class="contact-name">Jari Gröhn</div>
+      <a href="tel:+358505378718" class="contact-link">📞 +358 50 537 8718</a>
+    </div>
+    <div class="contact-card">
+      <div class="contact-avatar">⚖️</div>
+      <div class="contact-role">Asiamies</div>
+      <div class="contact-name">Hannu Rosokivi</div>
+    </div>
+  </div>
+  <div class="card reveal" style="margin-top:12px;">
+    <div class="card-title"><span>👥</span> Muut hallituksen jäsenet</div>
+    <p style="font-size:0.9rem;color:var(--text-muted);line-height:1.7;margin:0;">Henrietta Ikonen · Katriina Matilainen · Raili Rinne <span style="font-size:0.78rem;">(varajäsen)</span></p>
   </div>
 
   <!-- OSTETAAN / MYYDÄÄN MÖKKEJÄ -->
   <div id="listings-section" class="reveal" style="margin-top:28px;display:none;">
-    <div class="section-header"><h2 id="listings-title">🏡 Ilmoitukset</h2><div class="divider"></div><p id="listings-sub"></p></div>
+    <div class="section-header"><h2 id="listings-title">🏡 Kesämajojen osto ja myynti-ilmoitukset</h2><div class="divider"></div><p id="listings-sub"></p></div>
     <div id="listings-cards" style="display:flex;flex-direction:column;gap:12px;"></div>
     <div style="text-align:center;margin-top:12px;">
       <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px;">Haluatko jättää ilmoituksen?</p>
@@ -942,32 +908,6 @@ footer strong { color: white; }
     </div>
   </div>
 
-  <!-- LAJITTELU -->
-  <div id="lajittelu" class="section-header reveal">
-    <h2>♻️ Lajittelu</h2>
-    <div class="divider"></div>
-  </div>
-  <div class="grid-2 reveal">
-    <div class="card" style="padding:0;overflow:hidden;">
-      <img src="https://hklkesamajat.nettisivu.org/wp-content/uploads/sites/1190/2014/02/kierr%C3%A4tysastiat.png"
-           alt="Lajitteluastiat" loading="lazy" style="width:100%;height:120px;object-fit:cover;display:block;object-position:center 30%;">
-      <div style="padding:18px 22px;">
-        <div class="card-title"><span>🗑️</span> Lajitteluastiat alueella</div>
-        <div class="waste-chips">
-          <span class="waste-chip chip-gray">Sekajäte</span>
-          <span class="waste-chip chip-brown">Biojäte</span>
-          <span class="waste-chip chip-green">Lasi</span>
-          <span class="waste-chip chip-yellow">Metalli</span>
-          <span class="waste-chip chip-blue">Kartonki</span>
-          <span class="waste-chip chip-red">Paperi</span>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title"><span>🛒</span> Naapuruston kierrätyspiste</div>
-      <p style="font-size:0.93rem;color:var(--text-muted);">Vanha taksiasema toimii kierrätyspisteenä. Jätä vain <strong>ehjää, puhdasta ja toimivaa</strong> tavaraa.</p>
-    </div>
-  </div>
 
 
 </main>
@@ -999,10 +939,13 @@ footer strong { color: white; }
     &nbsp;·&nbsp;
     <a href="tel:+358413101495" style="color:rgba(255,255,255,0.6);">+358 41 310 1495</a>
     &nbsp;·&nbsp;
+    <a href="mailto:webmaster@hklkesamajat.fi" style="color:rgba(82,183,136,0.55);">yhteydenotto</a>
+    &nbsp;·&nbsp;
     <a href="/admin.html" style="color:rgba(82,183,136,0.45);font-size:0.8rem;">hallinta</a>
     &nbsp;·&nbsp;
     <a href="/info.html" style="color:rgba(82,183,136,0.45);font-size:0.8rem;">palvelukuvaus</a>
   </span>
+  <div style="margin-top:10px;font-size:0.68rem;color:rgba(255,255,255,0.25);">v1.0 · 2026</div>
 </footer>
 
 
@@ -1146,7 +1089,6 @@ function uvClass(uv) {
 async function loadEnvironment() {
   try {
     const d = await fetch(API_BASE + '/api/hkl/environment').then(r => r.json());
-    // UV
     if (d.uv != null) {
       const [cls, lbl] = uvClass(d.uv);
       document.getElementById('s-uv').textContent = d.uv;
@@ -1469,9 +1411,7 @@ async function loadWeatherStats() {
     ]);
     const rainEl = document.getElementById('s-rain-min');
     const rainLbl = document.getElementById('s-rain-label');
-    const sunEl = document.getElementById('s-sun-min');
     const rainEl2 = document.getElementById('s-rain-min2');
-    const cloudEl = document.getElementById('s-cloud-min');
     if (haData.rain_today_min != null && rainEl) {
       const m = haData.rain_today_min;
       const h = Math.floor(m / 60);
@@ -1479,26 +1419,13 @@ async function loadWeatherStats() {
       rainLbl.textContent = haData.raining ? '🔵 Sataa nyt' : 'Sademittari · HA';
     }
     if (haData.rain_today_min != null && rainEl2) rainEl2.textContent = haData.rain_today_min;
-    if (omData.daily?.sunshine_duration) {
-      const sunSec = omData.daily.sunshine_duration[0] || 0;
-      const sunMin = Math.round(sunSec / 60);
-      const h = Math.floor(sunMin / 60);
-      if (sunEl) sunEl.textContent = h > 0 ? `${h}h ${sunMin % 60}` : sunMin;
-    }
-    if (omData.daily?.sunshine_duration && cloudEl) {
-      const sunMin = Math.round((omData.daily.sunshine_duration[0] || 0) / 60);
-      const dayMin = 60 * (new Date().getHours() - 5);
-      const rainMin = haData.rain_today_min || 0;
-      const cloudMin = Math.max(0, dayMin - sunMin - rainMin);
-      cloudEl.textContent = cloudMin;
-    }
   } catch(e) { console.warn('loadWeatherStats error', e); }
   loadRain7d();
 }
 
 async function loadRain7d() {
   try {
-    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&daily=precipitation_sum&timezone=Europe/Helsinki&past_days=7&forecast_days=0`);
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&daily=precipitation_sum&timezone=Europe/Helsinki&past_days=3&forecast_days=0`);
     const d = await r.json();
     const dates = d.daily?.time || [];
     const rain = d.daily?.precipitation_sum || [];

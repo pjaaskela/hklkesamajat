@@ -1136,6 +1136,43 @@ body { padding-top: 48px; }
       </div>
     </div>
 
+    <!-- KIERRÄTYSPISTE -->
+    <div class="card" id="kierratys-card" data-collapse="true">
+      <div class="card-header" onclick="toggleCardCollapse('kierratys-card')" style="cursor:pointer;">
+        <div class="card-title">♻️ Kierrätyspiste</div>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
+      </div>
+      <div class="card-body card-collapse-body" style="display:none;">
+        <p style="font-size:0.88rem;color:var(--text);line-height:1.7;margin:0 0 10px;">
+          Kierrätyspiste on vanhalla taksitolpalla jäteaitauksen läheisyydessä. Kierrätettävien tavaroiden tulee olla ehjiä ja puhtaita, ja niiden pitää mahtua katokseen.
+        </p>
+        <p style="font-size:0.88rem;color:var(--text);line-height:1.7;margin:0 0 10px;">
+          Tavaran omistaja vastaa poistamisesta, mikäli uutta omistajaa ei löydy. Jos haluat kierrättää jotain suurta, ilmoita lahjoituksesta ilmoitustaululla. Ilmoitustaulu avataan taulun alareunassa roikkuvalla metallipuikolla.
+        </p>
+      </div>
+    </div>
+
+    <!-- HALLITUS -->
+    <div class="card" id="hallitus-card" data-collapse="true">
+      <div class="card-header" onclick="toggleCardCollapse('hallitus-card')" style="cursor:pointer;">
+        <div class="card-title">🏛️ Hallitus 2026</div>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
+      </div>
+      <div class="card-body card-collapse-body" style="display:none;">
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Puheenjohtaja</span><span>Lauri Hackman</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Sihteeri</span><span>Juha Sivula</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Taloudenhoitaja</span><span>Raija Hermansson</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Laiturivastaava</span><span>Jyrki Luokkanen</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Vesiverkkovastaava</span><span>Jari Gröhn</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Asiamies</span><span>Hannu Rosokivi</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Jäsen</span><span>Henrietta Ikonen</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Jäsen</span><span>Katriina Matilainen</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="font-weight:700;">Varajäsen</span><span>Raili Rinne</span></div>
+        </div>
+      </div>
+    </div>
+
     <!-- LISÄPALVELUT (compact) -->
     <div id="interests-section">
     <div class="card" data-collapse="true">
@@ -2521,6 +2558,8 @@ const SECTION_DEFS = [
   { key: 'camera', label: '📹 Kamera', sel: '#camera-card', mokki: true },
   { key: 'profile', label: '👤 Profiili', sel: '#profile-card' },
   { key: 'docs', label: '📄 Dokumentit', sel: '#docs-card' },
+  { key: 'kierratys', label: '♻️ Kierrätyspiste', sel: '#kierratys-card' },
+  { key: 'hallitus', label: '🏛️ Hallitus', sel: '#hallitus-card' },
   { key: 'interests', label: '💡 Lisäpalvelut', sel: '#interests-section' },
 ];
 
