@@ -3,8 +3,10 @@ deployment:
   tasks:
     - export DEPLOYPATH=/home/hklkesam/public_html/
     - /bin/cp -f index.html $DEPLOYPATH
-    - /bin/cp -f vierailija.html $DEPLOYPATH
     - /bin/cp -f mokki.html $DEPLOYPATH
+    - /bin/cp -f vierailija.html $DEPLOYPATH
+    - /bin/cp -f admin.html $DEPLOYPATH
+    - /bin/cp -f tietosuoja.html $DEPLOYPATH
     - /bin/cp -f hkl-base.css $DEPLOYPATH
     - /bin/cp -f hkl-laituri.jpg $DEPLOYPATH
     - /bin/cp -f hkl-hero.jpg $DEPLOYPATH
