@@ -1552,10 +1552,10 @@ async function loadMokkiDocs() {
     const docs = await fetch(API_BASE + '/api/hkl/documents', {headers}).then(r => r.json());
     if (!docs.length) {
       el.innerHTML = '<div style="text-align:center;padding:10px;color:var(--text-muted);font-size:0.82rem;">Ei dokumentteja saatavilla.</div>';
-      countEl.textContent = '';
+      if (countEl) countEl.textContent = '';
       return;
     }
-    countEl.textContent = docs.length + ' kpl';
+    if (countEl) countEl.textContent = docs.length + ' kpl';
     const grouped = {};
     docs.forEach(d => {
       const f = d.parent_folder || 'Yleiset';
