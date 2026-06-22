@@ -772,7 +772,7 @@ function isHkl(page){return HKL_PAGES.some(p=>page===p)||page.startsWith('/hklke
 async function loadVisitors(){
   try{
     const[stats,visitors,sessions]=await Promise.all([
-      fetch(API_BASE+'/api/stats',{headers:{'X-Api-Key':_token}}).then(r=>r.json()),
+      fetch(API_BASE+'/api/hkl/stats',{headers:{'X-Api-Key':_token}}).then(r=>r.json()),
       fetch(API_BASE+'/api/visitors',{headers:{'X-Api-Key':_token}}).then(r=>r.json()),
       fetch(API_BASE+'/api/sessions',{headers:{'X-Api-Key':_token}}).then(r=>r.json())
     ]);
@@ -1333,7 +1333,7 @@ function closeWaterModal(){document.getElementById('water-modal').classList.remo
 
 async function loadFeedback(){
   try{
-    const items=await fetch(API_BASE+'/api/feedback',{headers:{'X-Api-Key':_token}}).then(r=>r.json());
+    const items=await fetch(API_BASE+'/api/hkl/feedback',{headers:{'X-Api-Key':_token}}).then(r=>r.json());
     const list=document.getElementById('feedback-list');
     const empty=document.getElementById('feedback-empty');
     if(!items.length){list.innerHTML='';empty.style.display='';return;}
@@ -1358,7 +1358,7 @@ async function deleteFeedback(id){
 
 async function loadAnalytics(){
   try{
-    const d=await fetch(API_BASE+'/api/stats',{headers:{'X-Api-Key':_token}}).then(r=>r.json());
+    const d=await fetch(API_BASE+'/api/hkl/stats',{headers:{'X-Api-Key':_token}}).then(r=>r.json());
 
     document.getElementById('ana-summary').innerHTML=[
       {l:'Tänään',v:d.today.visitors,s:d.today.views+' katselua',c:'var(--green)'},

@@ -13,7 +13,7 @@
     if (_sent) return;
     _sent = true;
     const dur = Math.round((Date.now() - _start) / 1000);
-    navigator.sendBeacon(API + '/api/pageview', JSON.stringify({
+    navigator.sendBeacon(API + '/api/hkl/pageview', JSON.stringify({
       page: page, ref: document.referrer || '', duration: dur, scroll_depth: _maxScroll
     }));
   }
@@ -30,7 +30,7 @@
     var label = el.textContent.trim().substring(0, 80);
     var tag = el.tagName.toLowerCase();
     if (el.href) label = (el.title || el.innerText || '').trim().substring(0, 80) + ' → ' + el.href.substring(0, 100);
-    navigator.sendBeacon(API + '/api/click', JSON.stringify({
+    navigator.sendBeacon(API + '/api/hkl/click', JSON.stringify({
       page: page,
       element: tag + (el.className ? '.' + el.className.split(' ')[0] : ''),
       label: label
@@ -75,7 +75,7 @@
       var status = document.getElementById('hkl-fb-status');
       if (!msg) { status.style.color='#f87171'; status.textContent='Kirjoita palaute ensin'; return; }
       status.style.color='#52b788'; status.textContent='Lähetetään...';
-      fetch(API + '/api/feedback', {
+      fetch(API + '/api/hkl/feedback', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({page: page, message: msg, contact: contact})
