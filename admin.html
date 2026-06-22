@@ -134,6 +134,7 @@ textarea.inp{resize:vertical;min-height:72px}
     <a href="#" onclick="return nav('dash')" data-sec="dash" class="active">📊 Kojelauta</a>
     <a href="#" onclick="return nav('kavijat')" data-sec="kavijat">👥 Kävijäseuranta</a>
     <a href="#" onclick="return nav('analytics')" data-sec="analytics">📈 Analytiikka</a>
+    <a href="#" onclick="return nav('palautteet')" data-sec="palautteet">💬 Palautteet</a>
     <div class="sidenav-section">Hallinta</div>
     <a href="#" onclick="return nav('asukkaat')" data-sec="asukkaat">🏠 Asukasrekisteri</a>
     <a href="#" onclick="return nav('vikat')" data-sec="vikat">🔧 Vikailmoitukset</a>
@@ -460,6 +461,13 @@ textarea.inp{resize:vertical;min-height:72px}
       </div>
     </div>
 
+    <!-- PALAUTTEET -->
+    <div id="sec-palautteet" class="sec-page">
+      <div class="page-title">💬 Palautteet <span style="font-size:12px;color:var(--muted);font-weight:400;">Beta 22.–29.6.2026</span></div>
+      <div id="feedback-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <div id="feedback-empty" style="display:none;color:var(--muted);font-size:13px;padding:20px;text-align:center;">Ei palautteita vielä.</div>
+    </div>
+
     <!-- DOKUMENTAATIO -->
     <div id="sec-dokumentaatio" class="sec-page">
       <div class="page-title">📖 Järjestelmädokumentaatio</div>
@@ -730,6 +738,7 @@ function nav(sec){
   if(sec==='ilmoitukset')loadListings();
   if(sec==='vesiverkko')loadWaterNetwork();
   if(sec==='analytics')loadAnalytics();
+  if(sec==='palautteet')loadFeedback();
   document.getElementById('sidenav').classList.remove('open');
   document.getElementById('sidenav-overlay').classList.remove('open');
   return false;
@@ -1321,6 +1330,31 @@ function showWaterImage(docId,title){
   document.getElementById('water-modal').classList.add('open');
 }
 function closeWaterModal(){document.getElementById('water-modal').classList.remove('open');}
+
+async function loadFeedback(){
+  try{
+    const items=await fetch(API_BASE+'/api/feedback',{headers:{'X-Api-Key':_token}}).then(r=>r.json());
+    const list=document.getElementById('feedback-list');
+    const empty=document.getElementById('feedback-empty');
+    if(!items.length){list.innerHTML='';empty.style.display='';return;}
+    empty.style.display='none';
+    list.innerHTML=items.map(f=>`<div class="card" style="padding:14px 18px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+        <div><span style="font-size:11px;color:var(--muted);font-family:var(--mono);">${f.created_at}</span>
+        <span style="font-size:11px;color:var(--blue);margin-left:8px;">${f.page||'?'}</span>
+        ${f.contact?'<span style="font-size:11px;color:var(--amber);margin-left:8px;">'+f.contact+'</span>':''}</div>
+        <button class="btn btn-sm btn-danger" onclick="deleteFeedback(${f.id})">Poista</button>
+      </div>
+      <div style="font-size:13px;line-height:1.6;white-space:pre-wrap;">${f.message.replace(/</g,'&lt;')}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px;">IP: ${f.ip}</div>
+    </div>`).join('');
+  }catch(e){}
+}
+async function deleteFeedback(id){
+  if(!confirm('Poistetaanko palaute?'))return;
+  await fetch(API_BASE+'/api/feedback/'+id,{method:'DELETE',headers:{'X-Api-Key':_token}});
+  loadFeedback();
+}
 
 async function loadAnalytics(){
   try{
