@@ -1,8 +1,4 @@
 ---
 deployment:
   tasks:
-    - /bin/cp -f *.html /home/hklkesam/public_html/
-    - /bin/cp -f *.css /home/hklkesam/public_html/
-    - /bin/cp -f *.js /home/hklkesam/public_html/ 2>/dev/null; true
-    - /bin/cp -f *.jpg /home/hklkesam/public_html/ 2>/dev/null; true
-    - /bin/cp -f *.pdf /home/hklkesam/public_html/ 2>/dev/null; true
+    - /bin/true
