@@ -1030,7 +1030,11 @@ body { padding-top: 48px; }
             <div style="font-size:0.78rem;font-weight:700;color:var(--text);">Esee C2 Pro</div>
             <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px;">CH1 · Piha-alue · 2304×1296</div>
             <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px;" id="cam-ts">–</div>
-            <div id="cam-offline" style="display:none;font-size:0.68rem;color:#991b1b;margin-top:3px;">⚠️ Vain lähiverkossa</div>
+            <div id="cam-offline" style="display:none;margin-top:6px;background:var(--sand);border-radius:10px;padding:20px;text-align:center;">
+              <div style="font-size:2rem;margin-bottom:6px;">📹</div>
+              <div style="font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:4px;">Kamera ei saatavilla</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);">Kamerakuva näkyy vain kesämaja-alueen lähiverkossa</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1280,7 +1284,7 @@ body { padding-top: 48px; }
     <a href="index.html">← Palaa pääsivulle</a>
     &nbsp;·&nbsp;
     <a href="dashboard.html">📊 Tilannekuva</a>
-    <div style="margin-top:8px;font-size:0.65rem;color:var(--text-muted);opacity:0.4;">v1.1 · 22.06.2026 15:14</div>
+    <div style="margin-top:8px;font-size:0.65rem;color:var(--text-muted);opacity:0.4;">v1.2 · 22.06.2026 16:07</div>
   </div>
 </div><!-- /dashboard -->
 
@@ -2284,24 +2288,26 @@ function updateCamTimestamp() {
 // ========== SOLAR PANEL ==========
 async function loadSolar() {
   const AREA = 2, EFF = 0.20;
-  const LAT = 60.15524, LON = 24.85453;
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=shortwave_radiation,direct_radiation&hourly=shortwave_radiation&timezone=Europe/Helsinki&forecast_days=1`;
-    const d = await fetch(url).then(r => r.json());
-    const irr = d.current?.shortwave_radiation || 0;
-    const direct = d.current?.direct_radiation || 0;
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=shortwave_radiation,direct_radiation&hourly=shortwave_radiation&timezone=Europe/Helsinki&forecast_days=1';
+    const r = await fetch(url);
+    const d = await r.json();
+    const irr = d.current ? (d.current.shortwave_radiation || 0) : 0;
     const power = Math.round(irr * AREA * EFF);
-    document.getElementById('sol-irr').textContent = Math.round(irr);
-    document.getElementById('sol-power').textContent = power;
-    const hourly = d.hourly?.shortwave_radiation || [];
-    const now = new Date();
-    const currentHour = now.getHours();
+    const el1 = document.getElementById('sol-irr'); if(el1) el1.textContent = Math.round(irr);
+    const el2 = document.getElementById('sol-power'); if(el2) el2.textContent = power;
+    const hourly = (d.hourly && d.hourly.shortwave_radiation) ? d.hourly.shortwave_radiation : [];
+    const currentHour = new Date().getHours();
     let todayWh = 0;
     for (let i = 0; i <= currentHour && i < hourly.length; i++) {
       todayWh += (hourly[i] || 0) * AREA * EFF;
     }
-    document.getElementById('sol-today').textContent = Math.round(todayWh);
-  } catch(e) {}
+    const el3 = document.getElementById('sol-today'); if(el3) el3.textContent = Math.round(todayWh);
+  } catch(e) {
+    const el1 = document.getElementById('sol-irr'); if(el1) el1.textContent = '–';
+    const el2 = document.getElementById('sol-power'); if(el2) el2.textContent = '–';
+    const el3 = document.getElementById('sol-today'); if(el3) el3.textContent = '–';
+  }
 }
 
 // ========== AI SUMMARY + HERO STATS ==========
