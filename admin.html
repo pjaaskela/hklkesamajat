@@ -133,6 +133,7 @@ textarea.inp{resize:vertical;min-height:72px}
     <div class="sidenav-section">Yleiskatsaus</div>
     <a href="#" onclick="return nav('dash')" data-sec="dash" class="active">📊 Kojelauta</a>
     <a href="#" onclick="return nav('kavijat')" data-sec="kavijat">👥 Kävijäseuranta</a>
+    <a href="#" onclick="return nav('analytics')" data-sec="analytics">📈 Analytiikka</a>
     <div class="sidenav-section">Hallinta</div>
     <a href="#" onclick="return nav('asukkaat')" data-sec="asukkaat">🏠 Asukasrekisteri</a>
     <a href="#" onclick="return nav('vikat')" data-sec="vikat">🔧 Vikailmoitukset</a>
@@ -414,6 +415,51 @@ textarea.inp{resize:vertical;min-height:72px}
       <div id="wn-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px"></div>
     </div>
 
+    <!-- ANALYTIIKKA -->
+    <div id="sec-analytics" class="sec-page">
+      <div class="page-title">📈 Analytiikka</div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;" id="ana-summary"></div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-head">📅 Päivittäinen kävijämäärä (30 pv)</div>
+        <div id="ana-daily-chart" style="height:160px;display:flex;align-items:flex-end;gap:3px;padding:10px 0;"></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div class="card">
+          <div class="card-head">🕐 Aktiivisimmat tunnit (viikko)</div>
+          <div id="ana-hourly-chart" style="height:120px;display:flex;align-items:flex-end;gap:2px;padding:10px 0;"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">📱 Laitteet (viikko)</div>
+          <div id="ana-devices" style="padding:10px 0;"></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div class="card">
+          <div class="card-head">📄 Suosituimmat sivut (viikko)</div>
+          <div id="ana-pages" style="padding:10px 0;"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">🔗 Liikenteen lähteet</div>
+          <div id="ana-referrers" style="padding:10px 0;"></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div class="card">
+          <div class="card-head">🖱️ Klikatuimmat elementit (viikko)</div>
+          <div id="ana-clicks" style="padding:10px 0;"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">📊 Klikkaukset sivuittain</div>
+          <div id="ana-clicks-pages" style="padding:10px 0;"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- DOKUMENTAATIO -->
     <div id="sec-dokumentaatio" class="sec-page">
       <div class="page-title">📖 Järjestelmädokumentaatio</div>
@@ -683,6 +729,7 @@ function nav(sec){
   if(sec==='dokumentit')loadDocs();
   if(sec==='ilmoitukset')loadListings();
   if(sec==='vesiverkko')loadWaterNetwork();
+  if(sec==='analytics')loadAnalytics();
   document.getElementById('sidenav').classList.remove('open');
   document.getElementById('sidenav-overlay').classList.remove('open');
   return false;
@@ -1274,6 +1321,77 @@ function showWaterImage(docId,title){
   document.getElementById('water-modal').classList.add('open');
 }
 function closeWaterModal(){document.getElementById('water-modal').classList.remove('open');}
+
+async function loadAnalytics(){
+  try{
+    const d=await fetch(API_BASE+'/api/stats',{headers:{'X-Api-Key':_token}}).then(r=>r.json());
+
+    document.getElementById('ana-summary').innerHTML=[
+      {l:'Tänään',v:d.today.visitors,s:d.today.views+' katselua',c:'var(--green)'},
+      {l:'Viikko',v:d.week.visitors,s:d.week.views+' katselua',c:'var(--blue)'},
+      {l:'Kuukausi',v:d.month.visitors,s:d.month.views+' katselua',c:'var(--amber)'},
+    ].map(i=>`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;">
+      <div style="font-size:2rem;font-weight:900;color:${i.c};">${i.v}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px;">${i.l} — kävijää</div>
+      <div style="font-size:10px;color:var(--muted);opacity:.7;margin-top:2px;">${i.s}</div>
+    </div>`).join('');
+
+    const dMax=Math.max(...d.daily.map(r=>r.visitors),1);
+    document.getElementById('ana-daily-chart').innerHTML=d.daily.map(r=>{
+      const h=Math.max(4,r.visitors/dMax*140);
+      const dt=r.day.slice(5);
+      return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <div style="font-size:9px;color:var(--green);font-weight:700;">${r.visitors}</div>
+        <div style="width:100%;height:${h}px;background:linear-gradient(180deg,var(--green),rgba(82,183,136,0.3));border-radius:4px 4px 0 0;"></div>
+        <div style="font-size:8px;color:var(--muted);writing-mode:vertical-lr;transform:rotate(180deg);height:30px;overflow:hidden;">${dt}</div>
+      </div>`;
+    }).join('');
+
+    const hMax=Math.max(...d.hourly.map(r=>r.views),1);
+    document.getElementById('ana-hourly-chart').innerHTML=d.hourly.map(r=>{
+      const h=Math.max(2,r.views/hMax*100);
+      return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <div style="width:100%;height:${h}px;background:var(--blue);border-radius:3px 3px 0 0;opacity:0.7;"></div>
+        <div style="font-size:8px;color:var(--muted);">${r.hour}</div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('ana-devices').innerHTML=(d.devices||[]).map(r=>{
+      const total=(d.devices||[]).reduce((a,b)=>a+b.count,0)||1;
+      const pct=Math.round(r.count/total*100);
+      return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="font-size:1.3rem;">${r.device==='Mobiili'?'📱':'🖥️'}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;">${r.device}</div>
+        <div style="height:6px;background:var(--bg);border-radius:3px;margin-top:4px;"><div style="height:100%;width:${pct}%;background:${r.device==='Mobiili'?'var(--amber)':'var(--blue)'};border-radius:3px;"></div></div></div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--muted);">${pct}%</div>
+      </div>`;
+    }).join('')||'<div style="color:var(--muted);font-size:12px;">Ei dataa</div>';
+
+    document.getElementById('ana-pages').innerHTML=(d.pages||[]).map((r,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      <span style="color:var(--muted);width:18px;text-align:right;font-family:var(--mono);">${i+1}.</span>
+      <span style="flex:1;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.path||'/'}</span>
+      <span style="font-family:var(--mono);color:var(--green);">${r.views}</span>
+      <span style="font-family:var(--mono);color:var(--muted);font-size:10px;">${r.visitors} ip</span>
+      <span style="font-family:var(--mono);color:var(--muted);font-size:10px;">${r.avg_duration||0}s</span>
+    </div>`).join('')||'<div style="color:var(--muted);font-size:12px;">Ei dataa</div>';
+
+    document.getElementById('ana-referrers').innerHTML=(d.referrers||[]).map(r=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      <span style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">${r.referrer.replace(/https?:\/\//,'')}</span>
+      <span style="font-family:var(--mono);color:var(--amber);">${r.count}</span>
+    </div>`).join('')||'<div style="color:var(--muted);font-size:12px;">Ei ulkoista liikennettä</div>';
+
+    document.getElementById('ana-clicks').innerHTML=(d.clicks_top||[]).map(r=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px;">
+      <span style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:75%;">${r.label}</span>
+      <span style="font-family:var(--mono);color:var(--green);">${r.count}</span>
+    </div>`).join('')||'<div style="color:var(--muted);font-size:12px;">Ei klikkauksia vielä</div>';
+
+    document.getElementById('ana-clicks-pages').innerHTML=(d.clicks_by_page||[]).map(r=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      <span style="color:var(--text);">${r.path||'/'}</span>
+      <span style="font-family:var(--mono);color:var(--blue);">${r.count}</span>
+    </div>`).join('')||'<div style="color:var(--muted);font-size:12px;">Ei dataa</div>';
+
+  }catch(e){console.warn('analytics',e);}
+}
 
 const saved=sessionStorage.getItem('hkl_admin_token');
 if(saved){_token=saved;document.getElementById('login-screen').style.display='none';document.getElementById('admin-wrap').style.display='block';document.getElementById('logout-btn').style.display='block';document.getElementById('user-tag').style.display='block';document.getElementById('user-tag').textContent='● kirjautunut';loadAll();setInterval(loadSensors,30000);}
