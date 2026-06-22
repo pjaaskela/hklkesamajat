@@ -1017,40 +1017,33 @@ async function loadNews() {
   try {
     const d = await fetch(API_BASE + '/api/hkl/news').then(r => r.json());
     const arts = d.articles || [];
-    // Pikakortti
-    const countEl = document.getElementById('s-news-count');
-    const dateEl  = document.getElementById('s-news-date');
-    if (countEl) countEl.textContent = `${arts.length} artikkelia`;
-    if (dateEl && arts.length > 0) {
-      const newest = arts[0].date;
-      dateEl.textContent = newest ? new Date(newest).toLocaleDateString('fi-FI',{day:'numeric',month:'long',year:'numeric'}) : '–';
-    }
-    // Uutisruudukko
+    const media = d.media || [];
     const grid = document.getElementById('news-grid');
     const updLabel = document.getElementById('news-updated-label');
     if (!grid) return;
-    if (arts.length === 0) {
-      grid.innerHTML = '<p style="color:var(--text-muted);">Ei uutisia tällä hetkellä.</p>';
-      return;
-    }
     const newsCard = a => {
-      const dateStr = a.date ? new Date(a.date).toLocaleDateString('fi-FI',{day:'numeric',month:'short'}) : '';
+      const dateStr = a.date ? new Date(a.date).toLocaleDateString('fi-FI',{day:'numeric',month:'short',year:'numeric'}) : '';
       return `<a href="${a.url}" target="_blank" rel="noopener" class="news-card">`
         + `<span class="news-card-source">${a.source || 'Uutinen'}</span>`
         + `<span class="news-card-title">${a.title}</span>`
         + (dateStr ? `<span class="news-card-date">${dateStr}</span>` : '')
         + `<span class="news-card-link">↗</span></a>`;
     };
-    const LIMIT = 3;
-    grid.innerHTML = arts.slice(0, LIMIT).map(newsCard).join('');
-    if (arts.length > LIMIT) {
-      const btn = document.createElement('button');
-      btn.className = 'show-more-btn';
-      btn.textContent = `Näytä lisää (${arts.length - LIMIT} kpl)`;
-      btn.onclick = () => { grid.innerHTML = arts.map(newsCard).join(''); btn.remove(); };
-      grid.after(btn);
+    let html = '';
+    if (arts.length > 0) {
+      html += '<div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--green);margin-bottom:6px;">🔴 Tuoreet uutiset · Lauttasaari & Länsiulapanniemi</div>';
+      html += arts.map(newsCard).join('');
     }
-    if (updLabel) updLabel.textContent = `${arts.length} artikkelia · päivitetään kerran vuorokaudessa`;
+    if (media.length > 0) {
+      html += '<div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin:16px 0 6px;">📰 Mediaseuranta · Länsiulapanniemi & HKL-Kesämajat</div>';
+      html += media.map(newsCard).join('');
+    }
+    if (!html) {
+      html = '<p style="color:var(--text-muted);">Ei tuoreita uutisia alueelta.</p>';
+    }
+    grid.innerHTML = html;
+    const total = arts.length + media.length;
+    if (updLabel) updLabel.textContent = `${total} artikkelia · päivitetään 4× vuorokaudessa`;
   } catch(e) { console.warn('loadNews error', e); }
 }
 function uvClass(uv) {
