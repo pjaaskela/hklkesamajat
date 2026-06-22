@@ -683,53 +683,6 @@ footer strong { color: white; }
     <a href="https://www.google.com/maps/search/?api=1&query=60.15524,24.85453" target="_blank" rel="noopener" style="color:var(--green);">Avaa Google Mapsissa ↗</a>
   </p>
 
-  <!-- LÄHIPALVELUT -->
-  <div id="buffetti" class="section-header reveal" style="margin-top:28px;"><h2>🏪 Lähipalvelut</h2><div class="divider"></div><p>Kahvila ja lähimmät palvelut 1,5 km säteellä</p></div>
-  <a href="https://kahvilabuffetti.fi" target="_blank" rel="noopener" style="text-decoration:none;display:block;margin-bottom:12px;" class="reveal">
-    <div class="card" style="display:flex;gap:20px;align-items:center;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;"
-         onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,0.14)'"
-         onmouseout="this.style.transform='';this.style.boxShadow=''">
-      <div style="flex-shrink:0;width:72px;height:72px;border-radius:14px;background:linear-gradient(135deg,#d4a96a,#8b5e2a);display:flex;align-items:center;justify-content:center;font-size:2.2rem;">☕</div>
-      <div style="flex:1;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">
-          <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);">Kesäkahvila · Lounaisväylä</span>
-          <span id="buffetti-status-badge"></span>
-        </div>
-        <div style="font-size:1.1rem;font-weight:800;color:var(--green);margin-bottom:5px;">Kesäkahvila Buffetti</div>
-        <div style="font-size:0.88rem;color:var(--text-muted);line-height:1.5;">Kotitekoisia leivonnaisia, tuoretta kahvia ja upea merinäkymä.</div>
-        <div style="margin-top:7px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
-          <span style="font-size:0.82rem;background:#f5f5f5;border-radius:7px;padding:3px 10px;font-weight:600;">🕐 pe–su 11–18</span>
-          <span style="font-size:0.82rem;color:var(--text-muted);">Vapusta syyskuuhun</span>
-        </div>
-        <div style="margin-top:6px;font-size:0.78rem;color:var(--green);font-weight:600;">kahvilabuffetti.fi ↗</div>
-      </div>
-    </div>
-  </a>
-  <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:8px;">Muut lähipalvelut · OpenStreetMap</div>
-  <div id="places-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;">
-    <div class="skeleton" style="height:36px;border-radius:8px;"></div>
-    <div class="skeleton" style="height:36px;border-radius:8px;width:85%;"></div>
-    <div class="skeleton" style="height:36px;border-radius:8px;width:70%;"></div>
-  </div>
-
-  <!-- HSL -->
-  <div class="card reveal" style="margin-top:16px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-      <div class="card-title" style="margin-bottom:0;"><span>🚌</span> Julkinen liikenne</div>
-      <a href="https://reittiopas.hsl.fi/reitti/Oma+sijainti::/Lounaisv%C3%A4yl%C3%A4npolku+1,+Helsinki::" target="_blank" rel="noopener"
-         style="font-size:0.78rem;color:var(--blue);font-weight:600;text-decoration:none;">Reittiopas ↗</a>
-    </div>
-    <div style="background:#fff3e0;border-radius:10px;padding:11px 13px;margin-bottom:10px;display:flex;gap:10px;align-items:flex-start;">
-      <span style="font-size:1.3rem;flex-shrink:0;margin-top:1px;">🚇</span>
-      <div>
-        <div style="font-weight:700;font-size:0.88rem;color:#e65100;">Koivusaari (M) → alue ~15 min</div>
-        <div style="font-size:0.8rem;color:#6d4c41;margin-top:3px;line-height:1.5;">Metroasemalta pohjoiseen, sitten länsirannikon <strong>merenrantapolkua</strong> pitkin ~1,2 km.</div>
-      </div>
-    </div>
-    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:6px;">Lähin pysäkki</div>
-    <div id="hsl-list"><div class="skeleton" style="height:1rem;margin-bottom:5px;"></div><div class="skeleton" style="height:1rem;width:80%;"></div></div>
-    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:8px;">HSL Digitransit · 🟢 = reaaliaikainen</div>
-  </div>
 </div>
 
 <!-- PALVELUT + YHDISTYS + VENEPAIKAT + LAJITTELU -->
@@ -868,6 +821,54 @@ footer strong { color: white; }
         🌊
       </div>
     </div>
+  </div>
+
+  <!-- LÄHIPALVELUT -->
+  <div id="buffetti" class="section-header reveal" style="margin-top:28px;"><h2>🏪 Lähipalvelut</h2><div class="divider"></div><p>Kahvila ja lähimmät palvelut 1,5 km säteellä</p></div>
+  <a href="https://kahvilabuffetti.fi" target="_blank" rel="noopener" style="text-decoration:none;display:block;margin-bottom:12px;" class="reveal">
+    <div class="card" style="display:flex;gap:20px;align-items:center;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;"
+         onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,0.14)'"
+         onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <div style="flex-shrink:0;width:72px;height:72px;border-radius:14px;background:linear-gradient(135deg,#d4a96a,#8b5e2a);display:flex;align-items:center;justify-content:center;font-size:2.2rem;">☕</div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">
+          <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);">Kesäkahvila · Lounaisväylä</span>
+          <span id="buffetti-status-badge"></span>
+        </div>
+        <div style="font-size:1.1rem;font-weight:800;color:var(--green);margin-bottom:5px;">Kesäkahvila Buffetti</div>
+        <div style="font-size:0.88rem;color:var(--text-muted);line-height:1.5;">Kotitekoisia leivonnaisia, tuoretta kahvia ja upea merinäkymä.</div>
+        <div style="margin-top:7px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+          <span style="font-size:0.82rem;background:#f5f5f5;border-radius:7px;padding:3px 10px;font-weight:600;">🕐 pe–su 11–18</span>
+          <span style="font-size:0.82rem;color:var(--text-muted);">Vapusta syyskuuhun</span>
+        </div>
+        <div style="margin-top:6px;font-size:0.78rem;color:var(--green);font-weight:600;">kahvilabuffetti.fi ↗</div>
+      </div>
+    </div>
+  </a>
+  <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:8px;">Muut lähipalvelut · OpenStreetMap</div>
+  <div id="places-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;">
+    <div class="skeleton" style="height:36px;border-radius:8px;"></div>
+    <div class="skeleton" style="height:36px;border-radius:8px;width:85%;"></div>
+    <div class="skeleton" style="height:36px;border-radius:8px;width:70%;"></div>
+  </div>
+
+  <!-- HSL -->
+  <div class="card reveal" style="margin-top:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+      <div class="card-title" style="margin-bottom:0;"><span>🚌</span> Julkinen liikenne</div>
+      <a href="https://reittiopas.hsl.fi/reitti/Oma+sijainti::/Lounaisv%C3%A4yl%C3%A4npolku+1,+Helsinki::" target="_blank" rel="noopener"
+         style="font-size:0.78rem;color:var(--blue);font-weight:600;text-decoration:none;">Reittiopas ↗</a>
+    </div>
+    <div style="background:#fff3e0;border-radius:10px;padding:11px 13px;margin-bottom:10px;display:flex;gap:10px;align-items:flex-start;">
+      <span style="font-size:1.3rem;flex-shrink:0;margin-top:1px;">🚇</span>
+      <div>
+        <div style="font-weight:700;font-size:0.88rem;color:#e65100;">Koivusaari (M) → alue ~15 min</div>
+        <div style="font-size:0.8rem;color:#6d4c41;margin-top:3px;line-height:1.5;">Metroasemalta pohjoiseen, sitten länsirannikon <strong>merenrantapolkua</strong> pitkin ~1,2 km.</div>
+      </div>
+    </div>
+    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:6px;">Lähin pysäkki</div>
+    <div id="hsl-list"><div class="skeleton" style="height:1rem;margin-bottom:5px;"></div><div class="skeleton" style="height:1rem;width:80%;"></div></div>
+    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:8px;">HSL Digitransit · 🟢 = reaaliaikainen</div>
   </div>
 
   <!-- UUTISET -->

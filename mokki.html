@@ -863,6 +863,34 @@ body { padding-top: 48px; }
       </div>
     </div>
 
+    <!-- SIIVOUS -->
+    <div class="card" id="siivous-card" data-collapse="true">
+      <div class="card-header" onclick="toggleCardCollapse('siivous-card')" style="cursor:pointer;">
+        <div class="card-title">🧹 Siivous</div>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
+      </div>
+      <div class="card-body card-collapse-body" style="display:none;">
+        <div style="font-weight:700;font-size:0.82rem;color:var(--text);margin-bottom:8px;">🧖 Saunan siivous</div>
+        <p style="font-size:0.84rem;color:var(--text-muted);line-height:1.7;margin:0 0 12px;">Sauna siivotaan viikoittain. Siivousaikoina suihkut ja sauna eivät ole käytössä. Tarkista siivousajat ilmoitustaululta saunarakennuksen edessä.</p>
+        <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--sand);border-radius:8px;font-size:0.82rem;">
+            <span>📅</span><span style="font-weight:700;min-width:30px;">Ti</span><span style="color:var(--text-muted);">Saunan siivous (aamupäivä)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--sand);border-radius:8px;font-size:0.82rem;">
+            <span>📅</span><span style="font-weight:700;min-width:30px;">Pe</span><span style="color:var(--text-muted);">Saunan siivous (aamupäivä)</span>
+          </div>
+        </div>
+        <div style="font-weight:700;font-size:0.82rem;color:var(--text);margin-bottom:8px;">🚻 Vessojen siivous</div>
+        <p style="font-size:0.84rem;color:var(--text-muted);line-height:1.7;margin:0 0 12px;">Vessat siivotaan viikoittain. Siivousaikoina vessat eivät ole käytössä. Tarkista ajat ilmoitustaululta.</p>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--sand);border-radius:8px;font-size:0.82rem;">
+            <span>📅</span><span style="font-weight:700;min-width:30px;">Ke</span><span style="color:var(--text-muted);">Vessojen siivous (aamupäivä)</span>
+          </div>
+        </div>
+        <p style="font-size:0.72rem;color:var(--text-muted);margin-top:10px;">Siivousajat ovat ohjeellisia. Tarkista voimassa olevat ajat ilmoitustaululta.</p>
+      </div>
+    </div>
+
     <!-- 6b. JÄTTEET & TYHJENNYKSET -->
     <div class="card" id="waste-card">
       <div class="card-header">
@@ -2742,6 +2770,7 @@ const SECTION_DEFS = [
   { key: 'solar', label: '☀️ Aurinko', sel: '#solar-card' },
   { key: 'avocado', label: '🥑 Avokado', sel: '#avocado-card', mokki: true },
   { key: 'sauna', label: '🛁 Sauna', sel: '#sauna-card' },
+  { key: 'siivous', label: '🧹 Siivous', sel: '#siivous-card' },
   { key: 'waste', label: '♻️ Jätteet', sel: '#waste-card' },
   { key: 'flags', label: '🇫🇮 Liputus', sel: '#flag-card' },
   { key: 'beaches', label: '🏖️ Rannat', sel: '#beaches-card' },
