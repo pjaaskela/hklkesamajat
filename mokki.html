@@ -807,7 +807,7 @@ body { padding-top: 48px; }
         <div id="sauna-slots-list" class="sauna-slots"></div>
         <div style="margin-top:12px;font-size:0.72rem;color:var(--text-muted);">
           Pre-kausi (touko–18.6.): <strong>ti + la</strong> &nbsp;·&nbsp;
-          Huippukausi (19.6.–31.8.): <strong>pe + la</strong>
+          Huippukausi (19.6.–31.8.): <strong>ti + pe + la</strong>
         </div>
 
         <!-- Saunan vierasmaksu -->
@@ -817,6 +817,28 @@ body { padding-top: 48px; }
             <div style="flex:1;">
               <div style="font-weight:800;font-size:0.9rem;color:#92400e;margin-bottom:4px;">Tuotko vieraita saunaan?</div>
               <p style="font-size:0.82rem;color:#78350f;line-height:1.5;margin:0 0 10px;">Tervetuloa! Saunamaksu on <strong>3 € / vieras</strong>. Samassa taloudessa asuvat ja alle 12-vuotiaat lapset ovat vapautettuja.</p>
+              <!-- Pikavalitsin -->
+              <div style="background:rgba(255,255,255,0.8);border-radius:12px;padding:14px;margin-bottom:10px;">
+                <div style="font-size:0.72rem;color:#92400e;font-weight:700;margin-bottom:8px;">PIKAMAKSU — Valitse vieraiden määrä</div>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+                  <button onclick="saunaGuests(-1)" style="width:36px;height:36px;border-radius:50%;border:2px solid #fde68a;background:#fff;font-size:1.2rem;font-weight:700;cursor:pointer;color:#92400e;">−</button>
+                  <div style="text-align:center;min-width:50px;">
+                    <div id="sauna-guest-count" style="font-size:1.8rem;font-weight:900;color:#92400e;line-height:1;">3</div>
+                    <div style="font-size:0.65rem;color:#b45309;">vierasta</div>
+                  </div>
+                  <button onclick="saunaGuests(1)" style="width:36px;height:36px;border-radius:50%;border:2px solid #fde68a;background:#fff;font-size:1.2rem;font-weight:700;cursor:pointer;color:#92400e;">+</button>
+                  <div style="flex:1;text-align:right;">
+                    <div style="font-size:0.65rem;color:#b45309;">YHTEENSÄ</div>
+                    <div id="sauna-guest-total" style="font-size:1.5rem;font-weight:900;color:#92400e;">9 €</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:6px;">
+                  <button onclick="saunaGuestsSet(1)" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid #fde68a;background:#fff;font-size:0.78rem;font-weight:700;cursor:pointer;color:#92400e;">1</button>
+                  <button onclick="saunaGuestsSet(2)" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid #fde68a;background:#fff;font-size:0.78rem;font-weight:700;cursor:pointer;color:#92400e;">2</button>
+                  <button onclick="saunaGuestsSet(3)" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid #fde68a;background:#fffbeb;font-size:0.78rem;font-weight:700;cursor:pointer;color:#92400e;border-color:#f59e0b;">3</button>
+                  <button onclick="saunaGuestsSet(5)" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid #fde68a;background:#fff;font-size:0.78rem;font-weight:700;cursor:pointer;color:#92400e;">5</button>
+                </div>
+              </div>
               <div style="display:flex;gap:8px;flex-wrap:wrap;">
                 <div style="background:rgba(255,255,255,0.7);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;flex:1;min-width:140px;">
                   <div style="font-size:1.3rem;">💰</div>
@@ -830,8 +852,8 @@ body { padding-top: 48px; }
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 3H7C4.79 3 3 4.79 3 7v10c0 2.21 1.79 4 4 4h10c2.21 0 4-1.79 4-4V7c0-2.21-1.79-4-4-4z" fill="#fff"/><path d="M15.5 12.5l-2.3-4c-.2-.4-.7-.5-1.1-.3l-2 1.2c-.4.2-.5.7-.3 1.1l2.3 4c.2.4.7.5 1.1.3l2-1.2c.4-.2.5-.7.3-1.1z" fill="#5a31f4"/></svg>
                   </div>
                   <div>
-                    <div style="font-size:0.72rem;color:#888;font-weight:600;letter-spacing:0.04em;">MOBILEPAY</div>
-                    <div style="font-size:1rem;font-weight:800;color:#5a31f4;letter-spacing:0.02em;">#24434</div>
+                    <div style="font-size:0.72rem;color:#888;font-weight:600;letter-spacing:0.04em;">MOBILEPAY #24434</div>
+                    <div id="sauna-mp-hint" style="font-size:0.82rem;font-weight:700;color:#5a31f4;">Saunamaksu · <span id="sauna-mp-amount">9</span> €</div>
                   </div>
                 </div>
               </div>
@@ -2009,6 +2031,16 @@ async function loadListings() {
     }).join('');
   } catch(e) {}
 }
+
+// ========== SAUNA GUEST COUNTER ==========
+let _saunaGuests = 3;
+function updateSaunaGuests() {
+  document.getElementById('sauna-guest-count').textContent = _saunaGuests;
+  document.getElementById('sauna-guest-total').textContent = (_saunaGuests * 3) + ' €';
+  document.getElementById('sauna-mp-amount').textContent = _saunaGuests * 3;
+}
+function saunaGuests(d) { _saunaGuests = Math.max(1, Math.min(10, _saunaGuests + d)); updateSaunaGuests(); }
+function saunaGuestsSet(n) { _saunaGuests = n; updateSaunaGuests(); }
 
 // ========== DOCUMENT DOWNLOAD (with token) ==========
 async function downloadDoc(id, title) {
