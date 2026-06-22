@@ -1223,12 +1223,12 @@ body { padding-top: 48px; }
     </div>
 
     <!-- KESÄMAJALAISEN OPAS -->
-    <div class="card" id="opas-card">
+    <div class="card" id="opas-card" data-collapse="true">
       <div class="card-header" onclick="toggleCardCollapse('opas-card')" style="cursor:pointer;">
         <div class="card-title">📖 Kesämajalaisen opas <span style="font-size:0.65rem;font-weight:400;color:var(--text-muted);text-transform:none;letter-spacing:0;">v5</span></div>
-        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▾</span>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
       </div>
-      <div class="card-body card-collapse-body" id="opas-body">
+      <div class="card-body card-collapse-body" id="opas-body" style="display:none;">
         <div id="opas-sections" style="display:flex;flex-direction:column;gap:2px;"></div>
       </div>
     </div>
