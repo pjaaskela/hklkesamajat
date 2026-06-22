@@ -2,25 +2,8 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/hklkesam/public_html/
-    - /bin/cp -f index.html $DEPLOYPATH
-    - /bin/cp -f mokki.html $DEPLOYPATH
-    - /bin/cp -f vierailija.html $DEPLOYPATH
-    - /bin/cp -f admin.html $DEPLOYPATH
-    - /bin/cp -f tietosuoja.html $DEPLOYPATH
-    - /bin/cp -f hkl-base.css $DEPLOYPATH
-    - /bin/cp -f hkl-analytics.js $DEPLOYPATH
-    - /bin/cp -f hkl-laituri.jpg $DEPLOYPATH
-    - /bin/cp -f hkl-hero.jpg $DEPLOYPATH
-    - /bin/cp -f hkl-ranta.jpg $DEPLOYPATH
-    - /bin/cp -f hkl-uinti.jpg $DEPLOYPATH
-    - /bin/cp -f hkl-ilta.jpg $DEPLOYPATH
-    - /bin/cp -f hkl-talvi.jpg $DEPLOYPATH
-    - /bin/cp -f hkl-myrsky.jpg $DEPLOYPATH
-    - /bin/cp -f hkl-lumi.jpg $DEPLOYPATH
-    - /bin/cp -f mokkikartta.jpg $DEPLOYPATH
-    - /bin/cp -f mokkikartta.pdf $DEPLOYPATH
-    - /bin/cp -f historia.pdf $DEPLOYPATH
-    - /bin/cp -f yhdistyksen_saannot_2010.pdf $DEPLOYPATH
-    - /bin/cp -f jarjestyssaannot.pdf $DEPLOYPATH
-    - /bin/cp -f rakentamistapaohje.pdf $DEPLOYPATH
-    - /bin/cp -f maalisavyjen_vastaavuudet.pdf $DEPLOYPATH
+    - /bin/cp -f *.html $DEPLOYPATH
+    - /bin/cp -f *.css $DEPLOYPATH
+    - /bin/cp -f *.js $DEPLOYPATH
+    - /bin/cp -f *.jpg $DEPLOYPATH
+    - /bin/cp -f *.pdf $DEPLOYPATH
