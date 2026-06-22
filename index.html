@@ -337,7 +337,7 @@ loadWaterHero();
 loadLocalSensorHero();
 loadSunHero();
 
-function initHeroMap() {
+function initHeroMap() { try {
   const center = { lat: LAT, lng: LON };
   const map = new google.maps.Map(document.getElementById('hero-map'), {
     center, zoom: 15,
@@ -352,7 +352,7 @@ function initHeroMap() {
     title: 'HKL-Kesämajat',
     icon: { path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#4ade80', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2.5 }
   });
-}
+} catch(e) { console.warn('Map init failed:', e); } }
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4v6_V6A8uGas4M9UQz3bu9FwsbdFH8ds&callback=initHeroMap" async defer></script>
 <script src="hkl-analytics.js" defer></script>
