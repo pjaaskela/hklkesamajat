@@ -1142,7 +1142,8 @@ body { padding-top: 48px; }
             </div>
             <div class="settings-field">
               <label>Uusi salasana</label>
-              <input type="password" id="pw-new" class="settings-input" maxlength="100" autocomplete="new-password">
+              <input type="password" id="pw-new" class="settings-input" maxlength="100" autocomplete="new-password" oninput="pwLiveCheck(this.value)">
+              <div id="pw-strength" style="font-size:0.7rem;margin-top:3px;min-height:1em;"></div>
             </div>
             <div class="settings-field">
               <label>Vahvista uusi salasana</label>
@@ -1492,13 +1493,32 @@ function handleProfilePhoto(input) {
 }
 
 // ========== PASSWORD CHANGE ==========
+function pwLiveCheck(pw) {
+  const el = document.getElementById('pw-strength');
+  if (!el || !pw) { if(el) el.textContent=''; return; }
+  const err = checkPwStrength(pw);
+  if (err) { el.textContent = '⚠️ ' + err; el.style.color = '#ef4444'; }
+  else { el.textContent = '✓ Hyvä salasana'; el.style.color = 'var(--green)'; }
+}
+
+function checkPwStrength(pw) {
+  if (pw.length < 12) return 'Vähintään 12 merkkiä';
+  const lower = pw.toLowerCase().replace(/\s/g, '');
+  const blocked = ['salasana','password','123456','qwerty','kesämökki','kesamokki','kesämaja','kesamaja','hklkesämajat','hklkesamajat','lauttasaari','länsiulapanniemi'];
+  for (const b of blocked) { if (lower.includes(b)) return 'Liian yleinen tai arvattava'; }
+  if (_currentMokki && pw.includes(_currentMokki)) return 'Ei saa sisältää mökin numeroa';
+  if (new Set(pw).size < 4) return 'Käytä monipuolisempia merkkejä';
+  return null;
+}
+
 async function changePassword() {
   const cur = document.getElementById('pw-current').value;
   const np = document.getElementById('pw-new').value;
   const np2 = document.getElementById('pw-confirm').value;
   const msg = document.getElementById('pw-msg');
   if (!cur || !np) { msg.textContent = '❌ Täytä kaikki kentät'; msg.style.color='#ef4444'; return; }
-  if (np.length < 4) { msg.textContent = '❌ Salasana vähintään 4 merkkiä'; msg.style.color='#ef4444'; return; }
+  const pwErr = checkPwStrength(np);
+  if (pwErr) { msg.textContent = '❌ ' + pwErr; msg.style.color='#ef4444'; return; }
   if (np !== np2) { msg.textContent = '❌ Salasanat eivät täsmää'; msg.style.color='#ef4444'; return; }
   try {
     const r = await fetch(API_BASE + '/api/hkl/my-cottage/password', {
@@ -1560,7 +1580,8 @@ async function nextWelcomeStep() {
     const pw2 = document.getElementById('wlc-pw2').value;
     const msg = document.getElementById('wlc-pw-msg');
     if (pw) {
-      if (pw.length < 4) { msg.textContent = '❌ Vähintään 4 merkkiä'; msg.style.color='#ef4444'; return; }
+      const pwErr = checkPwStrength(pw);
+      if (pwErr) { msg.textContent = '❌ ' + pwErr; msg.style.color='#ef4444'; return; }
       if (pw !== pw2) { msg.textContent = '❌ Salasanat eivät täsmää'; msg.style.color='#ef4444'; return; }
       try {
         const r = await fetch(API_BASE + '/api/hkl/my-cottage/password', {
