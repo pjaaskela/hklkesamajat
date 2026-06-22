@@ -320,9 +320,9 @@ async function loadRoleLiveData() {
   const isPeak = (month===6&&day>=19)||month===7||month===8;
   const isPre = month===5||(month===6&&day<19);
   let saunaDay = false, sch = 'la';
-  if (isPeak && [5,6].includes(dow)) { saunaDay = true; sch = dow===5?'pe':'la'; }
+  if (isPeak && [2,5,6].includes(dow)) { saunaDay = true; sch = dow===2?'ti':dow===5?'pe':'la'; }
   else if (isPre && [2,6].includes(dow)) { saunaDay = true; sch = dow===2?'ti':'la'; }
-  if (!saunaDay) { el.textContent = '🛁 Sauna: ' + (isPeak?'pe+la':'ti+la'); return; }
+  if (!saunaDay) { el.textContent = '🛁 Sauna: ' + (isPeak?'ti+pe+la':'ti+la'); return; }
   const slots = {pe:[{s:13,e:19}],la:[{s:13,e:21}],ti:[{s:13,e:21}]};
   const tot = h*60+m;
   const open = slots[sch] && slots[sch].some(sl => tot>=sl.s*60 && tot<sl.e*60);

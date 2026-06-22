@@ -1901,7 +1901,7 @@ function renderSaunaCard() {
 
   // Days with sauna
   let saunaDay = false, saunaSchedule = 'la';
-  if (isPeak && [5, 6].includes(dow)) { saunaDay = true; saunaSchedule = dow === 5 ? 'pe' : 'la'; }
+  if (isPeak && [2, 5, 6].includes(dow)) { saunaDay = true; saunaSchedule = dow === 2 ? 'ti' : dow === 5 ? 'pe' : 'la'; }
   else if (isPre && [2, 6].includes(dow)) { saunaDay = true; saunaSchedule = dow === 2 ? 'ti' : 'la'; }
 
   const DAYS = ['sunnuntai','maanantai','tiistai','keskiviikko','torstai','perjantai','lauantai'];
@@ -1911,7 +1911,7 @@ function renderSaunaCard() {
 
   if (!saunaDay) {
     let nextDay = '';
-    if (isPeak) nextDay = 'Seuraava sauna: perjantai ja lauantai';
+    if (isPeak) nextDay = 'Seuraava sauna: tiistai, perjantai ja lauantai';
     else if (isPre) nextDay = 'Seuraava sauna: tiistai ja lauantai';
 
     dayInfo.textContent = 'Tänään ei saunaa (' + DAYS[dow] + ')';
