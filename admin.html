@@ -773,8 +773,8 @@ async function loadVisitors(){
   try{
     const[stats,visitors,sessions]=await Promise.all([
       fetch(API_BASE+'/api/hkl/stats',{headers:{'X-Api-Key':_token}}).then(r=>r.json()),
-      fetch(API_BASE+'/api/visitors',{headers:{'X-Api-Key':_token}}).then(r=>r.json()),
-      fetch(API_BASE+'/api/sessions',{headers:{'X-Api-Key':_token}}).then(r=>r.json())
+      fetch(API_BASE+'/api/hkl/visitors',{headers:{'X-Api-Key':_token}}).then(r=>r.json()),
+      fetch(API_BASE+'/api/hkl/sessions',{headers:{'X-Api-Key':_token}}).then(r=>r.json())
     ]);
 
     const hklSessions=sessions.filter(s=>isHkl(s.page));
@@ -1352,7 +1352,7 @@ async function loadFeedback(){
 }
 async function deleteFeedback(id){
   if(!confirm('Poistetaanko palaute?'))return;
-  await fetch(API_BASE+'/api/feedback/'+id,{method:'DELETE',headers:{'X-Api-Key':_token}});
+  await fetch(API_BASE+'/api/hkl/feedback/'+id,{method:'DELETE',headers:{'X-Api-Key':_token}});
   loadFeedback();
 }
 
