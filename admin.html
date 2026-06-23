@@ -766,8 +766,8 @@ function logout(){sessionStorage.removeItem('hkl_admin_token');location.reload()
 
 function loadAll(){loadSensors();loadAsukkaat();loadVikat();loadTiedotteet();loadLaituriHist();loadVesipisteet();loadMokit();loadVisitors();loadDocs();}
 
-const HKL_PAGES=['/index.html','/vierailija.html','/mokki.html','/admin.html','/dashboard.html','/info.html'];
-function isHkl(page){return HKL_PAGES.some(p=>page===p)||page.startsWith('/hklkesamajat');}
+const HKL_PAGES=['index','vierailija','mokki','admin','dashboard','info','hklkesamajat','hklkesamajat-vierailija','hklkesamajat-mokki','hklkesamajat-admin'];
+function isHkl(page){return HKL_PAGES.some(p=>page===p)||page.includes('hklkesamajat');}
 
 async function loadVisitors(){
   try{
