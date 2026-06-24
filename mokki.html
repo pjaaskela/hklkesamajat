@@ -1363,30 +1363,30 @@ body { padding-top: 48px; }
       <div id="welcome-steps">
         <div class="welcome-step" data-step="1" style="display:block;">
           <div style="font-size:1.5rem;margin-bottom:8px;">👋</div>
-          <h3 style="font-size:1rem;margin-bottom:8px;color:#1a5c3a;">Ensimmäinen kirjautumisesi</h3>
-          <p style="color:#666;font-size:0.85rem;line-height:1.6;">Tämä on mökkiläisten oma palvelu. Täältä löydät kaiken tarpeellisen: sää, saunavuorot, tiedotteet ja paljon muuta.</p>
-        </div>
-        <div class="welcome-step" data-step="2" style="display:none;">
-          <div style="font-size:1.5rem;margin-bottom:8px;">📝</div>
-          <h3 style="font-size:1rem;margin-bottom:8px;color:#1a5c3a;">Täytä profiilisi</h3>
-          <p style="color:#666;font-size:0.85rem;line-height:1.6;margin-bottom:12px;">Lisää nimesi ja yhteystietosi, niin muut mökkiläiset tunnistavat sinut.</p>
-          <div style="background:#f8f9f5;border-radius:10px;padding:14px;">
+          <h3 style="font-size:1rem;margin-bottom:8px;color:#1a5c3a;">Tervetuloa!</h3>
+          <p style="color:#666;font-size:0.85rem;line-height:1.6;margin-bottom:16px;">Tämä on mökkiläisten oma palvelu. Täältä löydät kaiken tarpeellisen: sää, saunavuorot, tiedotteet ja paljon muuta.</p>
+
+          <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:12px 14px;margin-bottom:16px;">
+            <div style="font-size:0.78rem;font-weight:700;color:#92400e;margin-bottom:4px;">⚠️ Tarkista tietosi ja vaihda salasana</div>
+            <div style="font-size:0.8rem;color:#78350f;line-height:1.5;">Tietosi on tuotu jäsenrekisteristä. Tarkista ne alla ja vaihda salasana omaksesi.</div>
+          </div>
+
+          <div style="font-size:0.78rem;font-weight:700;color:#1a5c3a;margin-bottom:6px;">📝 Yhteystiedot</div>
+          <div style="background:#f8f9f5;border-radius:10px;padding:14px;margin-bottom:16px;">
             <div style="margin-bottom:8px;"><label style="font-size:0.72rem;color:#888;font-weight:700;">NIMI</label><br><input type="text" id="wlc-name" class="settings-input" maxlength="100" style="margin-top:4px;"></div>
             <div style="margin-bottom:8px;"><label style="font-size:0.72rem;color:#888;font-weight:700;">SÄHKÖPOSTI</label><br><input type="email" id="wlc-email" class="settings-input" maxlength="200" style="margin-top:4px;"></div>
             <div><label style="font-size:0.72rem;color:#888;font-weight:700;">PUHELIN</label><br><input type="tel" id="wlc-phone" class="settings-input" maxlength="30" style="margin-top:4px;"></div>
           </div>
-        </div>
-        <div class="welcome-step" data-step="3" style="display:none;">
-          <div style="font-size:1.5rem;margin-bottom:8px;">🔒</div>
-          <h3 style="font-size:1rem;margin-bottom:8px;color:#1a5c3a;">Vaihda salasanasi</h3>
-          <p style="color:#666;font-size:0.85rem;line-height:1.6;margin-bottom:12px;">Suosittelemme salasanan vaihtamista. Voit myös tehdä tämän myöhemmin.</p>
-          <div style="background:#f8f9f5;border-radius:10px;padding:14px;">
+
+          <div style="font-size:0.78rem;font-weight:700;color:#1a5c3a;margin-bottom:6px;">🔒 Vaihda salasana</div>
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;">
+            <p style="color:#15803d;font-size:0.78rem;line-height:1.5;margin:0 0 10px;">Salasanan on oltava vähintään 12 merkkiä. Voit käyttää kirjaimia, numeroita, erikoismerkkejä ja välilyöntejä.</p>
             <div style="margin-bottom:8px;"><label style="font-size:0.72rem;color:#888;font-weight:700;">UUSI SALASANA</label><br><input type="password" id="wlc-pw" class="settings-input" maxlength="100" style="margin-top:4px;" autocomplete="new-password"></div>
             <div><label style="font-size:0.72rem;color:#888;font-weight:700;">VAHVISTA</label><br><input type="password" id="wlc-pw2" class="settings-input" maxlength="100" style="margin-top:4px;" autocomplete="new-password"></div>
           </div>
           <div id="wlc-pw-msg" style="font-size:0.78rem;margin-top:6px;min-height:1em;"></div>
         </div>
-        <div class="welcome-step" data-step="4" style="display:none;">
+        <div class="welcome-step" data-step="2" style="display:none;">
           <div style="font-size:1.5rem;margin-bottom:8px;">⚡</div>
           <h3 style="font-size:1rem;margin-bottom:8px;color:#1a5c3a;">Lisäpalvelut</h3>
           <p style="color:#666;font-size:0.85rem;line-height:1.6;margin-bottom:14px;">HKL-Kesämajat tarjoaa mökkeihin lisäpalveluita. Merkitse kiinnostavat — ei sido mihinkään, keräämme kiinnostusta suunnittelua varten.</p>
@@ -1554,11 +1554,6 @@ function pwLiveCheck(pw) {
 
 function checkPwStrength(pw) {
   if (pw.length < 12) return 'Vähintään 12 merkkiä';
-  const lower = pw.toLowerCase().replace(/\s/g, '');
-  const blocked = ['salasana','password','123456','qwerty','kesämökki','kesamokki','kesämaja','kesamaja','hklkesämajat','hklkesamajat','lauttasaari','länsiulapanniemi'];
-  for (const b of blocked) { if (lower.includes(b)) return 'Liian yleinen tai arvattava'; }
-  if (_currentMokki && pw.includes(_currentMokki)) return 'Ei saa sisältää mökin numeroa';
-  if (new Set(pw).size < 4) return 'Käytä monipuolisempia merkkejä';
   return null;
 }
 
@@ -1589,7 +1584,7 @@ async function changePassword() {
 
 // ========== WELCOME / FIRST LOGIN ==========
 let _welcomeStep = 1;
-const WELCOME_TOTAL = 5;
+const WELCOME_TOTAL = 3;
 
 function showWelcomeModal() {
   _welcomeStep = 1;
@@ -1612,7 +1607,8 @@ function updateWelcomeUI() {
 }
 
 async function nextWelcomeStep() {
-  if (_welcomeStep === 2) {
+  // Step 1: profile + password
+  if (_welcomeStep === 1) {
     const name = document.getElementById('wlc-name').value.trim();
     const email = document.getElementById('wlc-email').value.trim();
     const phone = document.getElementById('wlc-phone').value.trim();
@@ -1625,14 +1621,11 @@ async function nextWelcomeStep() {
         });
       } catch(e) {}
     }
-  }
-  if (_welcomeStep === 3) {
     const pw = document.getElementById('wlc-pw').value;
     const pw2 = document.getElementById('wlc-pw2').value;
     const msg = document.getElementById('wlc-pw-msg');
     if (pw) {
-      const pwErr = checkPwStrength(pw);
-      if (pwErr) { msg.textContent = '❌ ' + pwErr; msg.style.color='#ef4444'; return; }
+      if (pw.length < 12) { msg.textContent = '❌ Salasanan on oltava vähintään 12 merkkiä'; msg.style.color='#ef4444'; return; }
       if (pw !== pw2) { msg.textContent = '❌ Salasanat eivät täsmää'; msg.style.color='#ef4444'; return; }
       try {
         const r = await fetch(API_BASE + '/api/hkl/my-cottage/password', {
@@ -1640,11 +1633,12 @@ async function nextWelcomeStep() {
           headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken},
           body: JSON.stringify({current_password: _invitePassword || '', new_password: pw})
         });
-        if (!r.ok) { msg.textContent = '❌ Virhe salasanan vaihdossa'; msg.style.color='#ef4444'; return; }
+        if (!r.ok) { const d = await r.json().catch(()=>({})); msg.textContent = '❌ ' + (d.detail || 'Virhe'); msg.style.color='#ef4444'; return; }
       } catch(e) { msg.textContent = '❌ Verkkovirhe'; msg.style.color='#ef4444'; return; }
     }
   }
-  if (_welcomeStep === 4) {
+  // Step 2: interests
+  if (_welcomeStep === 2) {
     const ints = {};
     document.querySelectorAll('#wlc-interests input[type=checkbox]').forEach(cb => {
       ints[cb.dataset.key] = cb.checked;
