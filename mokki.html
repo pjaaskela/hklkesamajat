@@ -805,10 +805,54 @@ body { padding-top: 48px; }
       <div class="card-body">
         <div id="sauna-day-info" style="font-size:0.82rem;color:var(--text-muted);margin-bottom:2px;"></div>
         <div id="sauna-slots-list" class="sauna-slots"></div>
-        <!-- SAUNAVUOROT 2026 KUVA -->
-        <div style="margin-top:14px;background:#fff;border:1px solid #e8ede9;border-radius:12px;overflow:hidden;">
-          <img src="https://jaaskel.com/saunavuorot2026.png" alt="Saunavuorot 2026" loading="lazy" style="width:100%;display:block;">
+        <!-- SAUNAVUOROT 2026 -->
+        <div style="margin-top:14px;">
+          <div style="background:var(--green);color:#fff;padding:8px 14px;font-weight:800;font-size:0.82rem;text-align:center;letter-spacing:0.04em;border-radius:10px 10px 0 0;">SAUNAVUOROT 2026</div>
+          <table style="width:100%;border-collapse:collapse;font-size:0.72rem;text-align:center;background:#fff;border:1px solid #e8ede9;">
+            <tr style="background:var(--sand);">
+              <th style="padding:8px 6px;font-weight:700;text-align:left;padding-left:12px;width:80px;"></th>
+              <th style="padding:8px 4px;">13–15</th>
+              <th style="padding:8px 4px;">15–16</th>
+              <th style="padding:8px 4px;">16–18</th>
+              <th style="padding:8px 4px;">18–19</th>
+              <th style="padding:8px 4px;">19–21</th>
+            </tr>
+            <tr style="border-bottom:1px solid #f0f0f0;">
+              <td style="padding:8px 6px;font-weight:800;text-align:left;padding-left:12px;background:#e8f5ec;">TIISTAI</td>
+              <td style="padding:6px;background:#dbeafe;color:#1e40af;font-weight:700;">♂ Miehet</td>
+              <td style="padding:6px;background:#fce7f3;color:#be185d;font-weight:700;">♀ Naiset</td>
+              <td style="padding:6px;background:#ede9fe;color:#7c3aed;font-weight:700;">⚥ Seka</td>
+              <td style="padding:6px;background:#dbeafe;color:#1e40af;font-weight:700;">♂ Miehet</td>
+              <td style="padding:6px;background:#fce7f3;color:#be185d;font-weight:700;">♀ Naiset</td>
+            </tr>
+            <tr style="border-bottom:1px solid #f0f0f0;">
+              <td style="padding:8px 6px;font-weight:800;text-align:left;padding-left:12px;background:#e8f5ec;">PERJANTAI</td>
+              <td style="padding:6px;background:#fce7f3;color:#be185d;font-weight:700;">♀ Naiset</td>
+              <td style="padding:6px;background:#dbeafe;color:#1e40af;font-weight:700;" colspan="2">♂ Miehet 15–17</td>
+              <td style="padding:6px;background:#fce7f3;color:#be185d;font-weight:700;" colspan="2">♀ Naiset 17–21</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 6px;font-weight:800;text-align:left;padding-left:12px;background:#e8f5ec;">LAUANTAI</td>
+              <td style="padding:6px;background:#dbeafe;color:#1e40af;font-weight:700;">♂ Miehet</td>
+              <td style="padding:6px;background:#fce7f3;color:#be185d;font-weight:700;" colspan="2">♀ Naiset 15–17</td>
+              <td style="padding:6px;background:#dbeafe;color:#1e40af;font-weight:700;" colspan="2">♂ Miehet 17–21</td>
+            </tr>
+          </table>
+          <div style="padding:6px 10px;font-size:0.65rem;color:var(--text-muted);display:flex;flex-wrap:wrap;gap:12px;background:#fff;border:1px solid #e8ede9;border-top:0;">
+            <span><span style="display:inline-block;width:10px;height:10px;background:#dbeafe;border-radius:2px;margin-right:3px;vertical-align:middle;"></span>♂ Miehet</span>
+            <span><span style="display:inline-block;width:10px;height:10px;background:#fce7f3;border-radius:2px;margin-right:3px;vertical-align:middle;"></span>♀ Naiset</span>
+            <span><span style="display:inline-block;width:10px;height:10px;background:#ede9fe;border-radius:2px;margin-right:3px;vertical-align:middle;"></span>⚥ Sekasauna</span>
+          </div>
         </div>
+        <!-- KAUSIKALENTERI -->
+        <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px;font-size:0.68rem;">
+          <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:5px 10px;"><strong>Toukokuu</strong> ti + la</div>
+          <div style="background:#fed7aa;border:1px solid #fdba74;border-radius:8px;padding:5px 10px;"><strong>Kesäkuu</strong> ti + pe + la ¹</div>
+          <div style="background:#fecaca;border:1px solid #fca5a5;border-radius:8px;padding:5px 10px;"><strong>Heinäkuu</strong> ti + pe + la</div>
+          <div style="background:#fed7aa;border:1px solid #fdba74;border-radius:8px;padding:5px 10px;"><strong>Elokuu</strong> ti + pe + la</div>
+          <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:5px 10px;"><strong>Syyskuu</strong> la</div>
+        </div>
+        <div style="font-size:0.6rem;color:var(--text-muted);margin-top:4px;">¹ Juhannuksesta alkaen</div>
 
         <!-- Saunan vierasmaksu -->
         <div style="margin-top:16px;background:linear-gradient(135deg,#fef3c7 0%,#fff7ed 100%);border-radius:14px;padding:16px 18px;border:1px solid #fde68a;">
@@ -852,7 +896,7 @@ body { padding-top: 48px; }
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 3H7C4.79 3 3 4.79 3 7v10c0 2.21 1.79 4 4 4h10c2.21 0 4-1.79 4-4V7c0-2.21-1.79-4-4-4z" fill="#fff"/><path d="M15.5 12.5l-2.3-4c-.2-.4-.7-.5-1.1-.3l-2 1.2c-.4.2-.5.7-.3 1.1l2.3 4c.2.4.7.5 1.1.3l2-1.2c.4-.2.5-.7.3-1.1z" fill="#5a31f4"/></svg>
                   </div>
                   <div>
-                    <div style="font-size:0.72rem;color:#888;font-weight:600;letter-spacing:0.04em;">MOBILEPAY #24434</div>
+                    <a href="https://mobilepay.fi/business/24434" target="_blank" style="font-size:0.72rem;color:#5a31f4;font-weight:600;letter-spacing:0.04em;text-decoration:none;">MOBILEPAY #24434 ↗</a>
                     <div id="sauna-mp-hint" style="font-size:0.82rem;font-weight:700;color:#5a31f4;">Saunamaksu · <span id="sauna-mp-amount">9</span> €</div>
                   </div>
                 </div>
@@ -961,7 +1005,7 @@ body { padding-top: 48px; }
 
     <!-- 6c. LIPUTUSPÄIVÄT -->
     <div class="flag-card" id="flag-card" data-collapse="true">
-      <div class="card-title" style="margin-bottom:2px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;" onclick="toggleCardCollapse('flag-card')">
+      <div class="card-title" style="margin-bottom:2px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;" onclick="toggleCardCollapse('flag-card');renderFlagDays()">
         <span>🇫🇮 Suomen liputuspäivät</span>
         <span class="collapse-chevron" style="font-size:0.82rem;color:rgba(255,255,255,0.5);transition:transform .2s;">▸</span>
       </div>
