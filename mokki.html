@@ -1352,6 +1352,34 @@ body { padding-top: 48px; }
       </div>
     </div>
 
+    <!-- VIKAILMOITUKSET -->
+    <div class="card" id="ilmoitus-card">
+      <div class="card-header">
+        <div class="card-title">📢 Ilmoitukset & vikailmoitukset</div>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+          <button onclick="openIlmoitus('vikailmoitus')" style="flex:1;min-width:120px;padding:10px;border-radius:10px;border:1.5px solid #fca5a5;background:#fef2f2;color:#991b1b;font-weight:700;font-size:0.82rem;cursor:pointer;">🔧 Vikailmoitus</button>
+          <button onclick="openIlmoitus('vesiverkko')" style="flex:1;min-width:120px;padding:10px;border-radius:10px;border:1.5px solid #93c5fd;background:#eff6ff;color:#1e40af;font-weight:700;font-size:0.82rem;cursor:pointer;">💧 Vesiverkko</button>
+          <button onclick="openIlmoitus('laituri')" style="flex:1;min-width:120px;padding:10px;border-radius:10px;border:1.5px solid #fde68a;background:#fffbeb;color:#92400e;font-weight:700;font-size:0.82rem;cursor:pointer;">⚓ Laituri</button>
+          <button onclick="openIlmoitus('muu')" style="flex:1;min-width:120px;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;background:#f8fafc;color:var(--text-muted);font-weight:700;font-size:0.82rem;cursor:pointer;">💬 Muu</button>
+        </div>
+        <div id="ilmoitus-form" style="display:none;margin-bottom:12px;">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;" id="ilmoitus-type-label">VIKAILMOITUS</div>
+          <input type="hidden" id="ilmoitus-kategoria">
+          <input type="text" id="ilmoitus-otsikko" class="settings-input" placeholder="Otsikko *" maxlength="200" style="margin-bottom:8px;">
+          <textarea id="ilmoitus-kuvaus" class="settings-input" placeholder="Kuvaus (vapaaehtoinen)" maxlength="2000" rows="3" style="margin-bottom:8px;resize:vertical;"></textarea>
+          <div style="display:flex;gap:8px;">
+            <button onclick="sendIlmoitus()" style="flex:1;padding:10px;border-radius:10px;border:none;background:var(--green);color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer;">Lähetä</button>
+            <button onclick="document.getElementById('ilmoitus-form').style.display='none'" style="padding:10px 16px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:var(--text-muted);font-size:0.85rem;cursor:pointer;">Peruuta</button>
+          </div>
+          <div id="ilmoitus-msg" style="font-size:0.78rem;margin-top:6px;min-height:1em;"></div>
+        </div>
+        <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;">Omat ilmoitukset</div>
+        <div id="omat-ilmoitukset" style="font-size:0.82rem;color:var(--text-muted);">Ladataan...</div>
+      </div>
+    </div>
+
     <!-- OSTO/MYYNTI-ILMOITUKSET -->
     <div class="card" id="listings-card" data-collapse="true">
       <div class="card-header" onclick="toggleCardCollapse('listings-card')" style="cursor:pointer;">
@@ -1922,6 +1950,7 @@ function showDashboard(num) {
   loadMokkiDay();
   loadMokkiDocs();
   loadListings();
+  loadOmatIlmoitukset();
 
   // Background preview
   const bgPreview = document.getElementById('set-bg-preview');
@@ -2186,6 +2215,66 @@ function updateSaunaGuests() {
 }
 function saunaGuests(d) { _saunaGuests = Math.max(1, Math.min(10, _saunaGuests + d)); updateSaunaGuests(); }
 function saunaGuestsSet(n) { _saunaGuests = n; updateSaunaGuests(); }
+
+// ========== ILMOITUKSET (vikailmoitukset) ==========
+const KATEGORIA_LABELS = {vikailmoitus:'🔧 Vikailmoitus',vesiverkko:'💧 Vesiverkko',laituri:'⚓ Laituri',muu:'💬 Muu'};
+const TILA_BADGE = {avoin:'<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:0.68rem;font-weight:600;">Avoin</span>',käsittelyssä:'<span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:10px;font-size:0.68rem;font-weight:600;">Käsittelyssä</span>',valmis:'<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:10px;font-size:0.68rem;font-weight:600;">Valmis</span>'};
+
+function openIlmoitus(kategoria) {
+  document.getElementById('ilmoitus-form').style.display = '';
+  document.getElementById('ilmoitus-kategoria').value = kategoria;
+  document.getElementById('ilmoitus-type-label').textContent = (KATEGORIA_LABELS[kategoria] || kategoria).toUpperCase();
+  document.getElementById('ilmoitus-otsikko').value = '';
+  document.getElementById('ilmoitus-kuvaus').value = '';
+  document.getElementById('ilmoitus-msg').textContent = '';
+  document.getElementById('ilmoitus-otsikko').focus();
+}
+
+async function sendIlmoitus() {
+  const otsikko = document.getElementById('ilmoitus-otsikko').value.trim();
+  const kuvaus = document.getElementById('ilmoitus-kuvaus').value.trim();
+  const kategoria = document.getElementById('ilmoitus-kategoria').value;
+  const msg = document.getElementById('ilmoitus-msg');
+  if (!otsikko) { msg.textContent = '❌ Otsikko vaaditaan'; msg.style.color = '#ef4444'; return; }
+  msg.textContent = 'Lähetetään...'; msg.style.color = 'var(--text-muted)';
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/ilmoitus', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken},
+      body: JSON.stringify({otsikko, kuvaus, kategoria})
+    });
+    if (r.ok) {
+      msg.textContent = '✓ Ilmoitus lähetetty!'; msg.style.color = 'var(--green)';
+      document.getElementById('ilmoitus-otsikko').value = '';
+      document.getElementById('ilmoitus-kuvaus').value = '';
+      setTimeout(() => { document.getElementById('ilmoitus-form').style.display = 'none'; msg.textContent = ''; }, 2000);
+      loadOmatIlmoitukset();
+    } else { msg.textContent = '❌ Virhe'; msg.style.color = '#ef4444'; }
+  } catch(e) { msg.textContent = '❌ Verkkovirhe'; msg.style.color = '#ef4444'; }
+}
+
+async function loadOmatIlmoitukset() {
+  const el = document.getElementById('omat-ilmoitukset');
+  try {
+    const items = await fetch(API_BASE + '/api/hkl/omat-ilmoitukset', {
+      headers: {'X-Hkl-Token': _hklToken}
+    }).then(r => r.json());
+    if (!items.length) { el.textContent = 'Ei ilmoituksia.'; return; }
+    el.innerHTML = items.map(i => {
+      const badge = TILA_BADGE[i.tila] || TILA_BADGE.avoin;
+      const cat = KATEGORIA_LABELS[i.kategoria] || i.kategoria;
+      const date = i.created ? new Date(i.created+'Z').toLocaleDateString('fi-FI') : '';
+      return `<div style="padding:8px 10px;background:var(--sand);border-radius:8px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+          <span style="font-weight:700;font-size:0.82rem;">${cat} ${i.otsikko}</span>
+          ${badge}
+        </div>
+        ${i.kuvaus ? `<div style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;">${i.kuvaus}</div>` : ''}
+        <div style="font-size:0.65rem;color:var(--text-muted);margin-top:3px;">${date}</div>
+      </div>`;
+    }).join('');
+  } catch(e) { el.textContent = 'Ei voitu ladata.'; }
+}
 
 // ========== DOCUMENT DOWNLOAD (with token) ==========
 async function downloadDoc(id, title) {
@@ -2873,6 +2962,7 @@ const SECTION_DEFS = [
   { key: 'mokkikartta', label: '🏘️ Kartta', sel: '#mokkikartta-card' },
   { key: 'opas', label: '📖 Opas', sel: '#opas-card' },
   { key: 'docs', label: '📄 Dokumentit', sel: '#docs-card' },
+  { key: 'ilmoitus', label: '📢 Ilmoitukset', sel: '#ilmoitus-card' },
   { key: 'hallitus', label: '🏛️ Hallitus', sel: '#hallitus-card' },
   { key: 'listings', label: '🏡 Ilmoitukset', sel: '#listings-card' },
   { key: 'interests', label: '💡 Lisäpalvelut', sel: '#interests-section' },
