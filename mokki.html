@@ -1698,11 +1698,17 @@ async function changePassword() {
 let _welcomeStep = 1;
 const WELCOME_TOTAL = 3;
 
-function showWelcomeModal() {
+async function showWelcomeModal() {
   _welcomeStep = 1;
   const modal = document.getElementById('welcome-modal');
   modal.style.display = 'block';
   document.getElementById('welcome-sub').textContent = 'Mökki ' + (_currentMokki || '');
+  try {
+    const p = await fetch(API_BASE + '/api/hkl/my-cottage', {headers: {'X-Hkl-Token': _hklToken}}).then(r => r.json());
+    if (p.name) document.getElementById('wlc-name').value = p.name;
+    if (p.email) document.getElementById('wlc-email').value = p.email;
+    if (p.puh) document.getElementById('wlc-phone').value = p.puh;
+  } catch(e) {}
   updateWelcomeUI();
 }
 
