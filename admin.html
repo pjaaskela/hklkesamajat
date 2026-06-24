@@ -122,8 +122,9 @@ textarea.inp{resize:vertical;min-height:72px}
   <div class="login-card">
     <div class="login-icon">🔒</div>
     <h2>Hallintapaneeli</h2>
-    <p>Anna admin-token kirjautuaksesi sisään.</p>
-    <div style="margin-bottom:12px"><input class="inp" id="token-inp" type="password" placeholder="Admin-token" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <p>Kirjaudu hallituksen jäsenen tunnuksilla.</p>
+    <div style="margin-bottom:8px"><input class="inp" id="admin-user" placeholder="Käyttäjätunnus (etunimi)" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('admin-pass').focus()"></div>
+    <div style="margin-bottom:12px"><input class="inp" id="admin-pass" type="password" placeholder="Salasana" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doLogin()">Kirjaudu sisään</button>
     <div id="login-err"></div>
   </div>
@@ -759,21 +760,17 @@ function nav(sec){
 }
 
 async function doLogin(){
-  const tok=document.getElementById('token-inp').value.trim();
+  const user=document.getElementById('admin-user').value.trim().toLowerCase();
+  const pass=document.getElementById('admin-pass').value.trim();
   const err=document.getElementById('login-err');
-  if(!tok){err.textContent='Anna token';return;}
-  err.textContent='Tarkistetaan...';
+  if(!user||!pass){err.textContent='Syötä käyttäjätunnus ja salasana';return;}
+  err.textContent='Kirjaudutaan...';
   try{
-    const r=await fetch(API_BASE+'/api/hkl/verify-key',{headers:{'X-Api-Key':tok}});
+    const r=await fetch(API_BASE+'/api/hkl/admin-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:user,password:pass})});
     if(r.ok){
-      _token=tok;sessionStorage.setItem('hkl_admin_token',tok);
-      document.getElementById('login-screen').style.display='none';
-      document.getElementById('admin-wrap').style.display='block';
-      document.getElementById('logout-btn').style.display='block';
-      document.getElementById('user-tag').style.display='block';
-      document.getElementById('user-tag').textContent='● kirjautunut';
-      loadAll();setInterval(loadSensors,30000);
-    }else{err.textContent='❌ Väärä token';}
+      const d=await r.json();
+      activateAdmin(d.token,'● '+(d.name||user));
+    }else{err.textContent='❌ Väärä käyttäjätunnus tai salasana';}
   }catch(e){err.textContent='❌ Yhteysvirhe: '+e.message;}
 }
 function logout(){sessionStorage.removeItem('hkl_admin_token');location.reload();}
@@ -1542,8 +1539,17 @@ async function loadAnalytics(){
   }catch(e){console.warn('analytics',e);}
 }
 
+function activateAdmin(tok, label) {
+  _token=tok;sessionStorage.setItem('hkl_admin_token',tok);
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('admin-wrap').style.display='block';
+  document.getElementById('logout-btn').style.display='block';
+  document.getElementById('user-tag').style.display='block';
+  document.getElementById('user-tag').textContent=label||'● kirjautunut';
+  loadAll();setInterval(loadSensors,30000);
+}
 const saved=sessionStorage.getItem('hkl_admin_token');
-if(saved){_token=saved;document.getElementById('login-screen').style.display='none';document.getElementById('admin-wrap').style.display='block';document.getElementById('logout-btn').style.display='block';document.getElementById('user-tag').style.display='block';document.getElementById('user-tag').textContent='● kirjautunut';loadAll();setInterval(loadSensors,30000);}
+if(saved){activateAdmin(saved);}
 </script>
 </body>
 </html>

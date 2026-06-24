@@ -589,6 +589,7 @@ body { padding-top: 48px; }
       <span class="dash-header-mokki" id="dash-mokki-badge">484</span>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
+      <a id="admin-link" href="admin.html" style="display:none;padding:6px 12px;background:var(--green);color:#fff;border-radius:8px;font-size:0.75rem;font-weight:700;text-decoration:none;">🏛️ Admin</a>
       <button class="dash-settings-btn" onclick="toggleSectionPanel()" title="Näytä/piilota osiot">⚙</button>
       <button class="dash-logout" onclick="doLogout()">Kirjaudu ulos</button>
     </div>
@@ -1968,6 +1969,8 @@ function showDashboard(num) {
   document.getElementById('dashboard').style.display = 'block';
   document.getElementById('dash-mokki-badge').textContent = num;
   document.getElementById('status-mokki-num').textContent = num;
+  var adminLink = document.getElementById('admin-link');
+  if (adminLink) adminLink.style.display = _mokkiRooli === 'hallitus' ? '' : 'none';
 
   // Apply cottage background if available
   const bgData = localStorage.getItem('hkl_mokki_bg_' + num);
