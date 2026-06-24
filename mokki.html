@@ -2880,13 +2880,19 @@ async function handleInviteUrl() {
     const r = await fetch(API_BASE + '/api/hkl/invite/' + encodeURIComponent(inviteToken));
     if (!r.ok) {
       const err = document.getElementById('login-error');
-      if (r.status === 410) err.textContent = 'Kutsulinkki on vanhentunut. Pyydä uusi linkki.';
+      if (r.status === 410) err.textContent = 'Kutsulinkki on vanhentunut tai jo käytetty. Kirjaudu normaalisti tai pyydä uusi.';
       else err.textContent = 'Kutsulinkki ei ole voimassa.';
       return false;
     }
     const inv = await r.json();
     window.history.replaceState({}, '', window.location.pathname);
-    await doLogin(inv.number, inv.password);
+    _hklToken = inv.token;
+    _currentMokki = inv.number;
+    localStorage.setItem('hkl_session', JSON.stringify({token: inv.token, number: inv.number}));
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('mokki-content').style.display = '';
+    if (inv.first_login) showWelcomeModal();
+    loadMokkiDashboard();
     return true;
   } catch(e) { return false; }
 }
