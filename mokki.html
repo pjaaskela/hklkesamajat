@@ -1288,21 +1288,6 @@ body { padding-top: 48px; }
       </div>
     </div>
 
-    <!-- KIERRÄTYSPISTE -->
-    <div class="card" id="kierratys-card" data-collapse="true">
-      <div class="card-header" onclick="toggleCardCollapse('kierratys-card')" style="cursor:pointer;">
-        <div class="card-title">♻️ Kierrätyspiste</div>
-        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
-      </div>
-      <div class="card-body card-collapse-body" style="display:none;">
-        <p style="font-size:0.88rem;color:var(--text);line-height:1.7;margin:0 0 10px;">
-          Kierrätyspiste on vanhalla taksitolpalla jäteaitauksen läheisyydessä. Kierrätettävien tavaroiden tulee olla ehjiä ja puhtaita, ja niiden pitää mahtua katokseen.
-        </p>
-        <p style="font-size:0.88rem;color:var(--text);line-height:1.7;margin:0 0 10px;">
-          Tavaran omistaja vastaa poistamisesta, mikäli uutta omistajaa ei löydy. Jos haluat kierrättää jotain suurta, ilmoita lahjoituksesta ilmoitustaululla. Ilmoitustaulu avataan taulun alareunassa roikkuvalla metallipuikolla.
-        </p>
-      </div>
-    </div>
 
     <!-- HALLITUS -->
     <div class="card" id="hallitus-card" data-collapse="true">
@@ -2180,7 +2165,7 @@ const OPAS_DATA = [
   { t: '1. HKL-Kesämajat ry -yhdistys', icon: '🏛️', body: `Yhdistyksen jäseniä ovat kesämajan omistajat eli maanvuokralaiset. Kannatusjäseniä ovat venepaikkalaiset, joilla ei ole omaa kesämajaa.\n\nYhdistyksellä on hallitus, laiturivastaava ja vesivastaava. Päätökset tehdään kevät- ja syyskokouksissa.\n\nYhdistys järjestää kevät-, syys- ja laituritalkoita, juhannus- ja elojuhlat.\n\nYhdistys omistaa grillikatoksen, WC-rakennuksen, jäteaitauksen ja venelaiturit sekä tanssilavan. Saunarakennuksen omistaa HKL.\n\n<b>Huomioita säännöistä:</b>\n• Hiljaisuus klo 23–07 (juhlat klo 24)\n• Rakennustyöt arkisin klo 8–20\n• Rakennuskielto juhannusaatosta heinäkuun loppuun\n• Lemmikit kytkettyinä\n• Avotulen teko kielletty\n• Edelleenvuokraus ehdottomasti kielletty\n• Vain keskitetyn kompostin käyttö sallittu` },
   { t: '2. Kesämajalaisen asema', icon: '📋', body: `Alue on Helsingin kaupungin omistamaa ulkoilualuetta. Järjestyssäännöt ja maanvuokrasopimus sääntelevät mökkielämää. Kesämajalainen omistaa vain mökkinsä, mutta ei piha-aluetta.\n\nOmistamiseen vaaditaan, että omistajat asuvat ja ovat kirjoilla Helsingissä, asuvat samassa taloudessa eivätkä omista entuudestaan kesämajaa/siirtolapuutarhamökkiä.` },
   { t: '3. Kunnossapito ja ympäristö', icon: '🌿', body: `Maanvuokrasopimuksen mukaan kesämaja pidettävä hyvässä kunnossa ja lähiympäristö siistinä ja luonnonmukaisena. Puita ei saa kaataa ja kasvillisuus tulee säilyttää. Ympäristöön ei saa tehdä istutuksia eikä maata muokata.\n\nMultaa ei saa tuoda alueelle ulkopuolelta — vain alueen kompostin tuottamaa multaa.\n\nPihoja ei saa aidata. Remonttiin haettava hallitukselta kirjallinen suostumus.\n\nNuohous vähintään 3 vuoden välein (pelastuslaki).` },
-  { t: '4. Kierrätys', icon: '♻️', body: `Talousjätteet lajitellaan jäteaitauksen astioihin: biojäte, kartonki, pahvi, paperi, metalli, lasi, muovipakkaukset ja sekajäte.\n\nRakennusjätteet ja isommat jätteet kukin vie itse Sortti-asemalle.\n\nMaatuvat puutarhajätteet (ei oksia) WC-rakennuksen päätyihin. Parillisina vuosina eteläpäätyyn, parittomina pohjoispäätyyn.\n\nVieraslajit kitketään juurineen → sekajäteastiaan.\n\n<b>Kierrätyspiste</b> on vanhalla taksitolpalla. Tavaroiden oltava ehjiä ja puhtaita.` },
+  { t: '4. Kierrätys', icon: '♻️', body: `Talousjätteet lajitellaan jäteaitauksen astioihin: biojäte, kartonki, pahvi, paperi, metalli, lasi, muovipakkaukset ja sekajäte. Jätteet laitetaan astioihin tiiviisti, jotta kustannukset pysyvät kohtuullisina. Sekajäteastian tyhjentäminen on kalleinta, joten kierrättämällä säästämme rahaa.\n\nRakennusjätteet ja kaikki isommat jätteet kukin huolehtii itse Sortti-asemalle.\n\nMaatuvat puutarhajätteet (ei oksia) WC-rakennuksen päätyihin. Parillisina vuosina eteläpäätyyn, parittomina pohjoispäätyyn. Puutarhajätekompostia on hyvä pöyhiä talikolla aina, kun sinne vie uutta puutarhajätettä.\n\nKesämajalainen vastaa risujen ja oksien hävittämisestä itse. Käsittelemätöntä puuta (lautaa/lankkua) voi viedä sopiviksi paloiksi sahattuna grillikatoksen puulaatikkoon.\n\nVieraslajit kitketään juurineen ja viedään sekajäteastiaan tuhottavaksi.\n\n<b>♻️ Kierrätyspiste</b>\nKierrätyspiste on vanhalla taksitolpalla jäteaitauksen läheisyydessä. Kierrätettävien tavaroiden tulee olla ehjiä ja puhtaita, ja niiden pitää mahtua katokseen. Tavaran omistaja vastaa poistamisesta, mikäli uutta omistajaa ei löydy. Jos haluat kierrättää jotain suurta, ilmoita lahjoituksesta ilmoitustaululla. Ilmoitustaulu avataan taulun alareunassa roikkuvalla metallipuikolla.` },
   { t: '5. Pysäköinti', icon: '🅿️', body: `Pysäköinti sallittu ainoastaan pysäköintipaikoilla, ei puistoalueilla. Pidempiaikainen säilytys kielletty poissaollessa. Saunarakennuksen edessä 4 paikkaa eivät ole kesämajalaisten käytössä.` },
   { t: '6. Venepaikat', icon: '⛵', body: `Venepaikkoja jaettaessa kesämajalaiset ovat etusijalla. Tarkemmat tiedot erillisestä Venepaikan haltijan ohjeesta.` },
   { t: '7. Leikkipaikka', icon: '🧒', body: `Leikkimökki ja hiekkalaatikko lentopallokentän vieressä. Katolle kiipeäminen kielletty, hiekkaa ei sisälle, jäljet siivottava. Lelut ja välineet takaisin paikoilleen.` },
@@ -2846,7 +2831,6 @@ const SECTION_DEFS = [
   { key: 'mokkikartta', label: '🏘️ Kartta', sel: '#mokkikartta-card' },
   { key: 'opas', label: '📖 Opas', sel: '#opas-card' },
   { key: 'docs', label: '📄 Dokumentit', sel: '#docs-card' },
-  { key: 'kierratys', label: '♻️ Kierrätyspiste', sel: '#kierratys-card' },
   { key: 'hallitus', label: '🏛️ Hallitus', sel: '#hallitus-card' },
   { key: 'listings', label: '🏡 Ilmoitukset', sel: '#listings-card' },
   { key: 'interests', label: '💡 Lisäpalvelut', sel: '#interests-section' },

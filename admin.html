@@ -144,6 +144,7 @@ textarea.inp{resize:vertical;min-height:72px}
     <a href="#" onclick="return nav('dokumentit')" data-sec="dokumentit">📄 Dokumentit</a>
     <a href="#" onclick="return nav('vesiverkko')" data-sec="vesiverkko">🔧 Vesiverkko</a>
     <div class="sidenav-section">Järjestelmä</div>
+    <a href="#" onclick="return nav('asetukset')" data-sec="asetukset">⚙️ Sivuston asetukset</a>
     <a href="#" onclick="return nav('dokumentaatio')" data-sec="dokumentaatio">📖 Dokumentaatio</a>
     <div class="sidenav-section">Sivusto</div>
     <a href="/index.html" target="_blank">🌐 Pääsivu ↗</a>
@@ -433,6 +434,38 @@ textarea.inp{resize:vertical;min-height:72px}
       <div id="feedback-empty" style="display:none;color:var(--muted);font-size:13px;padding:20px;text-align:center;">Ei palautteita vielä.</div>
     </div>
 
+    <!-- SIVUSTON ASETUKSET -->
+    <div id="sec-asetukset" class="sec-page">
+      <div class="page-title">⚙️ Sivuston asetukset</div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-head">🧹 Siivousajat</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+          <div>
+            <label style="font-size:11px;color:var(--muted);">Saunan siivous (alkukausi)</label>
+            <input class="inp" id="set-sauna-pre" placeholder="MA+TO klo 10-12" style="margin-top:4px;">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--muted);">Saunan siivous (huippukausi)</label>
+            <input class="inp" id="set-sauna-peak" placeholder="MA+KE+PE klo 10-12" style="margin-top:4px;">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--muted);">Vessojen siivous</label>
+            <input class="inp" id="set-wc-clean" placeholder="MA+TO klo 12-12:30" style="margin-top:4px;">
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-head">📋 Mökkiläissivun osiot (oletustila)</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Valitse mitkä osiot ovat oletuksena auki mökkiläissivulla.</p>
+        <div id="set-sections" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+
+      <button class="btn btn-primary" onclick="saveSiteSettings()">Tallenna asetukset</button>
+      <span id="set-msg" style="margin-left:10px;font-size:12px;"></span>
+    </div>
+
     <!-- DOKUMENTAATIO -->
     <div id="sec-dokumentaatio" class="sec-page">
       <div class="page-title">📖 Järjestelmädokumentaatio</div>
@@ -703,6 +736,7 @@ function nav(sec){
   if(sec==='ilmoitukset')loadListings();
   if(sec==='vesiverkko')loadWaterNetwork();
   if(sec==='analytics')loadAnalytics();
+  if(sec==='asetukset')loadSiteSettings();
   if(sec==='palautteet')loadFeedback();
   document.getElementById('sidenav').classList.remove('open');
   document.getElementById('sidenav-overlay').classList.remove('open');
@@ -1330,6 +1364,64 @@ async function deleteFeedback(id){
   if(!confirm('Poistetaanko palaute?'))return;
   await fetch(API_BASE+'/api/hkl/feedback/'+id,{method:'DELETE',headers:{'X-Api-Key':_token}});
   loadFeedback();
+}
+
+const MOKKI_SECTIONS = [
+  {key:'sensor', label:'📡 Mökki Live-tila'},
+  {key:'sauna', label:'🛁 Yhteissauna'},
+  {key:'siivous', label:'🧹 Siivous'},
+  {key:'waste', label:'♻️ Jätteet & tyhjennykset'},
+  {key:'flag', label:'🇫🇮 Liputuspäivät'},
+  {key:'mokkikartta', label:'🏘️ Mökkikartta'},
+  {key:'opas', label:'📖 Kesämajalaisen opas'},
+  {key:'docs', label:'📄 Dokumentit & ohjeet'},
+  {key:'hallitus', label:'🏛️ Hallitus'},
+  {key:'listings', label:'🏡 Ilmoitukset'},
+];
+let _siteSettings = {};
+
+async function loadSiteSettings() {
+  try {
+    _siteSettings = await fetch(API_BASE+'/api/hkl/site-settings').then(r=>r.json());
+  } catch(e) { _siteSettings = {}; }
+  document.getElementById('set-sauna-pre').value = _siteSettings.sauna_clean_pre || 'MA+TO klo 10-12';
+  document.getElementById('set-sauna-peak').value = _siteSettings.sauna_clean_peak || 'MA+KE+PE klo 10-12';
+  document.getElementById('set-wc-clean').value = _siteSettings.wc_clean || 'MA+TO klo 12-12:30';
+  const openSections = _siteSettings.open_sections || [];
+  document.getElementById('set-sections').innerHTML = MOKKI_SECTIONS.map(s => {
+    const checked = openSections.includes(s.key) ? 'checked' : '';
+    return `<label style="display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--bg3);border-radius:8px;cursor:pointer;">
+      <input type="checkbox" data-sec-key="${s.key}" ${checked} style="accent-color:var(--green);width:16px;height:16px;">
+      <span style="font-size:13px;">${s.label}</span>
+    </label>`;
+  }).join('');
+}
+
+async function saveSiteSettings() {
+  const openSections = [];
+  document.querySelectorAll('#set-sections input[type=checkbox]').forEach(cb => {
+    if (cb.checked) openSections.push(cb.dataset.secKey);
+  });
+  const settings = {
+    sauna_clean_pre: document.getElementById('set-sauna-pre').value.trim(),
+    sauna_clean_peak: document.getElementById('set-sauna-peak').value.trim(),
+    wc_clean: document.getElementById('set-wc-clean').value.trim(),
+    open_sections: openSections,
+  };
+  try {
+    const r = await fetch(API_BASE+'/api/hkl/site-settings', {
+      method: 'PUT', headers: {'Content-Type':'application/json','X-Api-Key':_token},
+      body: JSON.stringify(settings)
+    });
+    if (r.ok) {
+      document.getElementById('set-msg').textContent = '✅ Tallennettu!';
+      document.getElementById('set-msg').style.color = 'var(--green)';
+    }
+  } catch(e) {
+    document.getElementById('set-msg').textContent = '❌ Virhe';
+    document.getElementById('set-msg').style.color = 'var(--red)';
+  }
+  setTimeout(() => { document.getElementById('set-msg').textContent = ''; }, 3000);
 }
 
 async function loadAnalytics(){
