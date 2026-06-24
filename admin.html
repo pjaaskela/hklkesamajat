@@ -148,6 +148,7 @@ textarea.inp{resize:vertical;min-height:72px}
     <a href="#" onclick="return nav('vesiverkko')" data-sec="vesiverkko">🔧 Vesiverkko</a>
     <div class="sidenav-section">Järjestelmä</div>
     <a href="#" onclick="return nav('asetukset')" data-sec="asetukset">⚙️ Sivuston asetukset</a>
+    <a href="#" onclick="return nav('omatili')" data-sec="omatili">🔑 Oma tili</a>
     <a href="#" onclick="return nav('dokumentaatio')" data-sec="dokumentaatio">📖 Dokumentaatio</a>
     <div class="sidenav-section">Sivusto</div>
     <a href="/index.html" target="_blank">🌐 Pääsivu ↗</a>
@@ -448,6 +449,20 @@ textarea.inp{resize:vertical;min-height:72px}
       <div class="page-title">💬 Palautteet <span style="font-size:12px;color:var(--muted);font-weight:400;">Beta 22.–29.6.2026</span></div>
       <div id="feedback-list" style="display:flex;flex-direction:column;gap:10px;"></div>
       <div id="feedback-empty" style="display:none;color:var(--muted);font-size:13px;padding:20px;text-align:center;">Ei palautteita vielä.</div>
+    </div>
+
+    <!-- OMA TILI -->
+    <div id="sec-omatili" class="sec-page">
+      <div class="page-title">🔑 Oma tili</div>
+      <div class="card" style="max-width:400px;">
+        <div class="card-head">Vaihda salasana</div>
+        <div style="margin-top:10px;">
+          <div style="margin-bottom:8px;"><label style="font-size:11px;color:var(--muted);">Uusi salasana (väh. 12 merkkiä)</label><input class="inp" id="adm-pw-new" type="password" style="margin-top:4px;"></div>
+          <div style="margin-bottom:12px;"><label style="font-size:11px;color:var(--muted);">Vahvista salasana</label><input class="inp" id="adm-pw-confirm" type="password" style="margin-top:4px;"></div>
+          <button class="btn btn-primary" onclick="changeAdminPw()">Vaihda salasana</button>
+          <span id="adm-pw-msg" style="margin-left:10px;font-size:12px;"></span>
+        </div>
+      </div>
     </div>
 
     <!-- SIVUSTON ASETUKSET -->
@@ -774,6 +789,19 @@ async function doLogin(){
   }catch(e){err.textContent='❌ Yhteysvirhe: '+e.message;}
 }
 function logout(){sessionStorage.removeItem('hkl_admin_token');location.reload();}
+
+async function changeAdminPw(){
+  const pw1=document.getElementById('adm-pw-new').value;
+  const pw2=document.getElementById('adm-pw-confirm').value;
+  const msg=document.getElementById('adm-pw-msg');
+  if(pw1.length<12){msg.textContent='❌ Vähintään 12 merkkiä';msg.style.color='var(--red)';return;}
+  if(pw1!==pw2){msg.textContent='❌ Salasanat eivät täsmää';msg.style.color='var(--red)';return;}
+  try{
+    const r=await fetch(API_BASE+'/api/hkl/admin-password',{method:'PUT',headers:{'Content-Type':'application/json','X-Api-Key':_token},body:JSON.stringify({new_password:pw1})});
+    if(r.ok){msg.textContent='✅ Salasana vaihdettu!';msg.style.color='var(--green)';document.getElementById('adm-pw-new').value='';document.getElementById('adm-pw-confirm').value='';}
+    else{const d=await r.json().catch(()=>({}));msg.textContent='❌ '+(d.detail||'Virhe');msg.style.color='var(--red)';}
+  }catch(e){msg.textContent='❌ Verkkovirhe';msg.style.color='var(--red)';}
+}
 
 function loadAll(){loadSensors();loadVikat();loadTiedotteet();loadLaituriHist();loadVesipisteet();loadMokit();loadDocs();}
 
