@@ -176,26 +176,6 @@ textarea.inp{resize:vertical;min-height:72px}
 
     <!-- KÄVIJÄSEURANTA -->
     <!-- ASUKASREKISTERI -->
-    <div id="sec-asukkaat" class="sec-page">
-      <div class="page-title">🏠 Asukasrekisteri</div>
-      <div class="card">
-        <div class="card-title">Lisää asukas</div>
-        <div class="form-row">
-          <div class="field"><label>PALSTA / MÖKIN NRO</label><input class="inp" id="a-palsta" placeholder="esim. A3 tai 42"></div>
-          <div class="field"><label>NIMI</label><input class="inp" id="a-nimi" placeholder="Etunimi Sukunimi"></div>
-        </div>
-        <div class="form-row">
-          <div class="field"><label>SÄHKÖPOSTI</label><input class="inp" id="a-email" type="email" placeholder="email@example.fi"></div>
-          <div class="field"><label>PUHELIN</label><input class="inp" id="a-puh" type="tel" placeholder="040 000 0000"></div>
-        </div>
-        <div class="field"><label>LISÄTIEDOT</label><input class="inp" id="a-lisatiedot" placeholder="esim. venelaituri, jäsenmaksu maksettu 2026"></div>
-        <div style="margin-top:12px"><button class="btn btn-primary" onclick="addAsukas()">➕ Lisää rekisteriin</button></div>
-        <div class="msg" id="a-msg"></div>
-      </div>
-      <div class="search-row"><input class="inp" id="a-search" placeholder="Hae nimellä tai palstalla..." oninput="renderAsukkaat()"></div>
-      <div id="asukkaat-tbl"></div>
-    </div>
-
     <!-- VIKAILMOITUKSET -->
     <div id="sec-vikat" class="sec-page">
       <div class="page-title">🔧 Vikailmoitukset</div>
@@ -298,35 +278,6 @@ textarea.inp{resize:vertical;min-height:72px}
   <div id="mass-msg" style="font-size:12px;min-height:1.2em;margin-bottom:8px;"></div>
   <div id="mokki-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px"></div>
 </div>
-
-<div id="sec-vesipisteet" class="sec-page">
-      <div class="page-title">💧 Vesipisteet &amp; alueen kartta</div>
-      <div class="card">
-        <div class="card-title">Lisää piste kartalle</div>
-        <div class="form-row">
-          <div class="field"><label>NIMI</label><input class="inp" id="vp-nimi" placeholder="esim. Vesipiste A-laituri"></div>
-          <div class="field"><label>TYYPPI</label>
-            <select class="inp" id="vp-tyyppi">
-              <option value="vesipiste">💧 Vesipiste</option>
-              <option value="wc">🚽 WC</option>
-              <option value="suihku">🚿 Suihku</option>
-              <option value="sahko">⚡ Sähköpiste</option>
-              <option value="jate">♻️ Jätepiste</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="field"><label>LEVEYSASTE (lat)</label><input class="inp" id="vp-lat" type="number" step="0.000001" placeholder="60.155xx"></div>
-          <div class="field"><label>PITUUSASTE (lon)</label><input class="inp" id="vp-lon" type="number" step="0.000001" placeholder="24.854xx"></div>
-        </div>
-        <div class="field"><label>KUVAUS</label><input class="inp" id="vp-kuvaus" placeholder="Aukioloajat, lisätiedot..."></div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">💡 Klikkaa karttaa asettaaksesi koordinaatit.</div>
-        <button class="btn btn-primary" onclick="addVesipiste()">📍 Lisää karttaan</button>
-        <div class="msg" id="vp-msg"></div>
-      </div>
-      <div id="vesi-map"></div>
-      <div id="vesipisteet-tbl"></div>
-    </div>
 
     <!-- DOKUMENTIT -->
     <div id="sec-dokumentit" class="sec-page">
