@@ -253,7 +253,7 @@ textarea.inp{resize:vertical;min-height:72px}
     <div class="card-title">Lisää tai päivitä mökki</div>
     <div class="form-row">
       <div class="field"><label>MÖKIN NUMERO</label><input class="inp" id="m-num" placeholder="esim. 484"></div>
-      <div class="field"><label>SALASANA</label><input class="inp" id="m-pass" placeholder="esim. hkl2026"></div>
+      <div class="field"><label>SALASANA <span style="font-size:10px;color:var(--muted);font-weight:400;">(tyhjä = ei muuteta)</span></label><input class="inp" id="m-pass" type="password" placeholder="jätä tyhjäksi säilyttääksesi"></div>
     </div>
     <div class="form-row">
       <div class="field"><label>OMISTAJAN NIMI</label><input class="inp" id="m-name" placeholder="Pertti Jääskeläinen"></div>
@@ -1053,7 +1053,7 @@ function renderMokit(){
 function editMokki(num){
   const c=_data.mokkit.find(x=>x.number===num);if(!c)return;
   document.getElementById('m-num').value=c.number;
-  document.getElementById('m-pass').value=c.password;
+  document.getElementById('m-pass').value='';
   document.getElementById('m-name').value=c.name||'';
   document.getElementById('m-rooli').value=c.rooli||'asukas';
   document.getElementById('m-email').value=c.email||'';
@@ -1068,8 +1068,10 @@ async function delMokki(num){
 }
 async function saveMokki() {
   const number=v('m-num'),password=v('m-pass'),name=v('m-name'),rooli=v('m-rooli'),email=v('m-email'),puh=v('m-puh'),kuvaus=v('m-kuvaus');
-  if(!number||!password){showMsg('m-msg','❌ Anna numero ja salasana',false);return;}
-  const r=await fetch(API_BASE+'/api/hkl/cottages',{method:'POST',headers:ah(),body:JSON.stringify({number,password,name,rooli,email,puh,kuvaus})});
+  if(!number){showMsg('m-msg','❌ Anna mökin numero',false);return;}
+  const body={number,name,rooli,email,puh,kuvaus};
+  if(password) body.password=password;
+  const r=await fetch(API_BASE+'/api/hkl/cottages',{method:'POST',headers:ah(),body:JSON.stringify(body)});
   if(!r.ok){showMsg('m-msg','❌ Virhe '+r.status,false);return;}
   const fileInput=document.getElementById('m-photo');
   const ownerInput=document.getElementById('m-owner-photo');
