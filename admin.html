@@ -1015,8 +1015,8 @@ function renderMokit(){
   let rows=_data.mokkit.filter(c=>!q||c.number.toLowerCase().includes(q)||(c.name||'').toLowerCase().includes(q));
   if(filter==='hallitus') rows=rows.filter(c=>(c.rooli||'asukas')==='hallitus');
   else if(filter==='asukas') rows=rows.filter(c=>(c.rooli||'asukas')==='asukas');
-  else if(filter==='registered') rows=rows.filter(c=>c.password&&!c.password.startsWith('hkl'));
-  else if(filter==='pending') rows=rows.filter(c=>!c.password||c.password.startsWith('hkl'));
+  else if(filter==='registered') rows=rows.filter(c=>c.password_changed);
+  else if(filter==='pending') rows=rows.filter(c=>!c.password_changed);
   const el=document.getElementById('mokki-grid');
   if(!rows.length){el.innerHTML=`<div class="tbl-empty" style="grid-column:1/-1">${q?'Ei hakutuloksia':'Ei mökkejä rekisterissä'}</div>`;return;}
   el.innerHTML=rows.map(c=>{
@@ -1029,8 +1029,8 @@ function renderMokit(){
       const active=Object.entries(ints).filter(([,v])=>v).map(([k])=>labels[k]||k);
       if(active.length)interests=`<div style="margin-top:4px;font-size:11px;color:var(--green)">Kiinnostunut: ${active.join(' ')}</div>`;
     }catch(e){}
-    const isDefault = c.password && c.password.startsWith('hkl');
-    const registered = !isDefault;
+    const isDefault = !c.password_changed;
+    const registered = !!c.password_changed;
     const statusColor = registered ? 'rgba(52,211,153,0.15)' : 'transparent';
     const statusBorder = registered ? 'rgba(52,211,153,0.3)' : 'var(--border)';
     const statusBadge = registered
