@@ -921,7 +921,7 @@ footer strong { color: white; }
     &nbsp;·&nbsp;
     <a href="/info.html" style="color:rgba(82,183,136,0.45);font-size:0.8rem;">palvelukuvaus</a>
   </span>
-  <div style="margin-top:10px;font-size:0.68rem;color:rgba(255,255,255,0.25);">v1.2 · 22.06.2026 16:07</div>
+  <div style="margin-top:10px;font-size:0.68rem;color:rgba(255,255,255,0.25);">v1.3 · 24.06.2026 12:45</div>
 </footer>
 
 
@@ -1428,6 +1428,31 @@ async function loadRain7d() {
 
 // Load all data then build AI summary
 loadAnnouncementsBanner();
+function clearSkeletons(el) {
+  if (!el) return;
+  el.querySelectorAll('.skeleton, .skel').forEach(s => s.remove());
+}
+function markOffline(id, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  clearSkeletons(el);
+  if (!el.children.length || el.textContent.trim() === '–' || el.textContent.trim() === '') {
+    el.innerHTML = '<div style="font-size:0.78rem;color:var(--text-muted);opacity:0.6;padding:4px 0;">' + (msg || 'Ei yhteyttä') + '</div>';
+  }
+}
+
+let _apiOk = true;
+async function checkApiHealth() {
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/health', {signal: AbortSignal.timeout(5000)});
+    _apiOk = r.ok;
+  } catch(e) { _apiOk = false; }
+  if (!_apiOk) {
+    document.querySelectorAll('.skeleton, .skel').forEach(s => s.remove());
+    ['news-grid','places-list','hsl-list','uiras-list'].forEach(id => markOffline(id));
+  }
+}
+
 Promise.allSettled([
   loadLocalSensor(),
   loadLaituri(),
@@ -1442,8 +1467,17 @@ Promise.allSettled([
   loadLocalHistory(),
   loadWeatherStats(),
   loadSunData(),
-]);
+]).then(() => {
+  setTimeout(() => {
+    document.querySelectorAll('.skeleton, .skel').forEach(s => {
+      s.style.animation = 'none';
+      s.style.background = 'rgba(0,0,0,0.05)';
+      s.style.opacity = '0.3';
+    });
+  }, 8000);
+});
 setTimeout(loadAlgae, 2000);
+setTimeout(checkApiHealth, 10000);
 
 renderBuffettiStatus();
 setInterval(loadHSL, 60_000);

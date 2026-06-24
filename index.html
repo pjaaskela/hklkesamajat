@@ -222,7 +222,7 @@ footer a { color: rgba(82,183,136,0.55); }
     &nbsp;·&nbsp;
     <a href="admin.html" style="color:rgba(255,255,255,0.15);font-size:0.7em;text-decoration:none;">ylläpito</a>
   </span>
-  <div style="margin-top:10px;font-size:0.68rem;color:rgba(255,255,255,0.25);">v1.2 · 22.06.2026 16:07</div>
+  <div style="margin-top:10px;font-size:0.68rem;color:rgba(255,255,255,0.25);">v1.3 · 24.06.2026 12:45</div>
 </footer>
 
 <script>
@@ -336,6 +336,12 @@ loadWeatherHero();
 loadWaterHero();
 loadLocalSensorHero();
 loadSunHero();
+
+setTimeout(() => {
+  document.querySelectorAll('.glass-pill-value').forEach(el => {
+    if (el.textContent.trim() === '–') el.style.opacity = '0.3';
+  });
+}, 10000);
 
 function initHeroMap() { try {
   const center = { lat: LAT, lng: LON };

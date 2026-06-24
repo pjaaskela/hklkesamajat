@@ -1336,7 +1336,7 @@ body { padding-top: 48px; }
     <a href="index.html">← Palaa pääsivulle</a>
     &nbsp;·&nbsp;
     <a href="dashboard.html">📊 Tilannekuva</a>
-    <div style="margin-top:8px;font-size:0.65rem;color:var(--text-muted);opacity:0.4;">v1.2 · 22.06.2026 16:07</div>
+    <div style="margin-top:8px;font-size:0.65rem;color:var(--text-muted);opacity:0.4;">v1.3 · 24.06.2026 12:45</div>
   </div>
 </div><!-- /dashboard -->
 
@@ -1761,12 +1761,13 @@ async function doLogin(autoNum, autoPass) {
   const pass = autoPass || document.getElementById('login-pass').value;
   const err = document.getElementById('login-error');
   if (!num || !pass) { err.textContent = 'Syötä mökin numero ja salasana'; return; }
-  err.textContent = '';
+  err.textContent = 'Kirjaudutaan...';
   try {
     const r = await fetch(API_BASE + '/api/hkl/login', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({number: num, password: pass})
+      body: JSON.stringify({number: num, password: pass}),
+      signal: AbortSignal.timeout(10000)
     });
     if (!r.ok) { err.textContent = 'Väärä mökin numero tai salasana'; return; }
     const d = await r.json();
@@ -1778,7 +1779,7 @@ async function doLogin(autoNum, autoPass) {
     _invitePassword = pass;
     showDashboard(d.number);
     if (_isFirstLogin) setTimeout(showWelcomeModal, 600);
-  } catch(e) { err.textContent = 'Verkkovirhe – yritä uudelleen'; }
+  } catch(e) { err.textContent = e.name === 'TimeoutError' ? 'Palvelin ei vastaa — yritä myöhemmin' : 'Verkkovirhe – yritä uudelleen'; }
 }
 
 function doLogout() {
