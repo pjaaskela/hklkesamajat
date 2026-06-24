@@ -30,6 +30,30 @@
       var text = el.textContent.trim();
       if (text.length > 2) items.push({text: text, type: 'tieto', el: el});
     });
+    // Cross-page hints (content that exists on other pages)
+    var crossPage = [
+      {text:'Yhteissauna — saunavuorot, kellonajat, miesten ja naisten vuorot, sekasauna, saunamaksu 3€', type:'mökkiläinen', href:'mokki.html'},
+      {text:'Kesämajalaisen opas — yhdistys, kierrätys, pysäköinti, venepaikat, kausivesi, nuohous, sauna, grillikatos', type:'mökkiläinen', href:'mokki.html'},
+      {text:'Dokumentit & ohjeet — säännöt, järjestyssäännöt, rakentamistapaohje, toimintasuunnitelmat', type:'mökkiläinen', href:'mokki.html'},
+      {text:'Mökkikartta — kesämaja-alueen mökit numerojärjestyksessä', type:'mökkiläinen', href:'mokki.html'},
+      {text:'Siivous — saunan ja vessojen siivousvuorot', type:'mökkiläinen', href:'mokki.html'},
+      {text:'Hallitus — puheenjohtaja, sihteeri, taloudenhoitaja, laiturivastaava, vesiverkkovastaava', type:'vierailija', href:'vierailija.html'},
+      {text:'Asiakirjat — yhdistyksen säännöt, järjestyssäännöt, rakentamistapaohje, maalisävyt, kauppakirjapohja', type:'vierailija', href:'vierailija.html'},
+      {text:'Historia — historiikki 1932-1992, raitiotietyöläisten virkistyspaikasta kesämajayhteisöksi', type:'vierailija', href:'vierailija.html'},
+      {text:'Venepaikat — laituripaikat, hinnat 200€/300€, laiturivastaava Jyrki Luokkanen', type:'vierailija', href:'vierailija.html'},
+      {text:'Kannatusmaksu — MobilePay #24434, tue yhdistystä', type:'vierailija', href:'vierailija.html'},
+      {text:'Lähipalvelut — Kesäkahvila Buffetti, julkinen liikenne, Koivusaari metro', type:'vierailija', href:'vierailija.html'},
+      {text:'Media & uutiset — mediaseuranta, Länsiulapanniemi, HKL-Kesämajat', type:'vierailija', href:'vierailija.html'},
+      {text:'Kierrätyspiste — vanha taksitolppa, jäteaitauksen läheisyydessä', type:'mökkiläinen', href:'mokki.html'},
+      {text:'Osto ja myynti-ilmoitukset — kesämajojen osto ja myynti', type:'mökkiläinen', href:'mokki.html'},
+    ];
+    var currentPage = location.pathname.replace(/.*\//, '').replace('.html','').replace('hklkesamajat-','').replace('hklkesamajat','index') || 'index';
+    crossPage.forEach(function(cp) {
+      var targetPage = cp.href.replace('.html','');
+      if (targetPage !== currentPage) {
+        items.push({text: cp.text, type: '→ ' + cp.type, el: null, href: cp.href});
+      }
+    });
     return items;
   }
 
