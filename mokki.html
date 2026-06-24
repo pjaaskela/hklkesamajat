@@ -2888,11 +2888,11 @@ async function handleInviteUrl() {
     window.history.replaceState({}, '', window.location.pathname);
     _hklToken = inv.token;
     _currentMokki = inv.number;
-    localStorage.setItem('hkl_session', JSON.stringify({token: inv.token, number: inv.number}));
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('mokki-content').style.display = '';
-    if (inv.first_login) showWelcomeModal();
-    loadMokkiDashboard();
+    _mokkiRooli = inv.rooli || 'asukas';
+    _isFirstLogin = inv.first_login === true;
+    localStorage.setItem('hkl_mokki_session', JSON.stringify({number: inv.number, name: inv.name, rooli: inv.rooli||'asukas', token: inv.token}));
+    showDashboard(inv.number);
+    if (_isFirstLogin) setTimeout(showWelcomeModal, 600);
     return true;
   } catch(e) { return false; }
 }
