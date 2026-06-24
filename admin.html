@@ -277,7 +277,20 @@ textarea.inp{resize:vertical;min-height:72px}
     <div style="margin-top:12px"><button class="btn btn-primary" onclick="saveMokki()">💾 Tallenna</button></div>
     <div class="msg" id="m-msg"></div>
   </div>
-  <div class="search-row"><input class="inp" id="m-search" placeholder="Hae mökin numerolla tai nimellä..." oninput="renderMokit()"></div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+    <input class="inp" id="m-search" placeholder="Hae mökin numerolla tai nimellä..." oninput="renderMokit()" style="flex:1;min-width:200px;">
+    <select class="inp" id="m-filter" onchange="renderMokit()" style="width:auto;min-width:120px;">
+      <option value="">Kaikki</option>
+      <option value="hallitus">Hallitus</option>
+      <option value="asukas">Asukkaat</option>
+      <option value="registered">Rekisteröityneet</option>
+      <option value="pending">Odottavat</option>
+    </select>
+    <button class="btn btn-primary btn-sm" onclick="massInvite('all')">📨 Lähetä kaikille</button>
+    <button class="btn btn-ghost btn-sm" onclick="massInvite('hallitus')">📨 Hallitukselle</button>
+    <button class="btn btn-ghost btn-sm" onclick="massInvite('pending')">📨 Odottaville</button>
+  </div>
+  <div id="mass-msg" style="font-size:12px;min-height:1.2em;margin-bottom:8px;"></div>
   <div id="mokki-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px"></div>
 </div>
 
@@ -995,7 +1008,12 @@ async function loadMokit() {
 }
 function renderMokit(){
   const q=(document.getElementById('m-search')?.value||'').toLowerCase();
-  const rows=_data.mokkit.filter(c=>!q||c.number.toLowerCase().includes(q)||(c.name||'').toLowerCase().includes(q));
+  const filter=document.getElementById('m-filter')?.value||'';
+  let rows=_data.mokkit.filter(c=>!q||c.number.toLowerCase().includes(q)||(c.name||'').toLowerCase().includes(q));
+  if(filter==='hallitus') rows=rows.filter(c=>(c.rooli||'asukas')==='hallitus');
+  else if(filter==='asukas') rows=rows.filter(c=>(c.rooli||'asukas')==='asukas');
+  else if(filter==='registered') rows=rows.filter(c=>c.password&&!c.password.startsWith('hkl'));
+  else if(filter==='pending') rows=rows.filter(c=>!c.password||c.password.startsWith('hkl'));
   const el=document.getElementById('mokki-grid');
   if(!rows.length){el.innerHTML=`<div class="tbl-empty" style="grid-column:1/-1">${q?'Ei hakutuloksia':'Ei mökkejä rekisterissä'}</div>`;return;}
   el.innerHTML=rows.map(c=>{
@@ -1423,6 +1441,32 @@ async function saveSiteSettings() {
     document.getElementById('set-msg').style.color = 'var(--red)';
   }
   setTimeout(() => { document.getElementById('set-msg').textContent = ''; }, 3000);
+}
+
+async function massInvite(target) {
+  let cottages = _data.mokkit;
+  if (target === 'hallitus') cottages = cottages.filter(c => (c.rooli||'asukas') === 'hallitus');
+  else if (target === 'pending') cottages = cottages.filter(c => !c.password || c.password.startsWith('hkl'));
+  const withEmail = cottages.filter(c => c.email);
+  if (!withEmail.length) { document.getElementById('mass-msg').textContent = '❌ Ei mökkejä joilla on sähköposti'; return; }
+  const label = target === 'hallitus' ? 'hallituksen jäsenille' : target === 'pending' ? 'odottaville' : 'kaikille';
+  if (!confirm(`Lähetetään kutsulinkki ${withEmail.length} mökkiläiselle (${label})?\n\nSähköposti lähetetään osoitteesta webmaster@hklkesamajat.fi.`)) return;
+  const msg = document.getElementById('mass-msg');
+  msg.textContent = `Lähetetään... 0/${withEmail.length}`;
+  msg.style.color = 'var(--amber)';
+  let sent = 0, failed = 0;
+  for (const c of withEmail) {
+    try {
+      const r = await fetch(API_BASE + '/api/hkl/cottage/' + c.number + '/invite', {
+        method: 'POST', headers: ah(), body: JSON.stringify({send_email: true})
+      });
+      const d = await r.json();
+      if (d.email_sent) sent++; else failed++;
+    } catch(e) { failed++; }
+    msg.textContent = `Lähetetään... ${sent+failed}/${withEmail.length} (✓ ${sent}, ✗ ${failed})`;
+  }
+  msg.textContent = `✅ Valmis: ${sent} lähetetty, ${failed} epäonnistui`;
+  msg.style.color = 'var(--green)';
 }
 
 async function loadAnalytics(){

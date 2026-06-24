@@ -766,7 +766,7 @@ footer strong { color: white; }
     <div style="display:flex;align-items:stretch;">
       <div style="flex:1;padding:28px 24px;">
         <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:8px;">⚓ Venepaikat</div>
-        <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:8px;color:#fff;">Vuokraa venepaikka Lauttasaaresta</h3>
+        <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:8px;color:#fff;" data-i18n="vis_boats">Vuokraa venepaikka Lauttasaaresta</h3>
         <p style="font-size:0.85rem;color:rgba(255,255,255,0.75);line-height:1.6;margin-bottom:14px;">HKL-Kesämajat ry:n venelaiturit sijaitsevat suojaisassa sijainnissa Länsiulapanniemessä. Merellinen sijainti, helppo pääsy vesille ja turvallinen säilytys.</p>
         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
           <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px 16px;text-align:center;">
@@ -795,16 +795,16 @@ footer strong { color: white; }
     <div style="display:flex;align-items:stretch;">
       <div style="flex:1;padding:28px 24px;">
         <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:8px;">💚 Tue yhdistystä</div>
-        <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:8px;color:#fff;">Kannatusmaksu</h3>
+        <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:8px;color:#fff;" data-i18n="vis_support">Kannatusmaksu</h3>
         <p style="font-size:0.85rem;color:rgba(255,255,255,0.75);line-height:1.6;margin-bottom:16px;">HKL-Kesämajat ry ylläpitää ainutlaatuista merellista kesämaja-aluetta Lauttasaaressa. Yhdistys järjestää perinteiset juhannusjuhlat kokkoineen, elojuhlat ja yhteistalkoita. Kannatusmaksullasi tuet alueen kehitystä, yhteistiloja ja tapahtumia.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:10px;">
+          <div onclick="navigator.clipboard.writeText('24434').then(()=>{this.querySelector('.mp-c').style.display='inline';setTimeout(()=>this.querySelector('.mp-c').style.display='none',2000);})" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(90,49,244,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
             <div style="width:32px;height:32px;background:#5a31f4;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 3H7C4.79 3 3 4.79 3 7v10c0 2.21 1.79 4 4 4h10c2.21 0 4-1.79 4-4V7c0-2.21-1.79-4-4-4z" fill="#fff"/><path d="M15.5 12.5l-2.3-4c-.2-.4-.7-.5-1.1-.3l-2 1.2c-.4.2-.5.7-.3 1.1l2.3 4c.2.4.7.5 1.1.3l2-1.2c.4-.2.5-.7.3-1.1z" fill="#5a31f4"/></svg>
             </div>
             <div>
-              <div style="font-size:0.68rem;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:0.04em;">MOBILEPAY</div>
-              <div style="font-size:1.1rem;font-weight:800;color:#fff;letter-spacing:0.02em;">#24434</div>
+              <div style="font-size:0.68rem;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:0.04em;">MOBILEPAY <span style="font-size:0.55rem;opacity:0.6;">klikkaa kopioidaksesi</span></div>
+              <div style="font-size:1.1rem;font-weight:800;color:#fff;letter-spacing:0.02em;">#24434 <span class="mp-c" style="display:none;font-size:0.7rem;color:#52b788;">✓ Kopioitu!</span></div>
             </div>
           </div>
           <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:10px;">

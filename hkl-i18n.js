@@ -85,6 +85,12 @@
     'mok_pass':          {fi:'Salasana', en:'Password'},
     'mok_login_btn':     {fi:'Kirjaudu sisään →', en:'Log in →'},
     'mok_lost_pass':     {fi:'Kadonnut salasana? Ota yhteyttä sihteerin kautta.', en:'Lost password? Contact the secretary.'},
+    'mok_sauna':         {fi:'🛁 Yhteissauna', en:'🛁 Shared Sauna'},
+    'mok_docs':          {fi:'📄 Dokumentit & ohjeet', en:'📄 Documents & Guides'},
+    'mok_hallitus':      {fi:'🏛️ Hallitus & yhteystiedot 2026', en:'🏛️ Board & Contacts 2026'},
+    'mok_ilmoitus':      {fi:'📢 Ilmoitukset & vikailmoitukset', en:'📢 Notices & Fault Reports'},
+    'vis_boats':         {fi:'Vuokraa venepaikka Lauttasaaresta', en:'Rent a boat slip in Lauttasaari'},
+    'vis_support':       {fi:'Kannatusmaksu', en:'Support Payment'},
   };
 
   var _lang = localStorage.getItem('hkl_lang') || 'fi';
