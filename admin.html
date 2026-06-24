@@ -132,7 +132,6 @@ textarea.inp{resize:vertical;min-height:72px}
   <nav class="sidenav" id="sidenav">
     <div class="sidenav-section">Yleiskatsaus</div>
     <a href="#" onclick="return nav('dash')" data-sec="dash" class="active">📊 Kojelauta</a>
-    <a href="#" onclick="return nav('kavijat')" data-sec="kavijat">👥 Kävijäseuranta</a>
     <a href="#" onclick="return nav('analytics')" data-sec="analytics">📈 Analytiikka</a>
     <a href="#" onclick="return nav('palautteet')" data-sec="palautteet">💬 Palautteet</a>
     <div class="sidenav-section">Hallinta</div>
@@ -167,44 +166,11 @@ textarea.inp{resize:vertical;min-height:72px}
         <div class="stat-box"><div class="stat-num" id="st-vikat-avoin">—</div><div class="stat-label">VIKAA AUKI</div></div>
         <div class="stat-box"><div class="stat-num" id="st-tiedotteet">—</div><div class="stat-label">TIEDOTETTA</div></div>
         <div class="stat-box"><div class="stat-num" id="st-vesipisteet">—</div><div class="stat-label">VESIPISTETTÄ</div></div>
-        <div class="stat-box"><div class="stat-num" id="st-kavijat" style="color:var(--blue)">—</div><div class="stat-label">KÄVIJÄT TÄNÄÄN</div></div>
-        <div class="stat-box"><div class="stat-num" id="st-kavijat-7d" style="color:var(--blue)">—</div><div class="stat-label">KÄVIJÄT 7 PV</div></div>
       </div>
       <div class="card"><div class="card-title">🔧 Avoimet vikailmoitukset</div><div id="dash-vikat"></div></div>
     </div>
 
     <!-- KÄVIJÄSEURANTA -->
-    <div id="sec-kavijat" class="sec-page">
-      <div class="page-title">👥 Kävijäseuranta</div>
-      <div class="stats-row" id="vis-stats">
-        <div class="stat-box"><div class="stat-num" id="vis-today">—</div><div class="stat-label">TÄNÄÄN</div></div>
-        <div class="stat-box"><div class="stat-num" id="vis-7d">—</div><div class="stat-label">7 PÄIVÄÄ</div></div>
-        <div class="stat-box"><div class="stat-num" id="vis-pageviews">—</div><div class="stat-label">SIVULATAUKSET</div></div>
-        <div class="stat-box"><div class="stat-num" id="vis-avg-dur">—</div><div class="stat-label">KA. AIKA (s)</div></div>
-        <div class="stat-box"><div class="stat-num" id="vis-return">—</div><div class="stat-label">PALAAVAT</div></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📊 Päivittäiset kävijät — 14 pv</div>
-        <div id="vis-chart" style="display:flex;align-items:flex-end;gap:4px;height:140px;padding-top:10px;"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📄 HKL-sivut — katselukerrat</div>
-        <div id="vis-pages"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🕐 Viimeisimmät vierailut</div>
-        <table class="tbl"><thead><tr><th>AIKA</th><th>SIVU</th><th>KESTO</th><th>SCROLL</th><th>LÄHDE</th></tr></thead><tbody id="vis-sessions"></tbody></table>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🌍 Aktiivisimmat kävijät</div>
-        <table class="tbl"><thead><tr><th>IP</th><th>KÄYNTEJÄ</th><th>VIIMEISIN</th></tr></thead><tbody id="vis-superusers"></tbody></table>
-      </div>
-    </div>
-
     <!-- ASUKASREKISTERI -->
     <div id="sec-asukkaat" class="sec-page">
       <div class="page-title">🏠 Asukasrekisteri</div>
@@ -764,7 +730,7 @@ async function doLogin(){
 }
 function logout(){sessionStorage.removeItem('hkl_admin_token');location.reload();}
 
-function loadAll(){loadSensors();loadAsukkaat();loadVikat();loadTiedotteet();loadLaituriHist();loadVesipisteet();loadMokit();loadVisitors();loadDocs();}
+function loadAll(){loadSensors();loadAsukkaat();loadVikat();loadTiedotteet();loadLaituriHist();loadVesipisteet();loadMokit();loadDocs();}
 
 const HKL_PAGES=['index','vierailija','mokki','admin','dashboard','info','hklkesamajat','hklkesamajat-vierailija','hklkesamajat-mokki','hklkesamajat-admin'];
 function isHkl(page){return HKL_PAGES.some(p=>page===p)||page.includes('hklkesamajat');}
