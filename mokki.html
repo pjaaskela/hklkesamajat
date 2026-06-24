@@ -339,14 +339,7 @@ body { padding-top: 48px; }
 .sauna-ring-active circle.ring-progress { animation:ring-pulse 2s ease-in-out infinite; }
 
 /* ========== DASHBOARD BACKGROUND ========== */
-.dash-bg {
-  position: fixed; inset: 0; z-index: 0; background-size: cover; background-position: center; display: none;
-}
-.dash-bg::after {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(248,244,232,0.92) 0%, rgba(248,244,232,0.85) 30%, rgba(248,244,232,0.80) 100%);
-}
-.dash-bg.active { display: block; }
+.dash-bg { display: none; }
 #dashboard { position: relative; z-index: 1; }
 
 /* ========== SETTINGS CARD ========== */
@@ -1228,17 +1221,6 @@ body { padding-top: 48px; }
               <span id="profile-photo-name" style="font-size:0.72rem;color:var(--text-muted);"></span>
             </div>
             <input type="file" id="profile-photo-input" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleProfilePhoto(this)">
-          </div>
-          <div class="settings-bg-section">
-            <label>Taustakuva (paikallinen)</label>
-            <div class="settings-bg-preview" id="set-bg-preview">
-              <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:0.82rem;">Ei taustakuvaa</div>
-            </div>
-            <div style="display:flex;gap:8px;margin-top:8px;">
-              <button class="cam-ctrl-btn secondary" onclick="document.getElementById('set-bg-input').click()">📷 Vaihda kuva</button>
-              <button class="cam-ctrl-btn secondary" onclick="removeBgPhoto()">🗑️ Poista</button>
-            </div>
-            <input type="file" id="set-bg-input" accept="image/*" style="display:none;" onchange="handleSettingsBgUpload(this)">
           </div>
           <button class="thermo-save" style="margin-top:14px;" onclick="saveProfile()">Tallenna profiili</button>
           <div id="profile-msg" class="thermo-msg"></div>
