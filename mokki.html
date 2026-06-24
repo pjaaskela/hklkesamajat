@@ -1290,7 +1290,6 @@ body { padding-top: 48px; }
           <li style="padding:6px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;font-size:0.85rem;"><span>📋</span> <a href="https://jaaskel.com/jarjestyssaannot.pdf" target="_blank" style="color:var(--green);text-decoration:none;font-weight:600;">Järjestyssäännöt 2014</a> <span style="font-size:0.65rem;color:var(--text-muted);">PDF</span></li>
           <li style="padding:6px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;font-size:0.85rem;"><span>🏗️</span> <a href="https://jaaskel.com/rakentamistapaohje.pdf" target="_blank" style="color:var(--green);text-decoration:none;font-weight:600;">Rakentamistapaohje</a> <span style="font-size:0.65rem;color:var(--text-muted);">PDF</span></li>
           <li style="padding:6px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;font-size:0.85rem;"><span>🎨</span> <a href="https://jaaskel.com/maalisavyjen_vastaavuudet.pdf" target="_blank" style="color:var(--green);text-decoration:none;font-weight:600;">Maalisävyjen vastaavuudet</a> <span style="font-size:0.65rem;color:var(--text-muted);">PDF</span></li>
-          <li style="padding:6px 0;display:flex;align-items:center;gap:8px;font-size:0.85rem;"><span>📝</span> <a href="mailto:sihteeri@hklkesamajat.fi?subject=Kauppakirjapohja" style="color:var(--green);text-decoration:none;font-weight:600;">Kauppakirjapohja</a> <span style="font-size:0.65rem;color:var(--text-muted);">pyydä sihteeriltä</span></li>
         </ul>
         <div style="font-weight:700;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:6px;">📁 Ladattavat dokumentit</div>
         <div id="docs-list" style="font-size:0.85rem;color:var(--text-muted);">Ladataan...</div>
@@ -1301,20 +1300,54 @@ body { padding-top: 48px; }
     <!-- HALLITUS -->
     <div class="card" id="hallitus-card" data-collapse="true">
       <div class="card-header" onclick="toggleCardCollapse('hallitus-card')" style="cursor:pointer;">
-        <div class="card-title">🏛️ Hallitus 2026</div>
+        <div class="card-title">🏛️ Hallitus & yhteystiedot 2026</div>
         <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
       </div>
       <div class="card-body card-collapse-body" style="display:none;">
-        <div style="display:flex;flex-direction:column;gap:8px;font-size:0.85rem;">
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Puheenjohtaja</span><span>Lauri Hackman</span></div>
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Sihteeri</span><span>Juha Sivula</span></div>
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Taloudenhoitaja</span><span>Raija Hermansson</span></div>
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Laiturivastaava</span><span>Jyrki Luokkanen</span></div>
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Vesiverkkovastaava</span><span>Jari Gröhn</span></div>
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Asiamies</span><span>Hannu Rosokivi</span></div>
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Jäsen</span><span>Henrietta Ikonen</span></div>
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;"><span style="font-weight:700;">Jäsen</span><span>Katriina Matilainen</span></div>
-          <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="font-weight:700;">Varajäsen</span><span>Raili Rinne</span></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;">
+          <div style="background:var(--sand);border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-size:1.5rem;margin-bottom:4px;">🏛️</div>
+            <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;">Puheenjohtaja</div>
+            <div style="font-weight:700;font-size:0.88rem;margin:4px 0;">Lauri Hackman</div>
+            <a href="tel:+358413101495" style="font-size:0.75rem;color:var(--green);display:block;">📞 041 310 1495</a>
+            <a href="mailto:puheenjohtaja@hklkesamajat.fi" style="font-size:0.75rem;color:var(--green);display:block;">📧 puheenjohtaja@</a>
+          </div>
+          <div style="background:var(--sand);border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-size:1.5rem;margin-bottom:4px;">✍️</div>
+            <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;">Sihteeri</div>
+            <div style="font-weight:700;font-size:0.88rem;margin:4px 0;">Juha Sivula</div>
+            <a href="tel:+358407531731" style="font-size:0.75rem;color:var(--green);display:block;">📞 040 753 1731</a>
+            <a href="mailto:sihteeri@hklkesamajat.fi" style="font-size:0.75rem;color:var(--green);display:block;">📧 sihteeri@</a>
+          </div>
+          <div style="background:var(--sand);border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-size:1.5rem;margin-bottom:4px;">💰</div>
+            <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;">Taloudenhoitaja</div>
+            <div style="font-weight:700;font-size:0.88rem;margin:4px 0;">Raija Hermansson</div>
+            <a href="tel:+358505415484" style="font-size:0.75rem;color:var(--green);display:block;">📞 050 541 5484</a>
+            <a href="mailto:taloudenhoitaja@hklkesamajat.fi" style="font-size:0.75rem;color:var(--green);display:block;">📧 taloudenhoitaja@</a>
+          </div>
+          <div style="background:var(--sand);border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-size:1.5rem;margin-bottom:4px;">⚓</div>
+            <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;">Laiturivastaava</div>
+            <div style="font-weight:700;font-size:0.88rem;margin:4px 0;">Jyrki Luokkanen</div>
+            <a href="tel:+358440748796" style="font-size:0.75rem;color:var(--green);display:block;">📞 044 074 8796</a>
+            <a href="mailto:laiturivastaava@hklkesamajat.fi" style="font-size:0.75rem;color:var(--green);display:block;">📧 laiturivastaava@</a>
+          </div>
+          <div style="background:var(--sand);border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-size:1.5rem;margin-bottom:4px;">🔧</div>
+            <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;">Vesiverkkovastaava</div>
+            <div style="font-weight:700;font-size:0.88rem;margin:4px 0;">Jari Gröhn</div>
+            <a href="tel:+358505378718" style="font-size:0.75rem;color:var(--green);display:block;">📞 050 537 8718</a>
+            <a href="mailto:vesiverkkovastaava@hklkesamajat.fi" style="font-size:0.75rem;color:var(--green);display:block;">📧 vesiverkkovastaava@</a>
+          </div>
+          <div style="background:var(--sand);border-radius:10px;padding:12px;text-align:center;">
+            <div style="font-size:1.5rem;margin-bottom:4px;">⚖️</div>
+            <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);font-weight:600;">Asiamies</div>
+            <div style="font-weight:700;font-size:0.88rem;margin:4px 0;">Hannu Rosokivi</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;padding:8px 12px;background:var(--sand);border-radius:8px;font-size:0.82rem;color:var(--text-muted);">
+          <span style="font-weight:700;">👥 Muut jäsenet:</span> Henrietta Ikonen · Katriina Matilainen · Raili Rinne <span style="font-size:0.72rem;">(varajäsen)</span>
         </div>
       </div>
     </div>
