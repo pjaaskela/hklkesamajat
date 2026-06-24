@@ -2891,10 +2891,10 @@ async function handleInviteUrl() {
     _mokkiRooli = inv.rooli || 'asukas';
     _isFirstLogin = inv.first_login === true;
     localStorage.setItem('hkl_mokki_session', JSON.stringify({number: inv.number, name: inv.name, rooli: inv.rooli||'asukas', token: inv.token}));
-    showDashboard(inv.number);
-    if (_isFirstLogin) setTimeout(showWelcomeModal, 600);
+    try { showDashboard(inv.number); } catch(e) { console.warn('showDashboard error', e); document.getElementById('login-screen').style.display='none'; document.getElementById('dashboard').style.display='block'; }
+    if (_isFirstLogin) showWelcomeModal();
     return true;
-  } catch(e) { return false; }
+  } catch(e) { console.error('invite error', e); return false; }
 }
 
 // ========== INIT ==========
