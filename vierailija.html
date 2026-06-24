@@ -647,7 +647,7 @@ footer strong { color: white; }
   </div>
 
   <!-- HISTORIA -->
-  <div class="section-header reveal" style="margin-top:36px;"><h2>📜 Historia</h2><div class="divider"></div></div>
+  <div class="section-header reveal" style="margin-top:36px;"><h2 data-i18n="vis_history_title">📜 Historia</h2><div class="divider"></div></div>
   <a href="https://jaaskel.com/historia.pdf" target="_blank" class="card reveal" style="display:block;text-decoration:none;color:inherit;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;background:linear-gradient(135deg,#f8f4e8,#eee8d5);"
      onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,0.14)'"
      onmouseout="this.style.transform='';this.style.boxShadow=''">
@@ -675,7 +675,7 @@ footer strong { color: white; }
   </div>
 
   <!-- KARTTA -->
-  <div id="kartta" class="section-header reveal" style="margin-top:16px;"><h2>🗺️ Sijainti</h2><div class="divider"></div><p>Lounaisväylänpolku, 00200 Helsinki</p></div>
+  <div id="kartta" class="section-header reveal" style="margin-top:16px;"><h2 data-i18n="vis_location">🗺️ Sijainti</h2><div class="divider"></div><p>Lounaisväylänpolku, 00200 Helsinki</p></div>
   <div class="map-container reveal" style="height:380px;">
     <div id="gmap" style="width:100%;height:100%;border-radius:var(--radius);"></div>
   </div>
@@ -689,7 +689,7 @@ footer strong { color: white; }
 <main>
 
   <div class="section-header reveal" style="margin-top:48px;">
-    <h2>Tietoa yhdistyksestä</h2>
+    <h2 data-i18n="vis_about">Tietoa yhdistyksestä</h2>
     <div class="divider"></div>
   </div>
 
@@ -824,7 +824,7 @@ footer strong { color: white; }
   </div>
 
   <!-- LÄHIPALVELUT -->
-  <div id="buffetti" class="section-header reveal" style="margin-top:28px;"><h2>🏪 Lähipalvelut</h2><div class="divider"></div><p>Kahvila ja lähimmät palvelut 1,5 km säteellä</p></div>
+  <div id="buffetti" class="section-header reveal" style="margin-top:28px;"><h2 data-i18n="vis_nearby">🏪 Lähipalvelut</h2><div class="divider"></div><p>Kahvila ja lähimmät palvelut 1,5 km säteellä</p></div>
   <a href="https://kahvilabuffetti.fi" target="_blank" rel="noopener" style="text-decoration:none;display:block;margin-bottom:12px;" class="reveal">
     <div class="card" style="display:flex;gap:20px;align-items:center;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;"
          onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,0.14)'"
@@ -873,7 +873,7 @@ footer strong { color: white; }
 
   <!-- UUTISET -->
   <div id="uutiset" class="section-header reveal" style="margin-top:48px;">
-    <h2>📰 Media & uutiset</h2>
+    <h2 data-i18n="vis_media">📰 Media <h2>📰 Media & uutiset</h2> uutiset</h2>
     <div class="divider"></div>
     <p>Lehtijutut ja artikkelit HKL-Kesämajat-alueesta · päivitetään automaattisesti</p>
   </div>
@@ -1617,6 +1617,7 @@ setInterval(loadVessels, 180_000);
 
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4v6_V6A8uGas4M9UQz3bu9FwsbdFH8ds&libraries=places,geometry&callback=initGoogleMap" async defer></script>
+<script src="https://jaaskel.com/hkl-i18n.js" defer></script>
 <script src="https://jaaskel.com/hkl-search.js" defer></script>
 <script src="https://jaaskel.com/hkl-analytics-v2.js" defer></script>
 </body>

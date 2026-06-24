@@ -103,10 +103,10 @@ footer a { color: rgba(82,183,136,0.55); }
   <div class="hero-orb hero-orb-2"></div>
   <div class="hero-orb hero-orb-3"></div>
   <div class="hero-inner">
-    <div class="hero-badge">HKL-Kesämajayhdistys ry · Lauttasaari</div>
+    <div class="hero-badge" data-i18n="idx_badge">HKL-Kesämajayhdistys ry · Lauttasaari</div>
     <span class="hero-wx-icon" id="h-wx-icon">🌥️</span>
-    <h1>HKL-Kesämajat</h1>
-    <p class="hero-sub">Yhdistyksemme vuokraa Helsingin kaupungilta kesämaja-aluetta ja hoitaa sitä. Tarkoituksenamme on edistää ja kehittää kesämajatoimintaa Helsingin Lauttasaaren Länsiulapanniemellä. Järjestämme talkoita, kokouksia, juhlia ja muita yhteisöllisiä tilaisuuksia. Alueemme erityisyytenä ovat oma tanssilava, grillikatos ja venelaiturit.</p>
+    <h1 data-i18n="idx_h1">HKL-Kesämajat</h1>
+    <p class="hero-sub" data-i18n="idx_sub">Yhdistyksemme vuokraa Helsingin kaupungilta kesämaja-aluetta ja hoitaa sitä. Tarkoituksenamme on edistää ja kehittää kesämajatoimintaa Helsingin Lauttasaaren Länsiulapanniemellä. Järjestämme talkoita, kokouksia, juhlia ja muita yhteisöllisiä tilaisuuksia. Alueemme erityisyytenä ovat oma tanssilava, grillikatos ja venelaiturit.</p>
     <div class="hero-stats">
       <div class="glass-pill">
         <div class="glass-pill-label">📍 Lämpötila</div>
@@ -163,28 +163,28 @@ footer a { color: rgba(82,183,136,0.55); }
 <!-- ROOLIKORTIT -->
 <section class="role-section">
   <div class="role-header">
-    <h2>Tervetuloa HKL-Kesämajat ry:hyn</h2>
+    <h2 data-i18n="idx_welcome">Tervetuloa HKL-Kesämajat ry:hyn</h2>
     <div class="role-divider"></div>
-    <p>Valitse roolisi — näet juuri sinulle sopivat tiedot</p>
+    <p data-i18n="idx_choose">Valitse roolisi — näet juuri sinulle sopivat tiedot</p>
   </div>
   <div class="role-cards">
 
     <a href="mokki.html" class="role-card role-mokkilainen">
       <span class="role-icon">🏡</span>
-      <span class="role-tag tag-mokki">Jäsen · kirjautuminen</span>
-      <h3>Mökkiläinen</h3>
+      <span class="role-tag tag-mokki" data-i18n="idx_member_tag">Jäsen · kirjautuminen</span>
+      <h3 data-i18n="idx_member">Mökkiläinen</h3>
       <p>Kirjaudu mökin numerolla. Katso sauna-ajat, mökin live-tila, kameravalvonta ja omat kirjaukset.</p>
       <div id="rc-sauna" style="font-size:0.78rem;background:var(--green-pale);color:var(--green);padding:5px 12px;border-radius:10px;font-weight:600;"></div>
-      <span class="role-btn">Kirjaudu sisään →</span>
+      <span class="role-btn" data-i18n="idx_member_btn">Kirjaudu sisään →</span>
     </a>
 
     <a href="vierailija.html" class="role-card role-vierailija">
       <span class="role-icon">🌿</span>
-      <span class="role-tag tag-vieras">Avoin · ei kirjautumista</span>
-      <h3>Vierailija</h3>
+      <span class="role-tag tag-vieras" data-i18n="idx_visitor_tag">Avoin · ei kirjautumista</span>
+      <h3 data-i18n="idx_visitor">Vierailija</h3>
       <p>Sää, vedenlämpö, lähipalvelut ja alueen yleistiedot. Kaikille avoin näkymä.</p>
       <div id="rc-water" style="font-size:0.78rem;background:#e0f2fe;color:#0369a1;padding:5px 12px;border-radius:10px;font-weight:600;"></div>
-      <span class="role-btn">Selaa tietoja →</span>
+      <span class="role-btn" data-i18n="idx_visitor_btn">Selaa tietoja →</span>
     </a>
 
 
@@ -361,6 +361,7 @@ function initHeroMap() { try {
 } catch(e) { console.warn('Map init failed:', e); } }
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4v6_V6A8uGas4M9UQz3bu9FwsbdFH8ds&callback=initHeroMap" async defer></script>
+<script src="https://jaaskel.com/hkl-i18n.js" defer></script>
 <script src="https://jaaskel.com/hkl-search.js" defer></script>
 <script src="https://jaaskel.com/hkl-analytics-v2.js" defer></script>
 </body>
