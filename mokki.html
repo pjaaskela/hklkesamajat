@@ -1989,6 +1989,7 @@ async function checkSession() {
         }
       }
     } catch(e) {}
+    try { const old = JSON.parse(saved); if (old.number) document.getElementById('login-num').value = old.number; } catch(e2) {}
     localStorage.removeItem('hkl_mokki_session');
   }
 }

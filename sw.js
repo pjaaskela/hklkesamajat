@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hkl-v1';
+const CACHE_NAME = 'hkl-v2';
 const PRECACHE = ['/mokki.html', '/manifest.json', '/icon-192.png'];
 
 self.addEventListener('install', e => {
