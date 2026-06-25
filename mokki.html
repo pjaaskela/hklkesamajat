@@ -576,6 +576,9 @@ body { padding-top: 48px; }
       inputmode="numeric" autocomplete="username" maxlength="6">
     <input type="password" id="login-pass" class="login-input" placeholder="Salasana" data-i18n="mok_pass"
       autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <label style="display:flex;align-items:center;gap:8px;margin:10px 0;cursor:pointer;color:rgba(255,255,255,0.6);font-size:0.82rem;">
+      <input type="checkbox" id="login-remember" checked style="accent-color:#52b788;width:16px;height:16px;"> Muista minut
+    </label>
     <button class="login-btn" onclick="doLogin()" data-i18n="mok_login_btn">Kirjaudu sisään →</button>
     <div class="login-hint"><a href="#" onclick="showResetForm();return false;" style="color:rgba(255,255,255,0.5);text-decoration:underline;">Unohditko salasanasi?</a></div>
     <div id="reset-form" style="display:none;margin-top:12px;">
@@ -1899,7 +1902,7 @@ async function doLogin(autoNum, autoPass) {
     const r = await fetch(API_BASE + '/api/hkl/login', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({number: num, password: pass}),
+      body: JSON.stringify({number: num, password: pass, remember: document.getElementById('login-remember')?.checked || false}),
       signal: AbortSignal.timeout(10000)
     });
     if (!r.ok) { err.textContent = 'Väärä mökin numero tai salasana'; return; }
