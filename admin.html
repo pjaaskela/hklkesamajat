@@ -175,7 +175,8 @@ textarea.inp{resize:vertical;min-height:72px}
       <div class="sensor-strip" id="sensor-strip"><div class="scard"><div class="scard-label">LADATAAN</div><div class="scard-val">—</div></div></div>
       <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:16px" id="sensor-ts"></div>
       <div class="stats-row">
-        <div class="stat-box"><div class="stat-num" id="st-asukkaat">—</div><div class="stat-label">ASUKASTA</div></div>
+        <div class="stat-box"><div class="stat-num" id="st-mokkit">—</div><div class="stat-label">MÖKKEJÄ</div></div>
+        <div class="stat-box"><div class="stat-num" id="st-rekist">—</div><div class="stat-label">REKISTERÖITYNYT</div></div>
         <div class="stat-box"><div class="stat-num" id="st-vikat-avoin">—</div><div class="stat-label">VIKAA AUKI</div></div>
         <div class="stat-box"><div class="stat-num" id="st-tiedotteet">—</div><div class="stat-label">TIEDOTETTA</div></div>
       </div>
@@ -888,7 +889,8 @@ async function loadVisitors(){
 }
 
 function updateStats(){
-  document.getElementById('st-asukkaat').textContent=_data.asukkaat.length;
+  document.getElementById('st-mokkit').textContent=_data.mokkit.length;
+  document.getElementById('st-rekist').textContent=_data.mokkit.filter(c=>c.password_changed).length;
   document.getElementById('st-vikat-avoin').textContent=_data.vikat.filter(v=>v.tila==='avoin').length;
   document.getElementById('st-tiedotteet').textContent=_data.tiedotteet.length;
   
