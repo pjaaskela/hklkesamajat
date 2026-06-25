@@ -1353,6 +1353,32 @@ body { padding-top: 48px; }
       </div>
     </div>
 
+    <!-- TAPAHTUMAT -->
+    <div class="card" id="events-card">
+      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="card-title">📅 Tapahtumat</div>
+        <button onclick="openEventForm()" style="padding:5px 12px;border-radius:8px;border:1px solid var(--green);background:var(--green-pale);color:var(--green);font-weight:700;font-size:0.75rem;cursor:pointer;">+ Luo tapahtuma</button>
+      </div>
+      <div class="card-body">
+        <div id="event-form" style="display:none;margin-bottom:14px;background:var(--sand);border-radius:10px;padding:14px;">
+          <div style="font-weight:700;font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;">Uusi tapahtuma</div>
+          <input type="text" id="ev-title" class="settings-input" placeholder="Otsikko *" maxlength="200" style="margin-bottom:6px;">
+          <div style="display:flex;gap:6px;margin-bottom:6px;">
+            <input type="date" id="ev-date" class="settings-input" style="flex:1;">
+            <input type="time" id="ev-time" class="settings-input" style="width:100px;">
+          </div>
+          <input type="text" id="ev-location" class="settings-input" placeholder="Paikka (esim. Grillikatos)" maxlength="200" style="margin-bottom:6px;">
+          <textarea id="ev-desc" class="settings-input" placeholder="Kuvaus (vapaaehtoinen)" maxlength="2000" rows="2" style="margin-bottom:6px;resize:vertical;"></textarea>
+          <div style="display:flex;gap:8px;">
+            <button onclick="submitEvent()" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--green);color:#fff;font-weight:700;font-size:0.82rem;cursor:pointer;">Luo tapahtuma</button>
+            <button onclick="document.getElementById('event-form').style.display='none'" style="padding:8px 14px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:var(--text-muted);font-size:0.82rem;cursor:pointer;">Peruuta</button>
+          </div>
+          <div id="ev-msg" style="font-size:0.78rem;margin-top:6px;min-height:1em;"></div>
+        </div>
+        <div id="events-list" style="font-size:0.85rem;color:var(--text-muted);">Ladataan...</div>
+      </div>
+    </div>
+
     <!-- VIKAILMOITUKSET -->
     <div class="card" id="ilmoitus-card">
       <div class="card-header">
@@ -1994,6 +2020,7 @@ function showDashboard(num) {
   loadMokkiDocs();
   loadListings();
   loadOmatIlmoitukset();
+  loadEvents();
   applySiteSettings();
 
   // Background preview
@@ -2320,6 +2347,87 @@ async function loadOmatIlmoitukset() {
   } catch(e) { el.textContent = 'Ei voitu ladata.'; }
 }
 
+// ========== TAPAHTUMAT ==========
+function openEventForm() {
+  const f = document.getElementById('event-form');
+  f.style.display = '';
+  document.getElementById('ev-title').value = '';
+  document.getElementById('ev-date').value = '';
+  document.getElementById('ev-time').value = '';
+  document.getElementById('ev-location').value = '';
+  document.getElementById('ev-desc').value = '';
+  document.getElementById('ev-msg').textContent = '';
+  document.getElementById('ev-title').focus();
+}
+
+async function submitEvent() {
+  const title = document.getElementById('ev-title').value.trim();
+  const msg = document.getElementById('ev-msg');
+  if (!title) { msg.textContent = '❌ Otsikko vaaditaan'; msg.style.color = '#ef4444'; return; }
+  const event_date = document.getElementById('ev-date').value;
+  if (!event_date) { msg.textContent = '❌ Päivämäärä vaaditaan'; msg.style.color = '#ef4444'; return; }
+  msg.textContent = 'Luodaan...'; msg.style.color = 'var(--text-muted)';
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/events', {
+      method: 'POST', headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken},
+      body: JSON.stringify({title, event_date, event_time: document.getElementById('ev-time').value,
+        location: document.getElementById('ev-location').value.trim(),
+        description: document.getElementById('ev-desc').value.trim()})
+    });
+    if (r.ok) {
+      document.getElementById('event-form').style.display = 'none';
+      loadEvents();
+    } else { msg.textContent = '❌ Virhe'; msg.style.color = '#ef4444'; }
+  } catch(e) { msg.textContent = '❌ Verkkovirhe'; msg.style.color = '#ef4444'; }
+}
+
+async function toggleRsvp(eid) {
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/events/' + eid + '/rsvp', {
+      method: 'POST', headers: {'X-Hkl-Token': _hklToken}
+    });
+    if (r.ok) loadEvents();
+  } catch(e) {}
+}
+
+async function loadEvents() {
+  const el = document.getElementById('events-list');
+  try {
+    const events = await fetch(API_BASE + '/api/hkl/events').then(r => r.json());
+    if (!events.length) { el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);">Ei tulevia tapahtumia.</div>'; return; }
+    el.innerHTML = events.map(ev => {
+      const d = new Date(ev.event_date + 'T00:00');
+      const weekday = ['su','ma','ti','ke','to','pe','la'][d.getDay()];
+      const dateStr = d.toLocaleDateString('fi-FI', {day:'numeric', month:'long'});
+      const isToday = ev.event_date === new Date().toISOString().slice(0,10);
+      const isFull = ev.max_participants > 0 && ev.rsvp_count >= ev.max_participants;
+      const badge = ev.is_admin ? '<span style="font-size:0.6rem;background:rgba(82,183,136,0.15);color:var(--green);padding:2px 6px;border-radius:8px;font-weight:600;">Hallitus</span>' : '';
+      return `<div style="padding:12px;background:${isToday ? '#f0fdf4' : 'var(--sand)'};border-radius:10px;margin-bottom:8px;${isToday ? 'border:1px solid #bbf7d0;' : ''}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+              <span style="font-weight:700;font-size:0.88rem;">${ev.title}</span>
+              ${badge}
+              ${isToday ? '<span style="font-size:0.6rem;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:600;">Tänään</span>' : ''}
+            </div>
+            <div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px;">
+              📅 ${weekday} ${dateStr}${ev.event_time ? ' · ⏰ ' + ev.event_time : ''}${ev.location ? ' · 📍 ' + ev.location : ''}
+            </div>
+            ${ev.description ? `<div style="font-size:0.8rem;color:var(--text);margin-top:6px;line-height:1.5;">${ev.description}</div>` : ''}
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:6px;">
+              👥 ${ev.rsvp_count} ilmoittautunut${ev.max_participants > 0 ? ' / ' + ev.max_participants : ''}
+              ${ev.created_by ? ' · ✍️ ' + ev.created_by : ''}
+            </div>
+          </div>
+          <button onclick="toggleRsvp('${ev.id}')" style="padding:8px 14px;border-radius:8px;border:1px solid ${isFull ? '#fca5a5' : 'var(--green)'};background:${isFull ? '#fef2f2' : 'var(--green-pale)'};color:${isFull ? '#991b1b' : 'var(--green)'};font-weight:700;font-size:0.75rem;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+            ${isFull ? 'Täynnä' : '✋ Osallistun'}
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { el.innerHTML = '<div style="color:var(--text-muted);">Ei voitu ladata.</div>'; }
+}
+
 // ========== DOCUMENT DOWNLOAD (with token) ==========
 async function downloadDoc(id, title) {
   try {
@@ -2370,6 +2478,7 @@ const OPAS_DATA = [
   { t: '19. Sähköliittymä', icon: '⚡', body: `Helen Sähköverkko Oy vastaa sähköpylväistä ja siirrosta. Kesämajalainen vastaa maakaapelista pylväälle. Maakaapeleihin siirrytään asteittain. Yhteydenotot suoraan Helen Sähköverkkoon.` },
   { t: '20. Nettisivut ja Facebook', icon: '🌐', body: `Yhdistyksen sivut: <a href="https://hklkesamajat.fi" target="_blank" style="color:var(--green);font-weight:600;">hklkesamajat.fi</a>\n\nSuljettu Facebook-ryhmä: <a href="https://www.facebook.com/groups/255284816782" target="_blank" style="color:var(--green);font-weight:600;">HKL-kesämajat ry</a> (liittyessä kysytään mökin numeroa).` },
   { t: '21. MobilePay', icon: '💳', body: `Yhdistystili: <b>#24434</b> tai nimellä <i>HKL-kesämajat ry</i>.\n\nMaksukategoriat:\n• Saunamaksu\n• Kannatusmaksu\n• Vesiverkkohuolto` },
+  { t: '22. Sovellus puhelimeen', icon: '📱', body: `Tämän palvelun voi asentaa sovelluksena puhelimen tai tietokoneen työpöydälle.\n\n<b>iPhone / iPad (Safari):</b>\n1. Avaa hklkesamajat.fi/mokki.html Safarissa\n2. Paina jakamispainiketta (⬆️) alhaalla\n3. Valitse <i>"Lisää Koti-valikkoon"</i>\n4. Paina <i>Lisää</i>\n\n<b>Android (Chrome):</b>\n1. Avaa hklkesamajat.fi/mokki.html Chromessa\n2. Paina kolmea pistettä (⋮) oikealla ylhäällä\n3. Valitse <i>"Asenna sovellus"</i> tai <i>"Lisää aloitusnäytölle"</i>\n\n<b>Tietokone (Chrome/Edge):</b>\n1. Avaa hklkesamajat.fi/mokki.html\n2. Klikkaa osoitepalkin oikeassa reunassa olevaa asennuskuvaketta (⊕)\n3. Valitse <i>Asenna</i>\n\nSovellus avautuu ilman selaimen osoitepalkkia ja pysyy kirjautuneena.` },
 ];
 
 function renderOpas() {

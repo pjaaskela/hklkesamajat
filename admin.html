@@ -140,6 +140,7 @@ textarea.inp{resize:vertical;min-height:72px}
     <a href="#" onclick="return nav('palautteet')" data-sec="palautteet">💬 Palautteet</a>
     <div class="sidenav-section">Hallinta</div>
     <a href="#" onclick="return nav('vikat')" data-sec="vikat">🔧 Vikailmoitukset</a>
+    <a href="#" onclick="return nav('tapahtumat')" data-sec="tapahtumat">📅 Tapahtumat</a>
     <a href="#" onclick="return nav('tiedotteet')" data-sec="tiedotteet">📢 Tiedotteet</a>
     <a href="#" onclick="return nav('laituri')" data-sec="laituri">🌊 Laituri-kirjaukset</a>
     <a href="#" onclick="return nav('mokkit')" data-sec="mokkit">🏠 Mökit</a>
@@ -174,6 +175,29 @@ textarea.inp{resize:vertical;min-height:72px}
 
     <!-- KÄVIJÄSEURANTA -->
     <!-- ASUKASREKISTERI -->
+    <!-- TAPAHTUMAT -->
+    <div id="sec-tapahtumat" class="sec-page">
+      <div class="page-title">📅 Tapahtumakalenteri</div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">Lisää tapahtuma</div>
+        <div class="form-row">
+          <div class="field"><label>OTSIKKO</label><input class="inp" id="evt-title" placeholder="Kesäjuhlat"></div>
+          <div class="field"><label>PÄIVÄMÄÄRÄ</label><input class="inp" id="evt-date" type="date"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>AIKA</label><input class="inp" id="evt-time" type="time"></div>
+          <div class="field"><label>PAIKKA</label><input class="inp" id="evt-location" placeholder="Grillikatos"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>KUVAUS</label><input class="inp" id="evt-desc" placeholder="Vapaaehtoinen kuvaus"></div>
+          <div class="field"><label>MAX OSALLISTUJAT (0 = ei rajaa)</label><input class="inp" id="evt-max" type="number" value="0" min="0"></div>
+        </div>
+        <div style="margin-top:10px"><button class="btn btn-primary" onclick="addEvent()">➕ Lisää tapahtuma</button></div>
+        <div class="msg" id="evt-msg"></div>
+      </div>
+      <div id="events-admin-list"></div>
+    </div>
+
     <!-- VIKAILMOITUKSET -->
     <div id="sec-vikat" class="sec-page">
       <div class="page-title">🔧 Vikailmoitukset</div>
@@ -715,6 +739,7 @@ function nav(sec){
   if(sec==='dokumentit')loadDocs();
   if(sec==='ilmoitukset')loadListings();
   if(sec==='vesiverkko')loadWaterNetwork();
+  if(sec==='tapahtumat')loadAdminEvents();
   if(sec==='analytics')loadAnalytics();
   if(sec==='asetukset')loadSiteSettings();
   if(sec==='palautteet')loadFeedback();
@@ -1417,6 +1442,51 @@ async function saveSiteSettings() {
     document.getElementById('set-msg').style.color = 'var(--red)';
   }
   setTimeout(() => { document.getElementById('set-msg').textContent = ''; }, 3000);
+}
+
+async function addEvent() {
+  const title = v('evt-title'), date = v('evt-date'), time = v('evt-time'), loc = v('evt-location'), desc = v('evt-desc'), max = parseInt(v('evt-max') || '0');
+  if (!title || !date) { showMsg('evt-msg', '❌ Otsikko ja päivämäärä vaaditaan', false); return; }
+  const r = await fetch(API_BASE+'/api/hkl/events', {method:'POST', headers:ah(), body:JSON.stringify({title, event_date:date, event_time:time, location:loc, description:desc, max_participants:max})});
+  if (r.ok) { ['evt-title','evt-date','evt-time','evt-location','evt-desc'].forEach(id=>document.getElementById(id).value=''); document.getElementById('evt-max').value='0'; showMsg('evt-msg','✅ Tapahtuma lisätty!',true); loadAdminEvents(); }
+  else showMsg('evt-msg','❌ Virhe',false);
+}
+
+async function deleteEvent(eid, title) {
+  if (!confirm('Poistetaan "'+title+'"?')) return;
+  await fetch(API_BASE+'/api/hkl/events/'+eid, {method:'DELETE', headers:ah()});
+  loadAdminEvents();
+}
+
+async function loadAdminEvents() {
+  const el = document.getElementById('events-admin-list');
+  try {
+    const events = await fetch(API_BASE+'/api/hkl/events').then(r=>r.json());
+    if (!events.length) { el.innerHTML='<div class="tbl-empty">Ei tapahtumia</div>'; return; }
+    let html = '';
+    for (const ev of events) {
+      const d = new Date(ev.event_date+'T00:00');
+      const dateStr = d.toLocaleDateString('fi-FI',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+      let rsvpHtml = '';
+      try {
+        const rsvps = await fetch(API_BASE+'/api/hkl/events/'+ev.id+'/rsvps', {headers:ah()}).then(r=>r.json());
+        if (rsvps.length) rsvpHtml = '<div style="margin-top:6px;font-size:11px;color:var(--muted);">'+rsvps.map(r=>'🏡 '+r.cottage_number+' '+r.name).join(' · ')+'</div>';
+      } catch(e) {}
+      html += `<div class="card" style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:14px;">${esc(ev.title)} ${ev.is_admin?'<span style="font-size:10px;background:rgba(82,183,136,0.15);color:var(--green);padding:2px 6px;border-radius:8px;">Hallitus</span>':''}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">📅 ${dateStr}${ev.event_time?' · ⏰ '+ev.event_time:''}${ev.location?' · 📍 '+esc(ev.location):''}</div>
+            ${ev.description?'<div style="font-size:12px;margin-top:4px;">'+esc(ev.description)+'</div>':''}
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;">👥 ${ev.rsvp_count} ilmoittautunut${ev.max_participants>0?' / '+ev.max_participants:''} · ✍️ ${esc(ev.created_by||'')}</div>
+            ${rsvpHtml}
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="deleteEvent('${ev.id}','${esc(ev.title)}')">🗑</button>
+        </div>
+      </div>`;
+    }
+    el.innerHTML = html;
+  } catch(e) { el.innerHTML='<div class="tbl-empty">Virhe ladattaessa</div>'; }
 }
 
 async function massInvite(target) {
