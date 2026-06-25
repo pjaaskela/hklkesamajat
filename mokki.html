@@ -2986,32 +2986,40 @@ function loadInterestStates(interests) {
     if (_interests[key]) {
       card.classList.add('interested');
       btn.classList.add('active');
-      btn.textContent = '✓ Kiinnostus ilmoitettu';
+      btn.textContent = '✓ Ilmoitettu';
+      btn.style.background = 'var(--green)';
+      btn.style.color = '#fff';
+      btn.style.borderColor = 'var(--green)';
     } else {
       card.classList.remove('interested');
       btn.classList.remove('active');
-      btn.textContent = 'Kiinnostaa 👍';
+      btn.textContent = '👍';
+      btn.style.background = '#f8fafc';
+      btn.style.color = 'var(--text-muted)';
+      btn.style.borderColor = '#e2e8f0';
     }
   });
 }
 
 async function toggleInterest(key, btn) {
   _interests[key] = !_interests[key];
-  const card = btn.closest('.interest-card');
-  const msgEl = card.querySelector('.interest-msg');
+  const card = document.getElementById('int-' + key);
 
   if (_interests[key]) {
-    card.classList.add('interested');
+    if (card) card.classList.add('interested');
     btn.classList.add('active');
-    btn.textContent = '✓ Kiinnostus ilmoitettu';
-    msgEl.textContent = 'Kiitos! Tieto tallennettu.';
+    btn.textContent = '✓ Ilmoitettu';
+    btn.style.background = 'var(--green)';
+    btn.style.color = '#fff';
+    btn.style.borderColor = 'var(--green)';
   } else {
-    card.classList.remove('interested');
+    if (card) card.classList.remove('interested');
     btn.classList.remove('active');
-    btn.textContent = 'Kiinnostaa 👍';
-    msgEl.textContent = 'Kiinnostus peruttu.';
+    btn.textContent = '👍';
+    btn.style.background = '#f8fafc';
+    btn.style.color = 'var(--text-muted)';
+    btn.style.borderColor = '#e2e8f0';
   }
-  setTimeout(() => { msgEl.textContent = ''; }, 3000);
 
   try {
     await fetch(API_BASE + '/api/hkl/my-cottage/interests', {
