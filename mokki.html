@@ -808,6 +808,34 @@ body { padding-top: 48px; }
       </div>
     </div>
 
+    <div id="mokki-cards">
+    <!-- TAPAHTUMAT -->
+    <div class="card" id="events-card">
+      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="card-title">📅 Tapahtumat</div>
+        <button onclick="openEventForm()" style="padding:5px 12px;border-radius:8px;border:1px solid var(--green);background:var(--green-pale);color:var(--green);font-weight:700;font-size:0.75rem;cursor:pointer;">+ Luo tapahtuma</button>
+      </div>
+      <div class="card-body">
+        <div id="event-form" style="display:none;margin-bottom:14px;background:var(--sand);border-radius:10px;padding:14px;">
+          <div style="font-weight:700;font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;" id="ev-form-label">Uusi tapahtuma</div>
+          <input type="hidden" id="ev-edit-id">
+          <input type="text" id="ev-title" class="settings-input" placeholder="Otsikko *" maxlength="200" style="margin-bottom:6px;">
+          <div style="display:flex;gap:6px;margin-bottom:6px;">
+            <input type="date" id="ev-date" class="settings-input" style="flex:1;">
+            <input type="time" id="ev-time" class="settings-input" style="width:100px;">
+          </div>
+          <input type="text" id="ev-location" class="settings-input" placeholder="Paikka (esim. Grillikatos)" maxlength="200" style="margin-bottom:6px;">
+          <textarea id="ev-desc" class="settings-input" placeholder="Kuvaus (vapaaehtoinen)" maxlength="2000" rows="2" style="margin-bottom:6px;resize:vertical;"></textarea>
+          <div style="display:flex;gap:8px;">
+            <button onclick="submitEvent()" id="ev-submit-btn" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--green);color:#fff;font-weight:700;font-size:0.82rem;cursor:pointer;">Luo tapahtuma</button>
+            <button onclick="document.getElementById('event-form').style.display='none'" style="padding:8px 14px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:var(--text-muted);font-size:0.82rem;cursor:pointer;">Peruuta</button>
+          </div>
+          <div id="ev-msg" style="font-size:0.78rem;margin-top:6px;min-height:1em;"></div>
+        </div>
+        <div id="events-list" style="font-size:0.85rem;color:var(--text-muted);">Ladataan...</div>
+      </div>
+    </div>
+
     <!-- 6. SAUNA CARD -->
     <div class="card" id="sauna-card">
       <div class="card-header">
@@ -1353,32 +1381,6 @@ body { padding-top: 48px; }
       </div>
     </div>
 
-    <!-- TAPAHTUMAT -->
-    <div class="card" id="events-card">
-      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
-        <div class="card-title">📅 Tapahtumat</div>
-        <button onclick="openEventForm()" style="padding:5px 12px;border-radius:8px;border:1px solid var(--green);background:var(--green-pale);color:var(--green);font-weight:700;font-size:0.75rem;cursor:pointer;">+ Luo tapahtuma</button>
-      </div>
-      <div class="card-body">
-        <div id="event-form" style="display:none;margin-bottom:14px;background:var(--sand);border-radius:10px;padding:14px;">
-          <div style="font-weight:700;font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;">Uusi tapahtuma</div>
-          <input type="text" id="ev-title" class="settings-input" placeholder="Otsikko *" maxlength="200" style="margin-bottom:6px;">
-          <div style="display:flex;gap:6px;margin-bottom:6px;">
-            <input type="date" id="ev-date" class="settings-input" style="flex:1;">
-            <input type="time" id="ev-time" class="settings-input" style="width:100px;">
-          </div>
-          <input type="text" id="ev-location" class="settings-input" placeholder="Paikka (esim. Grillikatos)" maxlength="200" style="margin-bottom:6px;">
-          <textarea id="ev-desc" class="settings-input" placeholder="Kuvaus (vapaaehtoinen)" maxlength="2000" rows="2" style="margin-bottom:6px;resize:vertical;"></textarea>
-          <div style="display:flex;gap:8px;">
-            <button onclick="submitEvent()" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--green);color:#fff;font-weight:700;font-size:0.82rem;cursor:pointer;">Luo tapahtuma</button>
-            <button onclick="document.getElementById('event-form').style.display='none'" style="padding:8px 14px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:var(--text-muted);font-size:0.82rem;cursor:pointer;">Peruuta</button>
-          </div>
-          <div id="ev-msg" style="font-size:0.78rem;margin-top:6px;min-height:1em;"></div>
-        </div>
-        <div id="events-list" style="font-size:0.85rem;color:var(--text-muted);">Ladataan...</div>
-      </div>
-    </div>
-
     <!-- VIKAILMOITUKSET -->
     <div class="card" id="ilmoitus-card">
       <div class="card-header">
@@ -1421,6 +1423,8 @@ body { padding-top: 48px; }
         </div>
       </div>
     </div>
+
+    </div><!-- /mokki-cards -->
 
     <!-- LISÄPALVELUT (compact) -->
     <div id="interests-section">
@@ -1895,6 +1899,14 @@ async function applySiteSettings() {
         }
       });
     }
+    if (s.section_order && s.section_order.length) {
+      const container = document.getElementById('mokki-cards');
+      if (container) {
+        const cards = {};
+        container.querySelectorAll('[id$="-card"]').forEach(c => { cards[c.id.replace('-card','')] = c; });
+        s.section_order.forEach(key => { if (cards[key]) container.appendChild(cards[key]); });
+      }
+    }
   } catch(e) {}
 }
 
@@ -2348,15 +2360,21 @@ async function loadOmatIlmoitukset() {
 }
 
 // ========== TAPAHTUMAT ==========
-function openEventForm() {
+let _editingEventId = '';
+
+function openEventForm(editEvent) {
   const f = document.getElementById('event-form');
   f.style.display = '';
-  document.getElementById('ev-title').value = '';
-  document.getElementById('ev-date').value = '';
-  document.getElementById('ev-time').value = '';
-  document.getElementById('ev-location').value = '';
-  document.getElementById('ev-desc').value = '';
+  _editingEventId = editEvent ? editEvent.id : '';
+  document.getElementById('ev-edit-id').value = _editingEventId;
+  document.getElementById('ev-title').value = editEvent ? editEvent.title : '';
+  document.getElementById('ev-date').value = editEvent ? editEvent.event_date : '';
+  document.getElementById('ev-time').value = editEvent ? (editEvent.event_time || '') : '';
+  document.getElementById('ev-location').value = editEvent ? (editEvent.location || '') : '';
+  document.getElementById('ev-desc').value = editEvent ? (editEvent.description || '') : '';
   document.getElementById('ev-msg').textContent = '';
+  document.getElementById('ev-form-label').textContent = _editingEventId ? 'Muokkaa tapahtumaa' : 'Uusi tapahtuma';
+  document.getElementById('ev-submit-btn').textContent = _editingEventId ? 'Tallenna muutokset' : 'Luo tapahtuma';
   document.getElementById('ev-title').focus();
 }
 
@@ -2366,19 +2384,26 @@ async function submitEvent() {
   if (!title) { msg.textContent = '❌ Otsikko vaaditaan'; msg.style.color = '#ef4444'; return; }
   const event_date = document.getElementById('ev-date').value;
   if (!event_date) { msg.textContent = '❌ Päivämäärä vaaditaan'; msg.style.color = '#ef4444'; return; }
-  msg.textContent = 'Luodaan...'; msg.style.color = 'var(--text-muted)';
+  msg.textContent = _editingEventId ? 'Tallennetaan...' : 'Luodaan...'; msg.style.color = 'var(--text-muted)';
+  const body = {title, event_date, event_time: document.getElementById('ev-time').value,
+    location: document.getElementById('ev-location').value.trim(),
+    description: document.getElementById('ev-desc').value.trim()};
   try {
-    const r = await fetch(API_BASE + '/api/hkl/events', {
-      method: 'POST', headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken},
-      body: JSON.stringify({title, event_date, event_time: document.getElementById('ev-time').value,
-        location: document.getElementById('ev-location').value.trim(),
-        description: document.getElementById('ev-desc').value.trim()})
-    });
+    const url = _editingEventId ? API_BASE + '/api/hkl/events/' + _editingEventId : API_BASE + '/api/hkl/events';
+    const method = _editingEventId ? 'PUT' : 'POST';
+    const r = await fetch(url, {method, headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken}, body: JSON.stringify(body)});
     if (r.ok) {
       document.getElementById('event-form').style.display = 'none';
+      _editingEventId = '';
       loadEvents();
-    } else { msg.textContent = '❌ Virhe'; msg.style.color = '#ef4444'; }
+    } else { const d = await r.json().catch(()=>({})); msg.textContent = '❌ ' + (d.detail || 'Virhe'); msg.style.color = '#ef4444'; }
   } catch(e) { msg.textContent = '❌ Verkkovirhe'; msg.style.color = '#ef4444'; }
+}
+
+async function deleteMyEvent(eid, title) {
+  if (!confirm('Poistetaan "' + title + '"?')) return;
+  await fetch(API_BASE + '/api/hkl/events/' + eid, {method: 'DELETE', headers: {'X-Hkl-Token': _hklToken}});
+  loadEvents();
 }
 
 async function toggleRsvp(eid) {
@@ -2393,7 +2418,9 @@ async function toggleRsvp(eid) {
 async function loadEvents() {
   const el = document.getElementById('events-list');
   try {
-    const events = await fetch(API_BASE + '/api/hkl/events').then(r => r.json());
+    const evHeaders = {};
+    if (_hklToken) evHeaders['X-Hkl-Token'] = _hklToken;
+    const events = await fetch(API_BASE + '/api/hkl/events', {headers: evHeaders}).then(r => r.json());
     if (!events.length) { el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);">Ei tulevia tapahtumia.</div>'; return; }
     el.innerHTML = events.map(ev => {
       const d = new Date(ev.event_date + 'T00:00');
@@ -2402,6 +2429,8 @@ async function loadEvents() {
       const isToday = ev.event_date === new Date().toISOString().slice(0,10);
       const isFull = ev.max_participants > 0 && ev.rsvp_count >= ev.max_participants;
       const badge = ev.is_admin ? '<span style="font-size:0.6rem;background:rgba(82,183,136,0.15);color:var(--green);padding:2px 6px;border-radius:8px;font-weight:600;">Hallitus</span>' : '';
+      const isOwner = ev.created_by_mokki === _currentMokki;
+      const evData = JSON.stringify(ev).replace(/'/g, '&#39;').replace(/"/g, '&quot;');
       return `<div style="padding:12px;background:${isToday ? '#f0fdf4' : 'var(--sand)'};border-radius:10px;margin-bottom:8px;${isToday ? 'border:1px solid #bbf7d0;' : ''}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
           <div style="flex:1;min-width:0;">
@@ -2414,13 +2443,14 @@ async function loadEvents() {
               📅 ${weekday} ${dateStr}${ev.event_time ? ' · ⏰ ' + ev.event_time : ''}${ev.location ? ' · 📍 ' + ev.location : ''}
             </div>
             ${ev.description ? `<div style="font-size:0.8rem;color:var(--text);margin-top:6px;line-height:1.5;">${ev.description}</div>` : ''}
-            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:6px;">
-              👥 ${ev.rsvp_count} ilmoittautunut${ev.max_participants > 0 ? ' / ' + ev.max_participants : ''}
-              ${ev.created_by ? ' · ✍️ ' + ev.created_by : ''}
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span>👥 ${ev.rsvp_count} ilmoittautunut${ev.max_participants > 0 ? ' / ' + ev.max_participants : ''}</span>
+              ${ev.created_by ? '<span>✍️ ' + ev.created_by + '</span>' : ''}
+              ${isOwner ? `<span style="display:flex;gap:4px;"><button onclick='openEventForm(${evData})' style="border:none;background:none;color:var(--green);cursor:pointer;font-size:0.72rem;font-weight:600;padding:0;">✏️ Muokkaa</button><button onclick="deleteMyEvent('${ev.id}','${ev.title.replace(/'/g,'')}')" style="border:none;background:none;color:#ef4444;cursor:pointer;font-size:0.72rem;font-weight:600;padding:0;">🗑 Poista</button></span>` : ''}
             </div>
           </div>
-          <button onclick="toggleRsvp('${ev.id}')" style="padding:8px 14px;border-radius:8px;border:1px solid ${isFull ? '#fca5a5' : 'var(--green)'};background:${isFull ? '#fef2f2' : 'var(--green-pale)'};color:${isFull ? '#991b1b' : 'var(--green)'};font-weight:700;font-size:0.75rem;cursor:pointer;white-space:nowrap;flex-shrink:0;">
-            ${isFull ? 'Täynnä' : '✋ Osallistun'}
+          <button onclick="toggleRsvp('${ev.id}')" style="padding:8px 14px;border-radius:8px;border:1px solid ${ev.my_rsvp ? 'var(--green)' : isFull ? '#fca5a5' : '#e2e8f0'};background:${ev.my_rsvp ? 'var(--green)' : isFull ? '#fef2f2' : 'var(--sand)'};color:${ev.my_rsvp ? '#fff' : isFull ? '#991b1b' : 'var(--text-muted)'};font-weight:700;font-size:0.75rem;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+            ${ev.my_rsvp ? '✓ Ilmoittautunut' : isFull ? 'Täynnä' : '✋ Osallistun'}
           </button>
         </div>
       </div>`;

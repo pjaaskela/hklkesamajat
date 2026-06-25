@@ -461,9 +461,9 @@ textarea.inp{resize:vertical;min-height:72px}
       </div>
 
       <div class="card" style="margin-bottom:16px;">
-        <div class="card-head">📋 Mökkiläissivun osiot (oletustila)</div>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Valitse mitkä osiot ovat oletuksena auki mökkiläissivulla.</p>
-        <div id="set-sections" style="display:flex;flex-direction:column;gap:6px;"></div>
+        <div class="card-head">📋 Mökkiläissivun osiot</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:6px;">Valitse mitkä osiot ovat oletuksena auki. Vedä järjestääksesi.</p>
+        <div id="set-sections" style="display:flex;flex-direction:column;gap:4px;"></div>
       </div>
 
       <button class="btn btn-primary" onclick="saveSiteSettings()">Tallenna asetukset</button>
@@ -1387,6 +1387,7 @@ async function deleteFeedback(id){
 }
 
 const MOKKI_SECTIONS = [
+  {key:'events', label:'📅 Tapahtumat'},
   {key:'sensor', label:'📡 Mökki Live-tila'},
   {key:'sauna', label:'🛁 Yhteissauna'},
   {key:'siivous', label:'🧹 Siivous'},
@@ -1396,7 +1397,8 @@ const MOKKI_SECTIONS = [
   {key:'opas', label:'📖 Kesämajalaisen opas'},
   {key:'docs', label:'📄 Dokumentit & ohjeet'},
   {key:'hallitus', label:'🏛️ Hallitus'},
-  {key:'listings', label:'🏡 Ilmoitukset'},
+  {key:'ilmoitus', label:'📢 Ilmoitukset'},
+  {key:'listings', label:'🏡 Osto/myynti'},
 ];
 let _siteSettings = {};
 
@@ -1408,25 +1410,44 @@ async function loadSiteSettings() {
   document.getElementById('set-sauna-peak').value = _siteSettings.sauna_clean_peak || 'MA+KE+PE klo 10-12';
   document.getElementById('set-wc-clean').value = _siteSettings.wc_clean || 'MA+TO klo 12-12:30';
   const openSections = _siteSettings.open_sections || [];
-  document.getElementById('set-sections').innerHTML = MOKKI_SECTIONS.map(s => {
+  const savedOrder = _siteSettings.section_order || [];
+  const ordered = savedOrder.length ? savedOrder.map(k=>MOKKI_SECTIONS.find(s=>s.key===k)).filter(Boolean) : [...MOKKI_SECTIONS];
+  MOKKI_SECTIONS.forEach(s => { if (!ordered.find(o=>o.key===s.key)) ordered.push(s); });
+  const el = document.getElementById('set-sections');
+  el.innerHTML = ordered.map(s => {
     const checked = openSections.includes(s.key) ? 'checked' : '';
-    return `<label style="display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--bg3);border-radius:8px;cursor:pointer;">
-      <input type="checkbox" data-sec-key="${s.key}" ${checked} style="accent-color:var(--green);width:16px;height:16px;">
-      <span style="font-size:13px;">${s.label}</span>
-    </label>`;
+    return `<div draggable="true" data-sec-key="${s.key}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px;cursor:grab;user-select:none;border:2px solid transparent;" ondragstart="this.style.opacity='0.5';event.dataTransfer.setData('text',this.dataset.secKey)" ondragend="this.style.opacity='1'" ondragover="event.preventDefault();this.style.borderColor='var(--green)'" ondragleave="this.style.borderColor='transparent'" ondrop="event.preventDefault();this.style.borderColor='transparent';reorderSection(event.dataTransfer.getData('text'),this.dataset.secKey)">
+      <span style="color:var(--muted);font-size:12px;cursor:grab;">☰</span>
+      <input type="checkbox" data-sec-check="${s.key}" ${checked} style="accent-color:var(--green);width:16px;height:16px;" onclick="event.stopPropagation()">
+      <span style="font-size:13px;flex:1;">${s.label}</span>
+    </div>`;
   }).join('');
+}
+
+function reorderSection(fromKey, toKey) {
+  const el = document.getElementById('set-sections');
+  const items = [...el.children];
+  const fromIdx = items.findIndex(i=>i.dataset.secKey===fromKey);
+  const toIdx = items.findIndex(i=>i.dataset.secKey===toKey);
+  if (fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return;
+  const moved = items[fromIdx];
+  if (fromIdx < toIdx) items[toIdx].after(moved); else items[toIdx].before(moved);
 }
 
 async function saveSiteSettings() {
   const openSections = [];
-  document.querySelectorAll('#set-sections input[type=checkbox]').forEach(cb => {
-    if (cb.checked) openSections.push(cb.dataset.secKey);
+  const sectionOrder = [];
+  document.querySelectorAll('#set-sections [data-sec-key]').forEach(row => {
+    sectionOrder.push(row.dataset.secKey);
+    const cb = row.querySelector('input[type=checkbox]');
+    if (cb && cb.checked) openSections.push(row.dataset.secKey);
   });
   const settings = {
     sauna_clean_pre: document.getElementById('set-sauna-pre').value.trim(),
     sauna_clean_peak: document.getElementById('set-sauna-peak').value.trim(),
     wc_clean: document.getElementById('set-wc-clean').value.trim(),
     open_sections: openSections,
+    section_order: sectionOrder,
   };
   try {
     const r = await fetch(API_BASE+'/api/hkl/site-settings', {
