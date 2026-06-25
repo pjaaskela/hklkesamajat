@@ -3020,6 +3020,11 @@ async function toggleInterest(key, btn) {
     btn.style.color = 'var(--text-muted)';
     btn.style.borderColor = '#e2e8f0';
   }
+  const toast = document.createElement('div');
+  toast.textContent = _interests[key] ? '✓ Kiinnostus tallennettu!' : 'Kiinnostus peruttu';
+  toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:10px 20px;border-radius:10px;font-size:0.82rem;font-weight:700;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
 
   try {
     await fetch(API_BASE + '/api/hkl/my-cottage/interests', {
