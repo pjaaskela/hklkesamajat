@@ -1211,9 +1211,19 @@ async function loadDocs(){
 }
 function renderDocs(){
   const el=document.getElementById('doc-list');
-  if(!_data.docs.length){el.innerHTML='<div class="card"><div class="tbl-empty">Ei dokumentteja. Synkronoi Google Drive tai lisää service account.</div></div>';return;}
+  const skipExt=['.jpg','.jpeg','.png','.psd','.DS_Store'];
+  const filtered=_data.docs.filter(d=>{
+    const t=d.title||'';
+    if(t==='.DS_Store')return false;
+    if(t.startsWith('IMG_'))return false;
+    if(/^\d{3}-.*-lahi\.jpg$/.test(t))return false;
+    if(/^\d{3}-.*-kauko\.jpg$/.test(t))return false;
+    if(/^\d{3}-.*\.jpg$/.test(t)&&(d.access_level||'')==='huolto')return false;
+    return true;
+  });
+  if(!filtered.length){el.innerHTML='<div class="card"><div class="tbl-empty">Ei dokumentteja.</div></div>';return;}
   const grouped={};
-  _data.docs.forEach(d=>{const f=d.parent_folder||'Juuri';if(!grouped[f])grouped[f]=[];grouped[f].push(d);});
+  filtered.forEach(d=>{const f=d.parent_folder||'Yleiset';if(!grouped[f])grouped[f]=[];grouped[f].push(d);});
   let html='';
   for(const[folder,docs]of Object.entries(grouped)){
     html+=`<div class="card"><div class="card-title">📁 ${esc(folder)}</div><table class="tbl"><thead><tr><th>TIEDOSTO</th><th>KOKO</th><th>PÄÄSYTASO</th><th>MUOKATTU</th><th></th></tr></thead><tbody>`;
