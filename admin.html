@@ -154,7 +154,6 @@ textarea.inp{resize:vertical;min-height:72px}
     <a href="/index.html" target="_blank">🌐 Pääsivu ↗</a>
     <a href="/mokki.html" target="_blank">🏡 Mökkiläinen ↗</a>
     <a href="/vierailija.html" target="_blank">🌿 Vierailija ↗</a>
-    <a href="/dashboard.html" target="_blank">📺 Dashboard ↗</a>
     <a href="/tietosuoja.html" target="_blank">🔒 Tietosuoja ↗</a>
   </nav>
 
@@ -169,7 +168,6 @@ textarea.inp{resize:vertical;min-height:72px}
         <div class="stat-box"><div class="stat-num" id="st-asukkaat">—</div><div class="stat-label">ASUKASTA</div></div>
         <div class="stat-box"><div class="stat-num" id="st-vikat-avoin">—</div><div class="stat-label">VIKAA AUKI</div></div>
         <div class="stat-box"><div class="stat-num" id="st-tiedotteet">—</div><div class="stat-label">TIEDOTETTA</div></div>
-        <div class="stat-box"><div class="stat-num" id="st-vesipisteet">—</div><div class="stat-label">VESIPISTETTÄ</div></div>
       </div>
       <div class="card"><div class="card-title">🔧 Avoimet vikailmoitukset</div><div id="dash-vikat"></div></div>
     </div>
@@ -849,7 +847,7 @@ function updateStats(){
   document.getElementById('st-asukkaat').textContent=_data.asukkaat.length;
   document.getElementById('st-vikat-avoin').textContent=_data.vikat.filter(v=>v.tila==='avoin').length;
   document.getElementById('st-tiedotteet').textContent=_data.tiedotteet.length;
-  document.getElementById('st-vesipisteet').textContent=_data.vesipisteet.length;
+  
   const open=_data.vikat.filter(v=>v.tila!=='ratkaistu').slice(0,5);
   const dv=document.getElementById('dash-vikat');
   if(!open.length){dv.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0">Ei avoimia vikailmoituksia ✓</div>';return;}
