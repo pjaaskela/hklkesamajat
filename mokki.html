@@ -898,7 +898,7 @@ body { padding-top: 48px; }
                     <div style="font-size:0.82rem;font-weight:700;color:#78350f;">Lipas pukuhuoneessa</div>
                   </div>
                 </div>
-                <div onclick="var el=this;navigator.clipboard.writeText('24434').then(function(){el.querySelector('.mp-copied').style.display='inline';setTimeout(function(){try{el.querySelector('.mp-copied').style.display='none'}catch(e){}},2000);})" style="background:rgba(255,255,255,0.7);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;flex:1;min-width:140px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(90,49,244,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.7)'">
+                <div onclick="navigator.clipboard.writeText('24434');showMpGuide()" style="background:rgba(255,255,255,0.7);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;flex:1;min-width:140px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(90,49,244,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.7)'">
                   <div style="width:30px;height:30px;background:#5a31f4;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 3H7C4.79 3 3 4.79 3 7v10c0 2.21 1.79 4 4 4h10c2.21 0 4-1.79 4-4V7c0-2.21-1.79-4-4-4z" fill="#fff"/><path d="M15.5 12.5l-2.3-4c-.2-.4-.7-.5-1.1-.3l-2 1.2c-.4.2-.5.7-.3 1.1l2.3 4c.2.4.7.5 1.1.3l2-1.2c.4-.2.5-.7.3-1.1z" fill="#5a31f4"/></svg>
                   </div>
@@ -3075,6 +3075,21 @@ function toggleSectionPanel() {
 }
 </script>
 <script src="https://jaaskel.com/hkl-i18n.js" defer></script>
+<div id="mp-guide" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:16px;padding:28px 24px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="font-size:2.5rem;margin-bottom:8px;">💳</div>
+    <div style="font-size:1.1rem;font-weight:800;color:#5a31f4;margin-bottom:16px;">MobilePay #24434</div>
+    <div style="font-size:0.85rem;color:#22c55e;font-weight:700;margin-bottom:18px;">✓ Numero kopioitu leikepöydälle!</div>
+    <div style="text-align:left;font-size:0.88rem;line-height:2;color:#333;">
+      <div><strong>1.</strong> Avaa <strong>MobilePay</strong>-sovellus</div>
+      <div><strong>2.</strong> Valitse <strong>Lähetä rahaa</strong></div>
+      <div><strong>3.</strong> Liitä numero <strong>24434</strong></div>
+      <div><strong>4.</strong> Syötä summa ja lähetä</div>
+    </div>
+    <button onclick="document.getElementById('mp-guide').style.display='none'" style="margin-top:20px;padding:12px 32px;border:none;background:#5a31f4;color:#fff;border-radius:10px;font-weight:700;font-size:0.9rem;cursor:pointer;">Selvä!</button>
+  </div>
+</div>
+<script>function showMpGuide(){document.getElementById('mp-guide').style.display='flex';}</script>
 <script src="https://jaaskel.com/hkl-search.js" defer></script>
 <script src="https://jaaskel.com/hkl-analytics-v2.js" defer></script>
 </body>
