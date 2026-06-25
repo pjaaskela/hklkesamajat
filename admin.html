@@ -345,6 +345,11 @@ textarea.inp{resize:vertical;min-height:72px}
           <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:var(--amber);display:inline-block"></span> huolto</span>
           <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:var(--red);display:inline-block"></span> hallitus/admin</span>
         </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="bulkSetAccess('asukas')">🏡 Kaikki → asukas</button>
+          <button class="btn btn-ghost btn-sm" onclick="bulkSetAccess('hallitus')">🏛️ Kaikki → hallitus</button>
+        </div>
+        <div class="msg" id="bulk-access-msg"></div>
       </div>
       <div id="doc-list"></div>
     </div>
@@ -1262,6 +1267,31 @@ const ROLE_HIERARCHY=['kaikki','asukas','venevastaava','huolto','hallitus','admi
 async function setDocAccess(id,level){
   const r=await fetch(API_BASE+'/api/hkl/documents/'+id+'/access',{method:'PUT',headers:ah(),body:JSON.stringify({access_level:level})});
   if(!r.ok)alert('Virhe: '+r.status);
+}
+async function bulkSetAccess(level) {
+  if (!_data.docs || !_data.docs.length) { showMsg('bulk-access-msg','❌ Ei dokumentteja ladattu',false); return; }
+  const skipExt=['.DS_Store'];
+  const eligible = _data.docs.filter(d => {
+    const t = d.title || '';
+    if (t === '.DS_Store' || t.startsWith('IMG_')) return false;
+    return (d.access_level || 'kaikki') !== level;
+  });
+  if (!eligible.length) { showMsg('bulk-access-msg','✅ Kaikki dokumentit ovat jo tasolla: ' + level, true); return; }
+  if (!confirm('Asetetaan ' + eligible.length + ' dokumentin pääsytasoksi "' + level + '"?')) return;
+  const msg = document.getElementById('bulk-access-msg');
+  msg.textContent = '⏳ Päivitetään... 0/' + eligible.length;
+  msg.style.color = 'var(--amber)';
+  let ok = 0, fail = 0;
+  for (const d of eligible) {
+    try {
+      const r = await fetch(API_BASE + '/api/hkl/documents/' + d.id + '/access', {method:'PUT', headers:ah(), body:JSON.stringify({access_level:level})});
+      if (r.ok) ok++; else fail++;
+    } catch(e) { fail++; }
+    msg.textContent = '⏳ Päivitetään... ' + (ok+fail) + '/' + eligible.length;
+  }
+  msg.textContent = '✅ Valmis: ' + ok + ' päivitetty' + (fail ? ', ' + fail + ' epäonnistui' : '');
+  msg.style.color = 'var(--green)';
+  loadDocs();
 }
 async function triggerSync(){
   showMsg('sync-msg','⏳ Synkronoidaan...',true);
