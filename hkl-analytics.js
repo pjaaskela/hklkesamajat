@@ -26,7 +26,7 @@
 
   document.addEventListener('click', function(e) {
     var el = e.target.closest('a, button, .role-card, .card, .service-card, .glass-pill');
-    if (!el || el.closest('#hkl-beta-modal')) return;
+    if (!el || el.closest('#hkl-fb-modal')) return;
     var label = el.textContent.trim().substring(0, 80);
     var tag = el.tagName.toLowerCase();
     if (el.href) label = (el.title || el.innerText || '').trim().substring(0, 80) + ' → ' + el.href.substring(0, 100);
@@ -37,34 +37,30 @@
     }));
   });
 
-  // Beta feedback banner (22.6.–29.6.2026)
-  var now = new Date();
-  var start = new Date('2026-06-22T00:00:00+03:00');
-  var end = new Date('2026-06-30T00:00:00+03:00');
-  if (now >= start && now < end && !page.includes('admin')) {
+  // Palautebanneri
+  if (!page.includes('admin')) {
     var badge = document.createElement('div');
-    badge.id = 'hkl-beta-badge';
-    badge.innerHTML = '🧪 <span>BETA</span> Anna palautetta';
+    badge.id = 'hkl-fb-badge';
+    badge.innerHTML = '💬 Anna palautetta';
     badge.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;background:linear-gradient(135deg,#0e5c3a,#0a4a6e);color:#fff;padding:10px 18px;border-radius:30px;font-size:0.82rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px;transition:transform .2s;';
-    badge.querySelector('span').style.cssText = 'background:#52b788;color:#0a1a10;padding:2px 8px;border-radius:10px;font-size:0.65rem;letter-spacing:0.08em;';
     badge.onmouseover = function(){this.style.transform='scale(1.05)';};
     badge.onmouseout = function(){this.style.transform='';};
-    badge.onclick = function(){ document.getElementById('hkl-beta-modal').style.display='flex'; };
+    badge.onclick = function(){ document.getElementById('hkl-fb-modal').style.display='flex'; };
     document.body.appendChild(badge);
 
     var modal = document.createElement('div');
-    modal.id = 'hkl-beta-modal';
+    modal.id = 'hkl-fb-modal';
     modal.style.cssText = 'display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;';
     modal.onclick = function(e){if(e.target===this)this.style.display='none';};
     modal.innerHTML = '<div style="background:#fff;border-radius:20px;padding:28px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">'
       + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
-      + '<div style="font-size:1.1rem;font-weight:800;color:#0e5c3a;">🧪 Anna palautetta</div>'
-      + '<button onclick="document.getElementById(\'hkl-beta-modal\').style.display=\'none\'" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#999;">✕</button></div>'
-      + '<p style="font-size:0.85rem;color:#666;margin-bottom:14px;line-height:1.5;">Sivusto on beta-vaiheessa. Kerro mikä toimii, mikä ei tai mitä toivoisit!</p>'
+      + '<div style="font-size:1.1rem;font-weight:800;color:#0e5c3a;">💬 Anna palautetta</div>'
+      + '<button onclick="document.getElementById(\'hkl-fb-modal\').style.display=\'none\'" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#999;">✕</button></div>'
+      + '<p style="font-size:0.85rem;color:#666;margin-bottom:14px;line-height:1.5;">Kerro mikä toimii, mikä ei tai mitä toivoisit!</p>'
       + '<textarea id="hkl-fb-msg" placeholder="Kirjoita palautteesi tähän..." style="width:100%;min-height:100px;padding:12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:0.9rem;font-family:inherit;resize:vertical;outline:none;" onfocus="this.style.borderColor=\'#52b788\'" onblur="this.style.borderColor=\'#e2e8f0\'"></textarea>'
       + '<input id="hkl-fb-contact" type="text" placeholder="Yhteystieto (valinnainen)" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:0.85rem;margin-top:8px;outline:none;" onfocus="this.style.borderColor=\'#52b788\'" onblur="this.style.borderColor=\'#e2e8f0\'">'
       + '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">'
-      + '<button onclick="document.getElementById(\'hkl-beta-modal\').style.display=\'none\'" style="padding:10px 18px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#666;font-size:0.85rem;cursor:pointer;">Peruuta</button>'
+      + '<button onclick="document.getElementById(\'hkl-fb-modal\').style.display=\'none\'" style="padding:10px 18px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#666;font-size:0.85rem;cursor:pointer;">Peruuta</button>'
       + '<button id="hkl-fb-send" onclick="sendFeedback()" style="padding:10px 22px;border-radius:10px;border:none;background:#0e5c3a;color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer;">Lähetä</button></div>'
       + '<div id="hkl-fb-status" style="font-size:0.8rem;margin-top:8px;min-height:1.2em;text-align:center;"></div></div>';
     document.body.appendChild(modal);
@@ -84,7 +80,7 @@
           status.textContent = '✓ Kiitos palautteestasi!';
           document.getElementById('hkl-fb-msg').value = '';
           document.getElementById('hkl-fb-contact').value = '';
-          setTimeout(function(){ document.getElementById('hkl-beta-modal').style.display='none'; status.textContent=''; }, 2000);
+          setTimeout(function(){ document.getElementById('hkl-fb-modal').style.display='none'; status.textContent=''; }, 2000);
         } else { status.style.color='#f87171'; status.textContent='Virhe — yritä uudelleen'; }
       }).catch(function(){ status.style.color='#f87171'; status.textContent='Verkkovirhe'; });
     };
