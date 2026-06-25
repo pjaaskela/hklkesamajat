@@ -317,9 +317,18 @@ textarea.inp{resize:vertical;min-height:72px}
     <div id="sec-dokumentit" class="sec-page">
       <div class="page-title">📄 Dokumentit &amp; Drive</div>
       <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
           <div class="card-title" style="margin-bottom:0">Google Drive -synkronointi</div>
-          <button class="btn btn-primary btn-sm" onclick="triggerSync()">🔄 Synkronoi nyt</button>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:11px;color:var(--muted);font-family:var(--mono);">Uusien taso:</label>
+            <select class="inp" id="sync-default-level" style="width:auto;padding:4px 8px;font-size:11px;min-width:100px;">
+              <option value="hallitus" selected>🏛️ Hallitus</option>
+              <option value="asukas">🏡 Asukas</option>
+              <option value="kaikki">🌐 Kaikki</option>
+              <option value="admin">🔑 Admin</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="triggerSync()">🔄 Synkronoi nyt</button>
+          </div>
         </div>
         <div class="stats-row" style="margin-bottom:0">
           <div class="stat-box"><div class="stat-num" id="doc-count">—</div><div class="stat-label">DOKUMENTTIA</div></div>
@@ -1257,9 +1266,10 @@ async function setDocAccess(id,level){
 async function triggerSync(){
   showMsg('sync-msg','⏳ Synkronoidaan...',true);
   try{
-    const r=await fetch(API_BASE+'/api/hkl/drive-sync',{method:'POST',headers:ah()});
+    const defaultLevel=document.getElementById('sync-default-level').value||'hallitus';
+    const r=await fetch(API_BASE+'/api/hkl/drive-sync',{method:'POST',headers:{...ah(),'Content-Type':'application/json'},body:JSON.stringify({default_access_level:defaultLevel})});
     const d=await r.json();
-    if(r.ok){showMsg('sync-msg','✅ Valmis!',true);loadDocs();}
+    if(r.ok){showMsg('sync-msg','✅ Valmis! Uusien taso: '+defaultLevel,true);loadDocs();}
     else showMsg('sync-msg','❌ Virhe: '+JSON.stringify(d),false);
   }catch(e){showMsg('sync-msg','❌ '+e.message,false);}
 }
