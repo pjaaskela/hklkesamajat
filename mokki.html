@@ -1435,26 +1435,26 @@ body { padding-top: 48px; }
       </div>
       <div class="card-body card-collapse-body" style="display:none;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="int-grid">
-          <label class="section-toggle-item" id="int-lammitys" data-interest="lammitys" onclick="toggleInterest('lammitys', this.querySelector('.interest-toggle'))">
+          <div class="section-toggle-item" id="int-lammitys" data-interest="lammitys" onclick="toggleInterest('lammitys', this.querySelector('.interest-toggle'))">
             <span style="font-size:1.1rem;">🔥</span><span style="flex:1;font-size:0.75rem;">Lämmitys</span>
             <button class="interest-toggle" style="font-size:0.65rem;padding:3px 8px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;color:var(--text-muted);cursor:pointer;">👍</button>
-          </label>
-          <label class="section-toggle-item" id="int-kamera" data-interest="kamera" onclick="toggleInterest('kamera', this.querySelector('.interest-toggle'))">
+          </div>
+          <div class="section-toggle-item" id="int-kamera" data-interest="kamera" onclick="toggleInterest('kamera', this.querySelector('.interest-toggle'))">
             <span style="font-size:1.1rem;">📹</span><span style="flex:1;font-size:0.75rem;">Kamera</span>
             <button class="interest-toggle" style="font-size:0.65rem;padding:3px 8px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;color:var(--text-muted);cursor:pointer;">👍</button>
-          </label>
-          <label class="section-toggle-item" id="int-aurinkopaneeli" data-interest="aurinkopaneeli" onclick="toggleInterest('aurinkopaneeli', this.querySelector('.interest-toggle'))">
+          </div>
+          <div class="section-toggle-item" id="int-aurinkopaneeli" data-interest="aurinkopaneeli" onclick="toggleInterest('aurinkopaneeli', this.querySelector('.interest-toggle'))">
             <span style="font-size:1.1rem;">☀️</span><span style="flex:1;font-size:0.75rem;">Aurinkopaneeli</span>
             <button class="interest-toggle" style="font-size:0.65rem;padding:3px 8px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;color:var(--text-muted);cursor:pointer;">👍</button>
-          </label>
-          <label class="section-toggle-item" id="int-sahko" data-interest="sahko" onclick="toggleInterest('sahko', this.querySelector('.interest-toggle'))">
+          </div>
+          <div class="section-toggle-item" id="int-sahko" data-interest="sahko" onclick="toggleInterest('sahko', this.querySelector('.interest-toggle'))">
             <span style="font-size:1.1rem;">⚡</span><span style="flex:1;font-size:0.75rem;">Sähköseuranta</span>
             <button class="interest-toggle" style="font-size:0.65rem;padding:3px 8px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;color:var(--text-muted);cursor:pointer;">👍</button>
-          </label>
-          <label class="section-toggle-item" id="int-sensorit" data-interest="sensorit" onclick="toggleInterest('sensorit', this.querySelector('.interest-toggle'))">
+          </div>
+          <div class="section-toggle-item" id="int-sensorit" data-interest="sensorit" onclick="toggleInterest('sensorit', this.querySelector('.interest-toggle'))">
             <span style="font-size:1.1rem;">📡</span><span style="flex:1;font-size:0.75rem;">Live-sensorit</span>
             <button class="interest-toggle" style="font-size:0.65rem;padding:3px 8px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;color:var(--text-muted);cursor:pointer;">👍</button>
-          </label>
+          </div>
         </div>
         <div style="font-size:0.68rem;color:var(--text-muted);margin-top:8px;">Ei sido mihinkään — keräämme kiinnostusta suunnittelua varten.</div>
       </div>
@@ -2314,7 +2314,10 @@ function openIlmoitus(kategoria) {
   document.getElementById('ilmoitus-otsikko').focus();
 }
 
+let _ilmoitusThrottle=0;
 async function sendIlmoitus() {
+  if(Date.now()-_ilmoitusThrottle<3000)return;
+  _ilmoitusThrottle=Date.now();
   const otsikko = document.getElementById('ilmoitus-otsikko').value.trim();
   const kuvaus = document.getElementById('ilmoitus-kuvaus').value.trim();
   const kategoria = document.getElementById('ilmoitus-kategoria').value;
@@ -2407,7 +2410,10 @@ async function deleteMyEvent(eid, title) {
   loadEvents();
 }
 
+let _rsvpThrottle=0;
 async function toggleRsvp(eid) {
+  if(Date.now()-_rsvpThrottle<2000)return;
+  _rsvpThrottle=Date.now();
   try {
     const r = await fetch(API_BASE + '/api/hkl/events/' + eid + '/rsvp', {
       method: 'POST', headers: {'X-Hkl-Token': _hklToken}
@@ -3001,7 +3007,10 @@ function loadInterestStates(interests) {
   });
 }
 
+let _interestThrottle=0;
 async function toggleInterest(key, btn) {
+  if(Date.now()-_interestThrottle<2000)return;
+  _interestThrottle=Date.now();
   _interests[key] = !_interests[key];
   const card = document.getElementById('int-' + key);
 
