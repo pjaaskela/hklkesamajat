@@ -797,7 +797,7 @@ async function changeAdminPw(){
   }catch(e){msg.textContent='❌ Verkkovirhe';msg.style.color='var(--red)';}
 }
 
-function loadAll(){loadSensors();loadVikat();loadTiedotteet();loadLaituriHist();loadVesipisteet();loadMokit();loadDocs();}
+function loadAll(){loadSensors();loadVikat();loadTiedotteet();loadLaituriHist();loadMokit();loadDocs();}
 
 const HKL_PAGES=['index','vierailija','mokki','admin','dashboard','info','hklkesamajat','hklkesamajat-vierailija','hklkesamajat-mokki','hklkesamajat-admin'];
 function isHkl(page){return HKL_PAGES.some(p=>page===p)||page.includes('hklkesamajat');}
@@ -1027,6 +1027,7 @@ async function loadMokit() {
   try {
     _data.mokkit = await fetch(API_BASE+'/api/hkl/cottages', {headers: ah()}).then(r=>r.json());
     renderMokit();
+    updateStats();
   } catch(e) {}
 }
 function renderMokit(){
