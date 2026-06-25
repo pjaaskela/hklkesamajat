@@ -2047,14 +2047,23 @@ async function loadMokkiDocs() {
     const headers = {};
     if (_hklToken) headers['X-Hkl-Token'] = _hklToken;
     const docs = await fetch(API_BASE + '/api/hkl/documents', {headers}).then(r => r.json());
-    if (!docs.length) {
+    const filtered = docs.filter(d => {
+      const t = d.title || '';
+      if (t === '.DS_Store') return false;
+      if (t.startsWith('IMG_')) return false;
+      if (/^\d{3}-.*-lahi\.jpg$/.test(t)) return false;
+      if (/^\d{3}-.*-kauko\.jpg$/.test(t)) return false;
+      if (/^\d{3}-.*\.jpg$/.test(t) && (d.access_level||'') === 'huolto') return false;
+      return true;
+    });
+    if (!filtered.length) {
       el.innerHTML = '<div style="text-align:center;padding:10px;color:var(--text-muted);font-size:0.82rem;">Ei dokumentteja saatavilla.</div>';
       if (countEl) countEl.textContent = '';
       return;
     }
-    if (countEl) countEl.textContent = docs.length + ' kpl';
+    if (countEl) countEl.textContent = filtered.length + ' kpl';
     const grouped = {};
-    docs.forEach(d => {
+    filtered.forEach(d => {
       const f = d.parent_folder || 'Yleiset';
       if (!grouped[f]) grouped[f] = [];
       grouped[f].push(d);

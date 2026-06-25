@@ -281,6 +281,7 @@ textarea.inp{resize:vertical;min-height:72px}
           <option value="huolto">🔧 Huolto</option>
           <option value="hallitus">🏛️ Hallitus</option>
           <option value="admin">🔑 Admin</option>
+          <option value="ulkopuolinen">🚫 Ulkopuolinen</option>
         </select>
       </div>
     </div>
@@ -302,6 +303,7 @@ textarea.inp{resize:vertical;min-height:72px}
       <option value="asukas">Asukkaat</option>
       <option value="registered">Rekisteröityneet</option>
       <option value="pending">Odottavat</option>
+      <option value="ulkopuolinen">Ulkopuoliset</option>
     </select>
     <button class="btn btn-primary btn-sm" onclick="massInvite('all')">📨 Lähetä kaikille</button>
     <button class="btn btn-ghost btn-sm" onclick="massInvite('hallitus')">📨 Hallitukselle</button>
@@ -1021,8 +1023,8 @@ async function addVesipiste(){
 async function delVesipiste(id){if(!confirm('Poistetaan piste?'))return;const r=await fetch(API_BASE+'/api/hkl/vesipiste/'+id,{method:'DELETE',headers:ah()});if(r.ok)loadVesipisteet();}
 
 
-const ROOLI_LABELS={asukas:'🏡 Asukas',venevastaava:'⛵ Venevastaava',huolto:'🔧 Huolto',hallitus:'🏛️ Hallitus',admin:'🔑 Admin'};
-const ROOLI_COLORS={asukas:'var(--green)',venevastaava:'#a78bfa',huolto:'var(--amber)',hallitus:'var(--red)',admin:'var(--red)'};
+const ROOLI_LABELS={asukas:'🏡 Asukas',venevastaava:'⛵ Venevastaava',huolto:'🔧 Huolto',hallitus:'🏛️ Hallitus',admin:'🔑 Admin',ulkopuolinen:'🚫 Ulkopuolinen'};
+const ROOLI_COLORS={asukas:'var(--green)',venevastaava:'#a78bfa',huolto:'var(--amber)',hallitus:'var(--red)',admin:'var(--red)',ulkopuolinen:'#6b7280'};
 async function loadMokit() {
   try {
     _data.mokkit = await fetch(API_BASE+'/api/hkl/cottages', {headers: ah()}).then(r=>r.json());
@@ -1038,6 +1040,8 @@ function renderMokit(){
   else if(filter==='asukas') rows=rows.filter(c=>(c.rooli||'asukas')==='asukas');
   else if(filter==='registered') rows=rows.filter(c=>c.password_changed);
   else if(filter==='pending') rows=rows.filter(c=>!c.password_changed);
+  else if(filter==='ulkopuolinen') rows=rows.filter(c=>(c.rooli||'asukas')==='ulkopuolinen');
+  else rows=rows.filter(c=>(c.rooli||'asukas')!=='ulkopuolinen');
   const el=document.getElementById('mokki-grid');
   if(!rows.length){el.innerHTML=`<div class="tbl-empty" style="grid-column:1/-1">${q?'Ei hakutuloksia':'Ei mökkejä rekisterissä'}</div>`;return;}
   el.innerHTML=rows.map(c=>{
@@ -1083,7 +1087,7 @@ function renderMokit(){
           ${pwInfo}
         </div>
         <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
-          <button class="btn btn-ghost btn-sm" onclick="openInvite('${esc(c.number)}','${esc(c.email||'')}')" title="${registered?'Salasanan nollauslinkki':'Kutsulinkki'}">${registered?'🔄':'📨'}</button>
+          ${rooli!=='ulkopuolinen'?`<button class="btn btn-ghost btn-sm" onclick="openInvite('${esc(c.number)}','${esc(c.email||'')}')" title="${registered?'Salasanan nollauslinkki':'Kutsulinkki'}">${registered?'🔄':'📨'}</button>`:''}
           <button class="btn btn-ghost btn-sm" onclick="editMokki('${esc(c.number)}')">✏️</button>
           <button class="btn btn-danger btn-sm" onclick="delMokki('${esc(c.number)}')">🗑</button>
         </div>
@@ -1549,7 +1553,7 @@ async function loadAdminEvents() {
 }
 
 async function massInvite(target) {
-  let cottages = _data.mokkit;
+  let cottages = _data.mokkit.filter(c => (c.rooli||'asukas') !== 'ulkopuolinen');
   if (target === 'hallitus') cottages = cottages.filter(c => (c.rooli||'asukas') === 'hallitus');
   else if (target === 'pending') cottages = cottages.filter(c => !c.password || c.password.startsWith('hkl'));
   const withEmail = cottages.filter(c => c.email);
