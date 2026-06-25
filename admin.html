@@ -128,6 +128,15 @@ textarea.inp{resize:vertical;min-height:72px}
     <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doLogin()">Kirjaudu sisään</button>
     <div id="login-err"></div>
   </div>
+  <div id="reset-card" class="login-card" style="display:none;margin-top:16px;">
+    <div class="login-icon">🔑</div>
+    <h2>Luo uusi salasana</h2>
+    <p>Vähintään 12 merkkiä.</p>
+    <div style="margin-bottom:8px"><input class="inp" id="reset-pw1" type="password" placeholder="Uusi salasana"></div>
+    <div style="margin-bottom:12px"><input class="inp" id="reset-pw2" type="password" placeholder="Vahvista salasana" onkeydown="if(event.key==='Enter')confirmReset()"></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="confirmReset()">Tallenna salasana</button>
+    <div id="reset-err" style="font-size:12px;margin-top:10px;"></div>
+  </div>
 </div>
 
 <div id="admin-wrap" style="display:none">
@@ -436,6 +445,12 @@ textarea.inp{resize:vertical;min-height:72px}
           <span id="adm-pw-msg" style="margin-left:10px;font-size:12px;"></span>
         </div>
       </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div class="card-head">📨 Lähetä salasanan nollauslinkki</div>
+        <div id="admin-users-list" style="margin-top:10px;"></div>
+        <div id="admin-reset-msg" style="font-size:12px;margin-top:8px;"></div>
+      </div>
     </div>
 
     <!-- SIVUSTON ASETUKSET -->
@@ -739,6 +754,7 @@ function nav(sec){
   if(sec==='dokumentit')loadDocs();
   if(sec==='ilmoitukset')loadListings();
   if(sec==='vesiverkko')loadWaterNetwork();
+  if(sec==='omatili')renderAdminUsers();
   if(sec==='tapahtumat')loadAdminEvents();
   if(sec==='analytics')loadAnalytics();
   if(sec==='asetukset')loadSiteSettings();
@@ -1545,6 +1561,37 @@ async function massInvite(target) {
   msg.style.color = 'var(--green)';
 }
 
+const ADMIN_USERS_DATA=[
+  {u:'lauri',n:'Lauri Hackman'},{u:'juha',n:'Juha Sivula'},{u:'markku',n:'Markku Matilainen'},
+  {u:'jari',n:'Jari Gröhn'},{u:'aki',n:'Aki Rinne'},{u:'jyrki',n:'Jyrki Luokkanen'},
+  {u:'raija',n:'Raija Hermansson'},{u:'henrietta',n:'Henrietta Ikonen'}
+];
+
+function renderAdminUsers(){
+  document.getElementById('admin-users-list').innerHTML=ADMIN_USERS_DATA.map(a=>
+    `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border2);">
+      <span style="font-size:13px;">${a.n} <span style="color:var(--muted);font-size:11px;">(${a.u})</span></span>
+      <button class="btn btn-ghost btn-sm" onclick="sendAdminReset('${a.u}','${a.n}')">🔑 Nollaa</button>
+    </div>`
+  ).join('');
+}
+
+let _admResetThrottle=0;
+async function sendAdminReset(username,name){
+  if(Date.now()-_admResetThrottle<5000)return;
+  _admResetThrottle=Date.now();
+  if(!confirm('Lähetetään salasanan nollauslinkki: '+name+'?'))return;
+  const msg=document.getElementById('admin-reset-msg');
+  msg.textContent='Lähetetään...';msg.style.color='var(--muted)';
+  try{
+    const r=await fetch(API_BASE+'/api/hkl/admin-reset/'+username,{method:'POST',headers:ah()});
+    const d=await r.json();
+    if(d.email_sent) msg.textContent='✅ Nollauslinkki lähetetty: '+d.email;
+    else msg.textContent='⚠️ Linkki: '+d.reset_url+' (sähköposti ei lähtenyt)';
+    msg.style.color=d.email_sent?'var(--green)':'var(--amber)';
+  }catch(e){msg.textContent='❌ Virhe';msg.style.color='var(--red)';}
+}
+
 async function loadAnalytics(){
   try{
     const d=await fetch(API_BASE+'/api/hkl/stats',{headers:{'X-Api-Key':_token}}).then(r=>r.json());
@@ -1625,6 +1672,24 @@ function activateAdmin(tok, label) {
   document.getElementById('user-tag').textContent=label||'● kirjautunut';
   loadAll();setInterval(loadSensors,30000);
 }
+async function confirmReset(){
+  const pw1=document.getElementById('reset-pw1').value;
+  const pw2=document.getElementById('reset-pw2').value;
+  const msg=document.getElementById('reset-err');
+  if(pw1.length<12){msg.textContent='❌ Vähintään 12 merkkiä';msg.style.color='var(--red)';return;}
+  if(pw1!==pw2){msg.textContent='❌ Salasanat eivät täsmää';msg.style.color='var(--red)';return;}
+  const token=new URLSearchParams(window.location.search).get('reset');
+  try{
+    const r=await fetch(API_BASE+'/api/hkl/admin-reset-confirm',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,new_password:pw1})});
+    if(r.ok){msg.textContent='✅ Salasana vaihdettu! Kirjaudu sisään.';msg.style.color='var(--green)';
+      window.history.replaceState({},'',window.location.pathname);
+      document.getElementById('reset-card').style.display='none';
+    }else{const d=await r.json().catch(()=>({}));msg.textContent='❌ '+(d.detail||'Virhe');msg.style.color='var(--red)';}
+  }catch(e){msg.textContent='❌ Verkkovirhe';msg.style.color='var(--red)';}
+}
+
+const resetToken=new URLSearchParams(window.location.search).get('reset');
+if(resetToken){document.getElementById('login-screen').querySelector('.login-card').style.display='none';document.getElementById('reset-card').style.display='block';}
 const saved=sessionStorage.getItem('hkl_admin_token');
 if(saved){activateAdmin(saved);}
 </script>
