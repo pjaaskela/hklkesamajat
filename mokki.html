@@ -1620,7 +1620,10 @@ function toggleProfileEdit() {
   edit.style.display = edit.style.display === 'none' ? 'block' : 'none';
 }
 
+let _saveProfileThrottle=0;
 async function saveProfile() {
+  if(Date.now()-_saveProfileThrottle<3000)return;
+  _saveProfileThrottle=Date.now();
   if (!_hklToken) return;
   const body = {
     name: document.getElementById('set-name').value.trim(),
@@ -1686,7 +1689,10 @@ function checkPwStrength(pw) {
   return null;
 }
 
+let _changePwThrottle=0;
 async function changePassword() {
+  if(Date.now()-_changePwThrottle<3000)return;
+  _changePwThrottle=Date.now();
   const cur = document.getElementById('pw-current').value;
   const np = document.getElementById('pw-new').value;
   const np2 = document.getElementById('pw-confirm').value;
@@ -1912,7 +1918,10 @@ async function applySiteSettings() {
 
 // ========== PASSWORD RESET ==========
 function showResetForm() { document.getElementById('reset-form').style.display = ''; }
+let _resetThrottle=0;
 async function sendReset() {
+  if(Date.now()-_resetThrottle<5000)return;
+  _resetThrottle=Date.now();
   const email = document.getElementById('reset-email').value.trim();
   const msg = document.getElementById('reset-msg');
   if (!email) { msg.textContent = 'Syötä sähköpostiosoite'; return; }
@@ -1928,7 +1937,10 @@ async function sendReset() {
 }
 
 // ========== LOGIN ==========
+let _loginThrottle=0;
 async function doLogin(autoNum, autoPass) {
+  if(Date.now()-_loginThrottle<2000)return;
+  _loginThrottle=Date.now();
   const num = autoNum || document.getElementById('login-num').value.trim();
   const pass = autoPass || document.getElementById('login-pass').value;
   const err = document.getElementById('login-error');
@@ -2382,7 +2394,10 @@ function openEventForm(editEvent) {
   document.getElementById('ev-title').focus();
 }
 
+let _submitEventThrottle=0;
 async function submitEvent() {
+  if(Date.now()-_submitEventThrottle<3000)return;
+  _submitEventThrottle=Date.now();
   const title = document.getElementById('ev-title').value.trim();
   const msg = document.getElementById('ev-msg');
   if (!title) { msg.textContent = '❌ Otsikko vaaditaan'; msg.style.color = '#ef4444'; return; }
@@ -2620,7 +2635,10 @@ function deletePhoto(idx) {
 
 // ========== LAITURI ==========
 const LAITURI_KEY = 'jaaskel2026';
+let _laituriThrottle=0;
 async function submitLaituri() {
+  if(Date.now()-_laituriThrottle<3000)return;
+  _laituriThrottle=Date.now();
   const temp = parseFloat(document.getElementById('laituri-temp').value);
   const name = (document.getElementById('laituri-name').value || '').trim();
   const msg = document.getElementById('laituri-msg');

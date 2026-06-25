@@ -748,7 +748,10 @@ function nav(sec){
   return false;
 }
 
+let _admLoginThrottle=0;
 async function doLogin(){
+  if(Date.now()-_admLoginThrottle<2000)return;
+  _admLoginThrottle=Date.now();
   const user=document.getElementById('admin-user').value.trim().toLowerCase();
   const pass=document.getElementById('admin-pass').value.trim();
   const err=document.getElementById('login-err');
@@ -1085,7 +1088,10 @@ async function delMokki(num){
   const r=await fetch(API_BASE+'/api/hkl/cottage/'+num,{method:'DELETE',headers:ah()});
   if(r.ok)loadMokit();
 }
+let _saveMokkiThrottle=0;
 async function saveMokki() {
+  if(Date.now()-_saveMokkiThrottle<3000)return;
+  _saveMokkiThrottle=Date.now();
   const number=v('m-num'),password=v('m-pass'),name=v('m-name'),rooli=v('m-rooli'),email=v('m-email'),puh=v('m-puh'),kuvaus=v('m-kuvaus');
   if(!number){showMsg('m-msg','❌ Anna mökin numero',false);return;}
   const body={number,name,rooli,email,puh,kuvaus};
@@ -1465,7 +1471,10 @@ async function saveSiteSettings() {
   setTimeout(() => { document.getElementById('set-msg').textContent = ''; }, 3000);
 }
 
+let _addEventThrottle=0;
 async function addEvent() {
+  if(Date.now()-_addEventThrottle<3000)return;
+  _addEventThrottle=Date.now();
   const title = v('evt-title'), date = v('evt-date'), time = v('evt-time'), loc = v('evt-location'), desc = v('evt-desc'), max = parseInt(v('evt-max') || '0');
   if (!title || !date) { showMsg('evt-msg', '❌ Otsikko ja päivämäärä vaaditaan', false); return; }
   const r = await fetch(API_BASE+'/api/hkl/events', {method:'POST', headers:ah(), body:JSON.stringify({title, event_date:date, event_time:time, location:loc, description:desc, max_participants:max})});
