@@ -2048,33 +2048,29 @@ async function loadMokkiDocs() {
     if (_hklToken) headers['X-Hkl-Token'] = _hklToken;
     const raw = await fetch(API_BASE + '/api/hkl/documents', {headers}).then(r => r.json());
     const docs = Array.isArray(raw) ? raw : [];
-    const MOKKI_FOLDERS = ['Oppaat ja ohjeet','Rakennustapaohjeet','Grillikatoksen riippulukko','Kaupanteko','Vieraslajitietopaketti','Kesämajalaisen opas','Muita ohjeistuksia','Arkisto','Toimintakertomukset'];
-    const STATIC_TITLES = ['Yhdistyksen säännöt 2010', 'Järjestyssäännöt 2014', 'Rakentamistapaohje', 'Maalisävyjen vastaavuudet'];
-    const filtered = docs.filter(d => {
-      const t = d.title || '';
-      if (t === '.DS_Store') return false;
-      if (t.startsWith('IMG_')) return false;
-      if (t.endsWith('.DS_Store')) return false;
-      if (/^\d{3}-.*\.jpg$/.test(t)) return false;
-      if (!MOKKI_FOLDERS.includes(d.parent_folder || '')) return false;
-      if (STATIC_TITLES.includes(t)) return false;
-      return true;
-    });
+    function isMokkiDoc(d) {
+      const t = (d.title || '').toLowerCase();
+      if (t.startsWith('toimintakertomus')) return true;
+      if (t.startsWith('kymp-kirje')) return true;
+      if (t.includes('kesämajalaisen')) return true;
+      if (t.includes('rakentamistapaohjeet') || t.includes('rakentamistapaohje')) return true;
+      if (t.includes('lauttasaaren_kesamajat')) return true;
+      if (t.includes('riippulukon ohje')) return true;
+      if (t.includes('kaupanteko ja uuden')) return true;
+      if (t.includes('vieraslaji')) return true;
+      return false;
+    }
+    const filtered = docs.filter(d => isMokkiDoc(d));
     if (!filtered.length) {
       el.innerHTML = '<div style="text-align:center;padding:10px;color:var(--text-muted);font-size:0.82rem;">Ei dokumentteja saatavilla.</div>';
       if (countEl) countEl.textContent = '';
       return;
     }
     if (countEl) countEl.textContent = filtered.length + ' kpl';
-    const grouped = {};
-    filtered.forEach(d => {
-      const f = d.parent_folder || 'Yleiset';
-      if (!grouped[f]) grouped[f] = [];
-      grouped[f].push(d);
-    });
     let html = '';
-    for (const [folder, items] of Object.entries(grouped)) {
-      html += `<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:6px;">📁 ${folder}</div>`;
+    {
+      const items = filtered;
+      html += `<div style="margin-bottom:12px;">`;
       items.forEach(d => {
         const size = d.file_size ? (d.file_size > 1048576 ? (d.file_size/1048576).toFixed(1)+' MB' : (d.file_size/1024).toFixed(0)+' KB') : '';
         html += `<div onclick="openDoc(${d.id},'${d.title.replace(/'/g,"\\'")}')" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:var(--sand);margin-bottom:6px;cursor:pointer;color:var(--text);transition:background .15s;" onmouseover="this.style.background='#e8ede9'" onmouseout="this.style.background='var(--sand)'">

@@ -1234,38 +1234,24 @@ async function loadDocs(){
   }catch(e){console.warn('loadDocs',e);document.getElementById('doc-list').innerHTML='<div class="card"><div class="tbl-empty">Dokumenttien lataus epäonnistui: '+esc(e.message)+'</div></div>';}
 }
 function setDocView(view,el){_docView=view;document.querySelectorAll('#doc-view-tabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderDocs();}
-function filterDocs(docs){
-  return docs.filter(d=>{
-    const t=d.title||'';
-    if(t==='.DS_Store'||t.endsWith('.DS_Store'))return false;
-    if(t.startsWith('IMG_'))return false;
-    if(/^\d{3}-.*\.jpg$/.test(t))return false;
-    return true;
-  });
-}
 function renderDocs(){
   const el=document.getElementById('doc-list');
-  const allClean=filterDocs(_data.docs);
-  const mokkiDocs=allClean.filter(d=>MOKKI_FOLDERS.includes(d.parent_folder||''));
-  const STATIC_TITLES=['Yhdistyksen säännöt 2010','Järjestyssäännöt 2014','Rakentamistapaohje','Maalisävyjen vastaavuudet'];
-  const mokkiFiltered=mokkiDocs.filter(d=>!STATIC_TITLES.includes(d.title||''));
-  const viewDocs=_docView==='mokkilaiset'?mokkiFiltered:allClean;
-  const folderCounts={};
-  _data.docs.forEach(d=>{const f=d.parent_folder||'(ei kansiota)';folderCounts[f]=(folderCounts[f]||0)+1;});
-  const folderInfo=Object.entries(folderCounts).map(([f,c])=>`${f}: ${c}`).join(' | ');
-  const countInfo=`<div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-family:var(--mono)">API: ${_data.docs.length} kpl | Suodatettu: ${allClean.length} kpl | Näytetään: ${viewDocs.length} kpl | Mökkiläiset: ${mokkiFiltered.length} kpl<br>Kansiot: ${folderInfo}</div>`;
-  if(!viewDocs.length){el.innerHTML=countInfo+'<div class="card"><div class="tbl-empty">Ei dokumentteja tässä näkymässä. Kokeile "Kaikki dokumentit" -välilehteä.</div></div>';return;}
+  const all=_data.docs.filter(d=>(d.title||'')!=='.DS_Store');
+  const mokki=all.filter(d=>isMokkiDoc(d));
+  const viewDocs=_docView==='mokkilaiset'?mokki:all;
+  const countInfo=`<div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-family:var(--mono)">API: ${_data.docs.length} | Mökkiläiset: ${mokki.length} | Näytetään: ${viewDocs.length}</div>`;
+  if(!viewDocs.length){el.innerHTML=countInfo+'<div class="card"><div class="tbl-empty">Ei dokumentteja. Kokeile "Kaikki dokumentit" tai aja "Palauta dokumentit".</div></div>';return;}
   const grouped={};
-  viewDocs.forEach(d=>{const f=d.parent_folder||'Yleiset';if(!grouped[f])grouped[f]=[];grouped[f].push(d);});
+  viewDocs.forEach(d=>{const f=isMokkiDoc(d)?'Mökkiläisten dokumentit':'Muut';if(!grouped[f])grouped[f]=[];grouped[f].push(d);});
   let html=countInfo;
   for(const[folder,docs]of Object.entries(grouped)){
-    const isMokkiFolder=MOKKI_FOLDERS.includes(folder);
-    html+=`<div class="card"><div class="card-title">📁 ${esc(folder)}${isMokkiFolder?' <span style="font-size:10px;color:var(--green);font-weight:400;">● näkyy mökkiläisille</span>':' <span style="font-size:10px;color:var(--muted);font-weight:400;">○ vain hallitus</span>'}</div><table class="tbl"><thead><tr><th>TIEDOSTO</th><th>KOKO</th><th>PÄÄSYTASO</th><th>MUOKATTU</th><th></th></tr></thead><tbody>`;
+    const isMokki=folder==='Mökkiläisten dokumentit';
+    html+=`<div class="card"><div class="card-title">${isMokki?'🏡':'📁'} ${esc(folder)}${isMokki?' <span style="font-size:10px;color:var(--green);font-weight:400;">● näkyy mökkiläisille</span>':' <span style="font-size:10px;color:var(--muted);font-weight:400;">○ vain hallitus</span>'}</div><table class="tbl"><thead><tr><th>TIEDOSTO</th><th>KOKO</th><th>PÄÄSYTASO</th><th>MUOKATTU</th><th></th></tr></thead><tbody>`;
     docs.forEach(d=>{
       const al=d.access_level||'kaikki';
       const size=d.file_size?(d.file_size>1048576?(d.file_size/1048576).toFixed(1)+' MB':(d.file_size/1024).toFixed(0)+' KB'):'—';
       html+=`<tr>
-        <td><strong>${esc(d.title)}</strong><div style="font-size:10px;color:var(--muted);font-family:var(--mono)">${esc(d.mime_type)}</div></td>
+        <td><strong>${esc(d.title||'(nimetön)')}</strong><div style="font-size:10px;color:var(--muted);font-family:var(--mono)">${esc(d.mime_type||'')}</div></td>
         <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${size}</td>
         <td><select class="inp" style="padding:4px 8px;font-size:11px;min-width:120px" onchange="setDocAccess(${d.id},this.value)">
           ${ROLE_HIERARCHY.map(r=>`<option value="${r}"${r===al?' selected':''}>${r}</option>`).join('')}
@@ -1308,17 +1294,31 @@ async function bulkSetAccess(level) {
   loadDocs();
 }
 const MOKKI_FOLDERS = ['Oppaat ja ohjeet','Rakennustapaohjeet','Grillikatoksen riippulukko','Kaupanteko','Vieraslajitietopaketti','Kesämajalaisen opas','Muita ohjeistuksia','Arkisto','Toimintakertomukset'];
+function isMokkiDoc(d) {
+  if (d.parent_folder && MOKKI_FOLDERS.includes(d.parent_folder)) return true;
+  const t = (d.title || '').toLowerCase();
+  if (t.startsWith('toimintakertomus')) return true;
+  if (t.startsWith('kymp-kirje')) return true;
+  if (t.includes('kesämajalaisen')) return true;
+  if (t.includes('rakentamistapaohjeet') || t.includes('rakentamistapaohje')) return true;
+  if (t.includes('lauttasaaren_kesamajat')) return true;
+  if (t.includes('riippulukon ohje')) return true;
+  if (t.includes('kaupanteko ja uuden')) return true;
+  if (t.includes('vieraslaji')) return true;
+  return false;
+}
 async function setMokkiDocs() {
   if (!_data.docs || !_data.docs.length) { showMsg('bulk-access-msg','❌ Ei dokumentteja ladattu',false); return; }
   const realDocs = _data.docs.filter(d => {
     const t = d.title || '';
     return t !== '.DS_Store' && !t.startsWith('IMG_');
   });
-  const toAsukas = realDocs.filter(d => MOKKI_FOLDERS.includes(d.parent_folder||'') && (d.access_level||'kaikki') !== 'asukas');
-  const toHallitus = realDocs.filter(d => !MOKKI_FOLDERS.includes(d.parent_folder||'') && (d.access_level||'kaikki') !== 'hallitus');
+  const toAsukas = realDocs.filter(d => isMokkiDoc(d) && (d.access_level||'kaikki') !== 'asukas');
+  const toHallitus = realDocs.filter(d => !isMokkiDoc(d) && (d.access_level||'kaikki') !== 'hallitus');
+  const mokkiTitles = realDocs.filter(d => isMokkiDoc(d)).map(d => d.title);
   const total = toAsukas.length + toHallitus.length;
   if (!total) { showMsg('bulk-access-msg','✅ Pääsytasot ovat jo oikein', true); return; }
-  if (!confirm('Mökkiläisille (asukas): ' + toAsukas.length + ' kpl\n→ ' + MOKKI_FOLDERS.join(', ') + '\n\nVain hallitus: ' + toHallitus.length + ' kpl\n\nJatketaanko?')) return;
+  if (!confirm('Mökkiläisille (asukas): ' + toAsukas.length + ' kpl\n→ ' + mokkiTitles.join('\n→ ') + '\n\nVain hallitus: ' + toHallitus.length + ' kpl\n\nJatketaanko?')) return;
   const msg = document.getElementById('bulk-access-msg');
   let ok = 0, fail = 0, done = 0;
   msg.textContent = '⏳ Päivitetään... 0/' + total;
@@ -1337,7 +1337,7 @@ async function setMokkiDocs() {
     } catch(e) { fail++; }
     msg.textContent = '⏳ Päivitetään... ' + (++done) + '/' + total;
   }
-  msg.textContent = '✅ Valmis: ' + MOKKI_FOLDERS.join(' + ') + ' → asukas, muu → hallitus' + (fail ? ' (' + fail + ' epäonnistui)' : '');
+  msg.textContent = '✅ Valmis: ' + mokkiTitles.length + ' mökkiläisille, ' + toHallitus.length + ' hallitukselle' + (fail ? ' (' + fail + ' epäonnistui)' : '');
   msg.style.color = 'var(--green)';
   loadDocs();
 }
@@ -1358,10 +1358,10 @@ async function rescueDocs(){
   const statusR=await fetch(API_BASE+'/api/hkl/drive-status').then(r=>r.json()).catch(()=>({}));
   const total=statusR.document_count||0;
   if(!total){showMsg('sync-msg','❌ Ei dokumentteja tietokannassa',false);return;}
-  if(!confirm('Vaihe 1: Tehdään kaikki '+total+' dokumenttia näkyviksi (kaikki)\nVaihe 2: Asetetaan oikeat pääsytasot kansion mukaan\n\nSkannataan ID:t 1–600. Jatketaanko?'))return;
+  if(!confirm('Vaihe 1: Tehdään kaikki '+total+' dokumenttia näkyviksi\nVaihe 2: Asetetaan oikeat pääsytasot\n\nSkannataan ID:t 1–1000. Jatketaanko?'))return;
   const msg=document.getElementById('sync-msg');
   msg.style.color='var(--amber)';msg.textContent='⏳ Vaihe 1: Skannataan dokumentteja...';
-  let found=0,maxId=Math.max(total+100,600);
+  let found=0,maxId=Math.max(total*2,1000);
   for(let id=1;id<=maxId;id++){
     try{
       const r=await fetch(API_BASE+'/api/hkl/documents/'+id+'/access',{method:'PUT',headers:ah(),body:JSON.stringify({access_level:'kaikki'})});
