@@ -2046,7 +2046,8 @@ async function loadMokkiDocs() {
   try {
     const headers = {};
     if (_hklToken) headers['X-Hkl-Token'] = _hklToken;
-    const docs = await fetch(API_BASE + '/api/hkl/documents', {headers}).then(r => r.json());
+    const raw = await fetch(API_BASE + '/api/hkl/documents', {headers}).then(r => r.json());
+    const docs = Array.isArray(raw) ? raw : [];
     const MOKKI_FOLDERS = ['Yleiset', 'Toiminta'];
     const STATIC_TITLES = ['Yhdistyksen säännöt 2010', 'Järjestyssäännöt 2014', 'Rakentamistapaohje', 'Maalisävyjen vastaavuudet'];
     const filtered = docs.filter(d => {
