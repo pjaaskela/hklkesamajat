@@ -40,7 +40,7 @@
       {text:'Hallitus — puheenjohtaja, sihteeri, taloudenhoitaja, laiturivastaava, vesiverkkovastaava', type:'vierailija', href:'vierailija.html'},
       {text:'Asiakirjat — yhdistyksen säännöt, järjestyssäännöt, rakentamistapaohje, maalisävyt, kauppakirjapohja', type:'vierailija', href:'vierailija.html'},
       {text:'Historia — historiikki 1932-1992, raitiotietyöläisten virkistyspaikasta kesämajayhteisöksi', type:'vierailija', href:'vierailija.html'},
-      {text:'Venepaikat — laituripaikat, hinnat 200€/300€, laiturivastaava Jyrki Luokkanen', type:'vierailija', href:'vierailija.html'},
+      {text:'Venepaikat — laituripaikat, hinnat 200€/330€, laiturivastaava Jyrki Luokkanen', type:'vierailija', href:'vierailija.html'},
       {text:'Kannatusmaksu — MobilePay #24434, tue yhdistystä', type:'vierailija', href:'vierailija.html'},
       {text:'Lähipalvelut — Kesäkahvila Buffetti, julkinen liikenne, Koivusaari metro', type:'vierailija', href:'vierailija.html'},
       {text:'Media & uutiset — mediaseuranta, Länsiulapanniemi, HKL-Kesämajat', type:'vierailija', href:'vierailija.html'},

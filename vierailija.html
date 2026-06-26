@@ -772,11 +772,11 @@ footer strong { color: white; }
         <p style="font-size:0.85rem;color:rgba(255,255,255,0.75);line-height:1.6;margin-bottom:14px;">HKL-Kesämajat ry:n venelaiturit sijaitsevat suojaisassa sijainnissa Länsiulapanniemessä. Merellinen sijainti, helppo pääsy vesille ja turvallinen säilytys.</p>
         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
           <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px 16px;text-align:center;">
-            <div style="font-size:1.4rem;font-weight:900;color:#4ade80;">200€</div>
+            <div id="vp-hinta-asukas" style="font-size:1.4rem;font-weight:900;color:#4ade80;">200€</div>
             <div style="font-size:0.68rem;color:rgba(255,255,255,0.6);">mökkiläinen / kausi</div>
           </div>
           <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px 16px;text-align:center;">
-            <div style="font-size:1.4rem;font-weight:900;color:#93c5fd;">300€</div>
+            <div id="vp-hinta-ulkopuolinen" style="font-size:1.4rem;font-weight:900;color:#93c5fd;">330€</div>
             <div style="font-size:0.68rem;color:rgba(255,255,255,0.6);">ulkopuolinen / kausi</div>
           </div>
         </div>
@@ -1480,6 +1480,11 @@ Promise.allSettled([
 });
 setTimeout(loadAlgae, 2000);
 setTimeout(checkApiHealth, 10000);
+
+fetch(API_BASE + '/api/hkl/site-settings').then(r => r.json()).then(s => {
+  if (s.venepaikka_asukas) document.getElementById('vp-hinta-asukas').textContent = s.venepaikka_asukas + '€';
+  if (s.venepaikka_ulkopuolinen) document.getElementById('vp-hinta-ulkopuolinen').textContent = s.venepaikka_ulkopuolinen + '€';
+}).catch(() => {});
 
 renderBuffettiStatus();
 setInterval(loadHSL, 60_000);
