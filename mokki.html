@@ -2542,7 +2542,7 @@ function saunaGuestsSet(n) { _saunaGuests = n; updateSaunaGuests(); }
 
 // ========== ILMOITUKSET (vikailmoitukset) ==========
 const KATEGORIA_LABELS = {vikailmoitus:'🔧 Vikailmoitus',vesiverkko:'💧 Vesiverkko',laituri:'⚓ Laituri',muu:'💬 Muu'};
-const TILA_BADGE = {avoin:'<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:0.68rem;font-weight:600;">Avoin</span>',käsittelyssä:'<span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:10px;font-size:0.68rem;font-weight:600;">Käsittelyssä</span>',valmis:'<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:10px;font-size:0.68rem;font-weight:600;">Valmis</span>'};
+const TILA_BADGE = {avoin:'<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:0.68rem;font-weight:600;">Avoin</span>',kasittelyssa:'<span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:10px;font-size:0.68rem;font-weight:600;">Käsittelyssä</span>',ratkaistu:'<span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:10px;font-size:0.68rem;font-weight:600;">Ratkaistu</span>'};
 
 function openIlmoitus(kategoria) {
   document.getElementById('ilmoitus-form').style.display = '';
@@ -2862,7 +2862,6 @@ function deletePhoto(idx) {
 }
 
 // ========== LAITURI ==========
-const LAITURI_KEY = 'jaaskel2026';
 let _laituriThrottle=0;
 async function submitLaituri() {
   if(Date.now()-_laituriThrottle<3000)return;
@@ -2876,7 +2875,7 @@ async function submitLaituri() {
   try {
     const r = await fetch(API_BASE + '/api/hkl/laituri', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Api-Key': LAITURI_KEY },
+      headers: { 'Content-Type': 'application/json', 'X-Hkl-Token': SESSION_TOKEN || '' },
       body: JSON.stringify({ temp, name, note: '' })
     });
     if (r.ok) {

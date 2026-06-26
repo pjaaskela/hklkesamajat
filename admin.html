@@ -943,11 +943,17 @@ function renderAsukkaat(){
 async function addAsukas(){
   const body={palsta:v('a-palsta'),nimi:v('a-nimi'),email:v('a-email'),puh:v('a-puh'),lisatiedot:v('a-lisatiedot')};
   if(!body.palsta||!body.nimi){showMsg('a-msg','❌ Anna palsta ja nimi',false);return;}
-  const r=await fetch(API_BASE+'/api/hkl/asukas',{method:'POST',headers:ah(),body:JSON.stringify(body)});
-  if(r.ok){['a-palsta','a-nimi','a-email','a-puh','a-lisatiedot'].forEach(id=>document.getElementById(id).value='');showMsg('a-msg','✅ Lisätty!',true);loadAsukkaat();}
-  else showMsg('a-msg','❌ Virhe '+r.status,false);
+  try{
+    const r=await fetch(API_BASE+'/api/hkl/asukas',{method:'POST',headers:ah(),body:JSON.stringify(body)});
+    if(r.ok){['a-palsta','a-nimi','a-email','a-puh','a-lisatiedot'].forEach(id=>document.getElementById(id).value='');showMsg('a-msg','✅ Lisätty!',true);loadAsukkaat();}
+    else showMsg('a-msg','❌ Virhe '+r.status,false);
+  }catch(e){showMsg('a-msg','❌ Verkkovirhe',false);}
 }
-async function delAsukas(id,nimi){if(!confirm(`Poistetaan "${nimi}"?`))return;const r=await fetch(API_BASE+'/api/hkl/asukas/'+id,{method:'DELETE',headers:ah()});if(r.ok)loadAsukkaat();}
+async function delAsukas(id,nimi){
+  if(!confirm(`Poistetaan "${nimi}"?`))return;
+  try{const r=await fetch(API_BASE+'/api/hkl/asukas/'+id,{method:'DELETE',headers:ah()});if(r.ok)loadAsukkaat();else alert('Virhe '+r.status);}
+  catch(e){alert('Verkkovirhe: '+e.message);}
+}
 function openEdit(id){const a=_data.asukkaat.find(x=>x.id===id);if(!a)return;['id','palsta','nimi','email','puh','lisatiedot'].forEach(f=>document.getElementById('edit-'+f).value=a[f]||'');document.getElementById('edit-modal').classList.add('open');}
 function closeModal(){document.getElementById('edit-modal').classList.remove('open');}
 async function saveEdit(){
@@ -969,12 +975,23 @@ function renderVikat(){
 async function addVika(){
   const body={otsikko:v('v-otsikko'),kuvaus:v('v-kuvaus'),sijainti:v('v-sijainti')};
   if(!body.otsikko){showMsg('v-msg','❌ Anna otsikko',false);return;}
-  const r=await fetch(API_BASE+'/api/hkl/vika',{method:'POST',headers:ah(),body:JSON.stringify(body)});
-  if(r.ok){['v-otsikko','v-kuvaus','v-sijainti'].forEach(id=>document.getElementById(id).value='');showMsg('v-msg','✅ Kirjattu!',true);loadVikat();}
-  else showMsg('v-msg','❌ Virhe '+r.status,false);
+  try{
+    const r=await fetch(API_BASE+'/api/hkl/vika',{method:'POST',headers:ah(),body:JSON.stringify(body)});
+    if(r.ok){['v-otsikko','v-kuvaus','v-sijainti'].forEach(id=>document.getElementById(id).value='');showMsg('v-msg','✅ Kirjattu!',true);loadVikat();}
+    else showMsg('v-msg','❌ Virhe '+r.status,false);
+  }catch(e){showMsg('v-msg','❌ Verkkovirhe',false);}
 }
-async function setVikaTila(id,tila){const vika=_data.vikat.find(x=>x.id===id);if(!vika)return;const body={otsikko:vika.otsikko,kuvaus:vika.kuvaus||'',sijainti:vika.sijainti||'',tila};const r=await fetch(API_BASE+'/api/hkl/vika/'+id,{method:'PUT',headers:ah(),body:JSON.stringify(body)});if(r.ok)loadVikat();}
-async function delVika(id){if(!confirm('Poistetaan vikailmoitus?'))return;const r=await fetch(API_BASE+'/api/hkl/vika/'+id,{method:'DELETE',headers:ah()});if(r.ok)loadVikat();}
+async function setVikaTila(id,tila){
+  const vika=_data.vikat.find(x=>x.id===id);if(!vika)return;
+  const body={otsikko:vika.otsikko,kuvaus:vika.kuvaus||'',sijainti:vika.sijainti||'',tila};
+  try{const r=await fetch(API_BASE+'/api/hkl/vika/'+id,{method:'PUT',headers:ah(),body:JSON.stringify(body)});if(r.ok)loadVikat();}
+  catch(e){alert('Verkkovirhe: '+e.message);}
+}
+async function delVika(id){
+  if(!confirm('Poistetaan vikailmoitus?'))return;
+  try{const r=await fetch(API_BASE+'/api/hkl/vika/'+id,{method:'DELETE',headers:ah()});if(r.ok)loadVikat();}
+  catch(e){alert('Verkkovirhe: '+e.message);}
+}
 
 async function loadTiedotteet(){try{_data.tiedotteet=await fetch(API_BASE+'/api/hkl/announcements').then(r=>r.json());renderTiedotteet();updateStats();}catch(e){}}
 function renderTiedotteet(){
@@ -985,11 +1002,17 @@ function renderTiedotteet(){
 async function addTiedote(){
   const body={title:v('t-title'),body:v('t-body')};
   if(!body.title||!body.body){showMsg('t-msg','❌ Anna otsikko ja teksti',false);return;}
-  const r=await fetch(API_BASE+'/api/hkl/announcement',{method:'POST',headers:ah(),body:JSON.stringify(body)});
-  if(r.ok){['t-title','t-body'].forEach(id=>document.getElementById(id).value='');showMsg('t-msg','✅ Julkaistu!',true);loadTiedotteet();}
-  else showMsg('t-msg','❌ Virhe '+r.status,false);
+  try{
+    const r=await fetch(API_BASE+'/api/hkl/announcement',{method:'POST',headers:ah(),body:JSON.stringify(body)});
+    if(r.ok){['t-title','t-body'].forEach(id=>document.getElementById(id).value='');showMsg('t-msg','✅ Julkaistu!',true);loadTiedotteet();}
+    else showMsg('t-msg','❌ Virhe '+r.status,false);
+  }catch(e){showMsg('t-msg','❌ Verkkovirhe',false);}
 }
-async function delTiedote(id){if(!confirm('Poistetaan tiedote?'))return;const r=await fetch(API_BASE+'/api/hkl/announcement/'+id,{method:'DELETE',headers:ah()});if(r.ok)loadTiedotteet();}
+async function delTiedote(id){
+  if(!confirm('Poistetaan tiedote?'))return;
+  try{const r=await fetch(API_BASE+'/api/hkl/announcement/'+id,{method:'DELETE',headers:ah()});if(r.ok)loadTiedotteet();}
+  catch(e){alert('Verkkovirhe: '+e.message);}
+}
 
 async function loadLaituriHist(){
   try{
@@ -1257,7 +1280,7 @@ function renderDocs(){
           ${ROLE_HIERARCHY.map(r=>`<option value="${r}"${r===al?' selected':''}>${r}</option>`).join('')}
         </select></td>
         <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${fmtDt(d.drive_modified)}</td>
-        <td><a href="${API_BASE}/api/hkl/documents/${d.id}/download" class="btn btn-ghost btn-sm" target="_blank">📥</a></td>
+        <td><button class="btn btn-ghost btn-sm" onclick="downloadDoc(${d.id},'${esc(d.title)}')">📥</button></td>
       </tr>`;
     });
     html+='</tbody></table></div>';
@@ -1265,6 +1288,16 @@ function renderDocs(){
   el.innerHTML=html;
 }
 const ROLE_HIERARCHY=['kaikki','asukas','venevastaava','huolto','hallitus','admin'];
+async function downloadDoc(id,title){
+  try{
+    const r=await fetch(API_BASE+'/api/hkl/documents/'+id+'/download',{headers:ah()});
+    if(!r.ok){alert('Lataus epäonnistui: '+r.status);return;}
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=title;a.click();
+    URL.revokeObjectURL(url);
+  }catch(e){alert('Verkkovirhe: '+e.message);}
+}
 async function setDocAccess(id,level){
   const r=await fetch(API_BASE+'/api/hkl/documents/'+id+'/access',{method:'PUT',headers:ah(),body:JSON.stringify({access_level:level})});
   if(!r.ok)alert('Virhe: '+r.status);
