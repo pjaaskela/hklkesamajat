@@ -2048,7 +2048,7 @@ async function loadMokkiDocs() {
     if (_hklToken) headers['X-Hkl-Token'] = _hklToken;
     const raw = await fetch(API_BASE + '/api/hkl/documents', {headers}).then(r => r.json());
     const docs = Array.isArray(raw) ? raw : [];
-    const MOKKI_FOLDERS = ['Oppaat ja ohjeet','Rakennustapaohjeet','Toimintakertomukset'];
+    const MOKKI_FOLDERS = ['Oppaat ja ohjeet','Rakennustapaohjeet','Grillikatoksen riippulukko','Kaupanteko','Vieraslajitietopaketti','Kesämajalaisen opas','Muita ohjeistuksia','Arkisto','Toimintakertomukset'];
     const STATIC_TITLES = ['Yhdistyksen säännöt 2010', 'Järjestyssäännöt 2014', 'Rakentamistapaohje', 'Maalisävyjen vastaavuudet'];
     const filtered = docs.filter(d => {
       const t = d.title || '';
