@@ -320,6 +320,7 @@ textarea.inp{resize:vertical;min-height:72px}
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
           <div class="card-title" style="margin-bottom:0">Google Drive -synkronointi</div>
           <button class="btn btn-primary btn-sm" onclick="triggerSync()">🔄 Synkronoi nyt</button>
+          <button class="btn btn-ghost btn-sm" onclick="rescueDocs()" style="color:var(--amber);" title="Palauttaa kaikki dokumentit näkyviin asettamalla pääsytason kaikki">🛟 Palauta dokumentit</button>
         </div>
         <div class="stats-row" style="margin-bottom:0">
           <div class="stat-box"><div class="stat-num" id="doc-count">—</div><div class="stat-label">DOKUMENTTIA</div></div>
@@ -1349,6 +1350,25 @@ async function triggerSync(){
       showMsg('sync-msg','❌ Virhe: '+(d.detail||JSON.stringify(d)||r.status),false);
     }
   }catch(e){showMsg('sync-msg','❌ '+e.message,false);}
+}
+async function rescueDocs(){
+  const statusR=await fetch(API_BASE+'/api/hkl/drive-status').then(r=>r.json()).catch(()=>({}));
+  const total=statusR.document_count||0;
+  if(!total){showMsg('sync-msg','❌ Ei dokumentteja tietokannassa',false);return;}
+  if(!confirm('Palautetaan kaikki '+total+' dokumenttia näkyviin asettamalla pääsytasoksi "kaikki".\n\nPaina tämän jälkeen "Aseta mökkiläisten dokumentit" asettaaksesi oikeat tasot.\n\nJatketaanko?'))return;
+  const msg=document.getElementById('sync-msg');
+  msg.style.color='var(--amber)';msg.textContent='⏳ Palautetaan dokumentteja...';
+  let ok=0,fail=0,maxId=Math.max(total+100,600);
+  for(let id=1;id<=maxId;id++){
+    try{
+      const r=await fetch(API_BASE+'/api/hkl/documents/'+id+'/access',{method:'PUT',headers:ah(),body:JSON.stringify({access_level:'kaikki'})});
+      if(r.ok)ok++;
+    }catch(e){}
+    if(id%50===0)msg.textContent='⏳ Palautetaan... '+ok+' löydetty (tarkistettu '+id+'/'+maxId+')';
+  }
+  msg.style.color='var(--green)';msg.textContent='✅ Palautettu '+ok+' dokumenttia! Lataa uudelleen...';
+  await loadDocs();
+  msg.textContent='✅ '+ok+' dokumenttia palautettu. Paina nyt "Aseta mökkiläisten dokumentit".';
 }
 
 async function runDocDiag(){
