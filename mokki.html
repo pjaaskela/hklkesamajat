@@ -2442,9 +2442,9 @@ function renderSaunaCard() {
   }
 
   const SAUNA_SLOTS = {
-    pe: [{s:13,e:15,w:'♀',t:'Naistenvuoro'},{s:15,e:17,w:'♂',t:'Miesvuoro'},{s:17,e:19,w:'♀',t:'Naistenvuoro'},{s:19,e:21,w:'♂',t:'Miesvuoro'}],
-    la: [{s:13,e:15,w:'♂',t:'Miesvuoro'},{s:15,e:17,w:'♀',t:'Naistenvuoro'},{s:17,e:19,w:'♂',t:'Miesvuoro'},{s:19,e:21,w:'♀',t:'Naistenvuoro'}],
-    ti: [{s:13,e:15,w:'♂',t:'Miesvuoro'},{s:15,e:16,w:'♀',t:'Naistenvuoro'},{s:16,e:18,w:'⚥',t:'Sekavuoro'},{s:18,e:19,w:'♂',t:'Miesvuoro'},{s:19,e:21,w:'♀',t:'Naistenvuoro'}]
+    pe: [{s:13,e:15,w:'♀',t:'Naisten vuoro'},{s:15,e:17,w:'♂',t:'Miesten vuoro'},{s:17,e:19,w:'♀',t:'Naisten vuoro'},{s:19,e:21,w:'♂',t:'Miesten vuoro'}],
+    la: [{s:13,e:15,w:'♂',t:'Miesten vuoro'},{s:15,e:17,w:'♀',t:'Naisten vuoro'},{s:17,e:19,w:'♂',t:'Miesten vuoro'},{s:19,e:21,w:'♀',t:'Naisten vuoro'}],
+    ti: [{s:13,e:15,w:'♂',t:'Miesten vuoro'},{s:15,e:16,w:'♀',t:'Naisten vuoro'},{s:16,e:18,w:'⚥',t:'Yhteinen vuoro'},{s:18,e:19,w:'♂',t:'Miesten vuoro'},{s:19,e:21,w:'♀',t:'Naisten vuoro'}]
   };
   const slots = SAUNA_SLOTS[saunaSchedule];
 
@@ -2694,7 +2694,7 @@ async function loadEvents() {
             </div>
             ${ev.description ? `<div style="font-size:0.8rem;color:var(--text);margin-top:6px;line-height:1.5;">${ev.description}</div>` : ''}
             <div style="font-size:0.72rem;color:var(--text-muted);margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-              <span>👥 ${ev.rsvp_count} ilmoittautunut${ev.max_participants > 0 ? ' / ' + ev.max_participants : ''}</span>
+              <span>👥 ${ev.rsvp_count} ilmoittautunutta${ev.max_participants > 0 ? ' / ' + ev.max_participants : ''}</span>
               ${ev.created_by ? '<span>✍️ ' + ev.created_by + '</span>' : ''}
               ${isOwner ? `<span style="display:flex;gap:4px;"><button onclick='openEventForm(${evData})' style="border:none;background:none;color:var(--green);cursor:pointer;font-size:0.72rem;font-weight:600;padding:0;">✏️ Muokkaa</button><button onclick="deleteMyEvent('${ev.id}','${ev.title.replace(/'/g,'')}')" style="border:none;background:none;color:#ef4444;cursor:pointer;font-size:0.72rem;font-weight:600;padding:0;">🗑 Poista</button></span>` : ''}
             </div>
