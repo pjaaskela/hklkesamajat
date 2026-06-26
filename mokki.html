@@ -2489,10 +2489,10 @@ function renderSaunaCard() {
   dayInfo.textContent = 'Tänään sauna käy (' + DAYS[dow] + ')';
   if (activeSlot) {
     liveEl.className = 'sauna-live-badge sauna-active';
-    liveEl.textContent = '🔥 Auki nyt';
+    liveEl.textContent = '🔥 Sauna kuuma';
   } else {
     liveEl.className = 'sauna-live-badge sauna-inactive';
-    liveEl.textContent = tot < 13*60 ? 'Aukeaa 13:00' : 'Vuorot ohi';
+    liveEl.textContent = '❄️ Sauna kylmä';
   }
 
   const listEl = document.getElementById('sauna-slots-list');
