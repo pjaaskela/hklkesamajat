@@ -326,6 +326,11 @@ textarea.inp{resize:vertical;min-height:72px}
           <div class="stat-box"><div class="stat-num" id="doc-sync-status" style="font-size:14px">—</div><div class="stat-label">VIIMEISIN SYNC</div></div>
         </div>
         <div class="msg" id="sync-msg"></div>
+        <details style="margin-top:8px;">
+          <summary style="cursor:pointer;font-size:11px;color:var(--muted);font-family:var(--mono);">🔍 API-diagnostiikka</summary>
+          <div id="doc-debug" style="margin-top:6px;padding:10px;background:var(--bg2);border-radius:8px;font-size:11px;font-family:var(--mono);max-height:300px;overflow:auto;white-space:pre-wrap;"></div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:6px;" onclick="runDocDiag()">Suorita diagnostiikka</button>
+        </details>
       </div>
       <div class="card">
         <div class="card-title">Pääsytasot</div>
@@ -1344,6 +1349,44 @@ async function triggerSync(){
       showMsg('sync-msg','❌ Virhe: '+(d.detail||JSON.stringify(d)||r.status),false);
     }
   }catch(e){showMsg('sync-msg','❌ '+e.message,false);}
+}
+
+async function runDocDiag(){
+  const el=document.getElementById('doc-debug');
+  el.textContent='⏳ Suoritetaan...\n';
+  try{
+    const t0=Date.now();
+    const r1=await fetch(API_BASE+'/api/hkl/documents',{headers:ah()});
+    el.textContent+=`GET /api/hkl/documents → ${r1.status} ${r1.statusText} (${Date.now()-t0}ms)\n`;
+    el.textContent+=`Content-Type: ${r1.headers.get('content-type')}\n`;
+    const raw=await r1.text();
+    el.textContent+=`Response length: ${raw.length} chars\n`;
+    try{
+      const docs=JSON.parse(raw);
+      if(Array.isArray(docs)){
+        el.textContent+=`Tulos: taulukko, ${docs.length} dokumenttia\n\n`;
+        docs.forEach((d,i)=>{el.textContent+=`  ${i+1}. "${d.title}" (folder: ${d.parent_folder||'?'}, access: ${d.access_level||'?'}, id: ${d.id})\n`;});
+      }else{
+        el.textContent+=`Tulos: EI taulukko → ${JSON.stringify(docs,null,2)}\n`;
+      }
+    }catch(pe){el.textContent+=`JSON-parse virhe: ${pe.message}\nRaw: ${raw.substring(0,500)}\n`;}
+    el.textContent+='\n---\n';
+    const t1=Date.now();
+    const r2=await fetch(API_BASE+'/api/hkl/drive-status');
+    const st=await r2.json().catch(()=>({}));
+    el.textContent+=`GET /api/hkl/drive-status → ${r2.status} (${Date.now()-t1}ms)\n`;
+    el.textContent+=JSON.stringify(st,null,2)+'\n';
+    el.textContent+='\n--- Kokeillaan ilman auth ---\n';
+    const t2=Date.now();
+    const r3=await fetch(API_BASE+'/api/hkl/documents');
+    el.textContent+=`GET /api/hkl/documents (no auth) → ${r3.status} (${Date.now()-t2}ms)\n`;
+    const raw3=await r3.text();
+    try{
+      const docs3=JSON.parse(raw3);
+      if(Array.isArray(docs3))el.textContent+=`Tulos: ${docs3.length} dokumenttia\n`;
+      else el.textContent+=`Tulos: ${JSON.stringify(docs3).substring(0,300)}\n`;
+    }catch(pe){el.textContent+=`Raw: ${raw3.substring(0,300)}\n`;}
+  }catch(e){el.textContent+=`Virhe: ${e.message}\n`;}
 }
 
 // --- Ilmoitukset ---
