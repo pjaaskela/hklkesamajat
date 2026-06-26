@@ -479,6 +479,24 @@ textarea.inp{resize:vertical;min-height:72px}
       <div class="page-title">⚙️ Sivuston asetukset</div>
 
       <div class="card" style="margin-bottom:16px;">
+        <div class="card-head">💶 Maksut</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+          <div>
+            <label style="font-size:11px;color:var(--muted);">Venepaikka – asukas (€/kausi)</label>
+            <input class="inp" id="set-hinta-asukas" type="number" placeholder="300" style="margin-top:4px;">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--muted);">Venepaikka – ulkopuolinen (€/kausi)</label>
+            <input class="inp" id="set-hinta-ulkopuolinen" type="number" placeholder="330" style="margin-top:4px;">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--muted);">Saunamaksu (€/vieras)</label>
+            <input class="inp" id="set-saunamaksu" type="number" placeholder="3" style="margin-top:4px;">
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
         <div class="card-head">🧹 Siivousajat</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
           <div>
@@ -1631,6 +1649,9 @@ async function loadSiteSettings() {
   try {
     _siteSettings = await fetch(API_BASE+'/api/hkl/site-settings').then(r=>r.json());
   } catch(e) { _siteSettings = {}; }
+  document.getElementById('set-hinta-asukas').value = _siteSettings.venepaikka_asukas ?? 300;
+  document.getElementById('set-hinta-ulkopuolinen').value = _siteSettings.venepaikka_ulkopuolinen ?? 330;
+  document.getElementById('set-saunamaksu').value = _siteSettings.saunamaksu ?? 3;
   document.getElementById('set-sauna-pre').value = _siteSettings.sauna_clean_pre || 'MA+TO klo 10-12';
   document.getElementById('set-sauna-peak').value = _siteSettings.sauna_clean_peak || 'MA+KE+PE klo 10-12';
   document.getElementById('set-wc-clean').value = _siteSettings.wc_clean || 'MA+TO klo 12-12:30';
@@ -1668,6 +1689,9 @@ async function saveSiteSettings() {
     if (cb && cb.checked) openSections.push(row.dataset.secKey);
   });
   const settings = {
+    venepaikka_asukas: parseInt(document.getElementById('set-hinta-asukas').value) || 300,
+    venepaikka_ulkopuolinen: parseInt(document.getElementById('set-hinta-ulkopuolinen').value) || 330,
+    saunamaksu: parseInt(document.getElementById('set-saunamaksu').value) || 3,
     sauna_clean_pre: document.getElementById('set-sauna-pre').value.trim(),
     sauna_clean_peak: document.getElementById('set-sauna-peak').value.trim(),
     wc_clean: document.getElementById('set-wc-clean').value.trim(),

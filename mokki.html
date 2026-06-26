@@ -937,7 +937,7 @@ body { padding-top: 48px; }
             <div style="font-size:2.2rem;line-height:1;flex-shrink:0;">🧖‍♂️</div>
             <div style="flex:1;">
               <div style="font-weight:800;font-size:0.9rem;color:#92400e;margin-bottom:4px;">Tuotko vieraita saunaan?</div>
-              <p style="font-size:0.82rem;color:#78350f;line-height:1.5;margin:0 0 10px;">Tervetuloa! Saunamaksu on <strong>3 € / vieras</strong>. Samassa taloudessa asuvat ja alle 12-vuotiaat lapset ovat vapautettuja.</p>
+              <p style="font-size:0.82rem;color:#78350f;line-height:1.5;margin:0 0 10px;">Tervetuloa! Saunamaksu on <strong class="sauna-guest-price">3 € / vieras</strong>. Samassa taloudessa asuvat ja alle 12-vuotiaat lapset ovat vapautettuja.</p>
               <!-- Pikavalitsin -->
               <div style="background:rgba(255,255,255,0.8);border-radius:12px;padding:14px;margin-bottom:10px;">
                 <div style="font-size:0.72rem;color:#92400e;font-weight:700;margin-bottom:8px;">PIKAMAKSU — Valitse vieraiden määrä</div>
@@ -2154,6 +2154,14 @@ function removeBgPhoto() {
 async function applySiteSettings() {
   try {
     const s = await fetch(API_BASE + '/api/hkl/site-settings').then(r => r.json());
+    if (s.venepaikka_asukas || s.venepaikka_ulkopuolinen || s.saunamaksu) {
+      if (s.venepaikka_asukas) _hinnat.venepaikka_asukas = s.venepaikka_asukas;
+      if (s.venepaikka_ulkopuolinen) _hinnat.venepaikka_ulkopuolinen = s.venepaikka_ulkopuolinen;
+      if (s.saunamaksu) _hinnat.saunamaksu = s.saunamaksu;
+      renderOpas();
+      document.querySelectorAll('.sauna-guest-price').forEach(el => el.textContent = _hinnat.saunamaksu + ' € / vieras');
+      updateSaunaTotal();
+    }
     if (s.open_sections && s.open_sections.length) {
       document.querySelectorAll('[data-collapse="true"]').forEach(card => {
         const key = card.id.replace('-card','');
@@ -2564,10 +2572,13 @@ async function loadListings() {
 
 // ========== SAUNA GUEST COUNTER ==========
 let _saunaGuests = 3;
+function updateSaunaTotal() {
+  document.getElementById('sauna-guest-total').textContent = (_saunaGuests * _hinnat.saunamaksu) + ' €';
+  document.getElementById('sauna-mp-amount').textContent = _saunaGuests * _hinnat.saunamaksu;
+}
 function updateSaunaGuests() {
   document.getElementById('sauna-guest-count').textContent = _saunaGuests;
-  document.getElementById('sauna-guest-total').textContent = (_saunaGuests * 3) + ' €';
-  document.getElementById('sauna-mp-amount').textContent = _saunaGuests * 3;
+  updateSaunaTotal();
 }
 function saunaGuests(d) { _saunaGuests = Math.max(1, Math.min(10, _saunaGuests + d)); updateSaunaGuests(); }
 function saunaGuestsSet(n) { _saunaGuests = n; updateSaunaGuests(); }
@@ -2768,18 +2779,20 @@ async function openDoc(id, title) {
 }
 
 // ========== KESÄMAJALAISEN OPAS ==========
-const OPAS_DATA = [
+let _hinnat = { venepaikka_asukas: 300, venepaikka_ulkopuolinen: 330, saunamaksu: 3 };
+
+function getOpasData() { return [
   { t: '1. HKL-Kesämajat ry -yhdistys', icon: '🏛️', body: `Yhdistyksen jäseniä ovat kesämajan omistajat eli maanvuokralaiset. Kannatusjäseniä ovat venepaikkalaiset, joilla ei ole omaa kesämajaa.\n\nYhdistyksellä on hallitus, laiturivastaava ja vesivastaava. Päätökset tehdään kevät- ja syyskokouksissa.\n\nYhdistys järjestää kevät-, syys- ja laituritalkoita, juhannus- ja elojuhlat.\n\nYhdistys omistaa grillikatoksen, WC-rakennuksen, jäteaitauksen ja venelaiturit sekä tanssilavan. Saunarakennuksen omistaa HKL.\n\n<b>Huomioita säännöistä:</b>\n• Hiljaisuus klo 23–07 (juhlat klo 24)\n• Rakennustyöt arkisin klo 8–20\n• Rakennuskielto juhannusaatosta heinäkuun loppuun\n• Lemmikit kytkettyinä\n• Avotulen teko kielletty\n• Edelleenvuokraus ehdottomasti kielletty\n• Vain keskitetyn kompostin käyttö sallittu` },
   { t: '2. Kesämajalaisen asema', icon: '📋', body: `Alue on Helsingin kaupungin omistamaa ulkoilualuetta. Järjestyssäännöt ja maanvuokrasopimus sääntelevät mökkielämää. Kesämajalainen omistaa vain mökkinsä, mutta ei piha-aluetta.\n\nOmistamiseen vaaditaan, että omistajat asuvat ja ovat kirjoilla Helsingissä, asuvat samassa taloudessa eivätkä omista entuudestaan kesämajaa/siirtolapuutarhamökkiä.` },
   { t: '3. Kunnossapito ja ympäristö', icon: '🌿', body: `Maanvuokrasopimuksen mukaan kesämaja pidettävä hyvässä kunnossa ja lähiympäristö siistinä ja luonnonmukaisena. Puita ei saa kaataa ja kasvillisuus tulee säilyttää. Ympäristöön ei saa tehdä istutuksia eikä maata muokata.\n\nMultaa ei saa tuoda alueelle ulkopuolelta — vain alueen kompostin tuottamaa multaa.\n\nPihoja ei saa aidata. Remonttiin haettava hallitukselta kirjallinen suostumus.\n\nNuohous vähintään 3 vuoden välein (pelastuslaki).` },
   { t: '4. Kierrätys', icon: '♻️', body: `Talousjätteet lajitellaan jäteaitauksen astioihin: biojäte, kartonki, pahvi, paperi, metalli, lasi, muovipakkaukset ja sekajäte. Jätteet laitetaan astioihin tiiviisti, jotta kustannukset pysyvät kohtuullisina. Sekajäteastian tyhjentäminen on kalleinta, joten kierrättämällä säästämme rahaa.\n\nRakennusjätteet ja kaikki isommat jätteet kukin huolehtii itse Sortti-asemalle.\n\nMaatuvat puutarhajätteet (ei oksia) WC-rakennuksen päätyihin. Parillisina vuosina eteläpäätyyn, parittomina pohjoispäätyyn. Puutarhajätekompostia on hyvä pöyhiä talikolla aina, kun sinne vie uutta puutarhajätettä.\n\nKesämajalainen vastaa risujen ja oksien hävittämisestä itse. Käsittelemätöntä puuta (lautaa/lankkua) voi viedä sopiviksi paloiksi sahattuna grillikatoksen puulaatikkoon.\n\nVieraslajit kitketään juurineen ja viedään sekajäteastiaan tuhottavaksi.\n\n<b>♻️ Kierrätyspiste</b>\nKierrätyspiste on vanhalla taksitolpalla jäteaitauksen läheisyydessä. Kierrätettävien tavaroiden tulee olla ehjiä ja puhtaita, ja niiden pitää mahtua katokseen. Tavaran omistaja vastaa poistamisesta, mikäli uutta omistajaa ei löydy. Jos haluat kierrättää jotain suurta, ilmoita lahjoituksesta ilmoitustaululla. Ilmoitustaulu avataan taulun alareunassa roikkuvalla metallipuikolla.` },
   { t: '5. Pysäköinti', icon: '🅿️', body: `Pysäköinti sallittu ainoastaan pysäköintipaikoilla, ei puistoalueilla. Pidempiaikainen säilytys kielletty poissaollessa. Saunarakennuksen edessä 4 paikkaa eivät ole kesämajalaisten käytössä.` },
-  { t: '6. Venepaikat', icon: '⛵', body: `Venepaikkoja jaettaessa kesämajalaiset ovat etusijalla. Tarkemmat tiedot erillisestä Venepaikan haltijan ohjeesta.` },
+  { t: '6. Venepaikat', icon: '⛵', body: `Venepaikkoja jaettaessa kesämajalaiset ovat etusijalla. Tarkemmat tiedot erillisestä Venepaikan haltijan ohjeesta.\n\n<b>Venepaikkamaksu:</b>\n• Asukas: ${_hinnat.venepaikka_asukas} €/kausi\n• Ulkopuolinen: ${_hinnat.venepaikka_ulkopuolinen} €/kausi` },
   { t: '7. Leikkipaikka', icon: '🧒', body: `Leikkimökki ja hiekkalaatikko lentopallokentän vieressä. Katolle kiipeäminen kielletty, hiekkaa ei sisälle, jäljet siivottava. Lelut ja välineet takaisin paikoilleen.` },
   { t: '8. Nuohous', icon: '🔥', body: `Omistajan huolehdittava nuohouksesta. Pelastuslain mukaan vapaa-ajanasuntojen tulisijat ja hormit nuohotaan vähintään kolmen vuoden välein.` },
   { t: '9. Avotulen teko', icon: '⚠️', body: `Avotulta ei saa sytyttää maastopalovaroituksen aikana. Kevytrakenteisten grillien (kertakäyttö, pienet pallogrillit, risukeittimet) käyttö katsotaan avotulen teoksi.` },
   { t: '10. Kausivesi', icon: '🚿', body: `Vedet avataan vapun tienoilla, suljetaan lokakuun alussa. Sulkemisen jälkeen hanat auki, keväällä ennen avaamista kiinni (jäätymisen esto).\n\nJokainen vastaa omista hanoistaan ja putkistaan. Vuodon sattuessa: sulje lähimmät sulut ja ota yhteyttä vesiverkkovastaavaan.` },
-  { t: '11. Sauna', icon: '🧖', body: `Rakennuksen omistaa Kaupunkiliikenne Oy. Suihkut käytössä kesäkaudella. Suihkuun mennessä avain jätetään ulos merkiksi varauksesta.\n\n<b>Saunamaksu:</b> 3 €/vieras. Vapautettuja: samassa taloudessa asuvat ja alle 12-vuotiaat. Maksu käteisellä tai MobilePaylla.` },
+  { t: '11. Sauna', icon: '🧖', body: `Rakennuksen omistaa Kaupunkiliikenne Oy. Suihkut käytössä kesäkaudella. Suihkuun mennessä avain jätetään ulos merkiksi varauksesta.\n\n<b>Saunamaksu:</b> ${_hinnat.saunamaksu} €/vieras. Vapautettuja: samassa taloudessa asuvat ja alle 12-vuotiaat. Maksu käteisellä tai MobilePaylla.` },
   { t: '12. Verstas', icon: '🔨', body: `WC-rakennuksen päädyssä pieni verstas (vessan avaimella). Siellä myös yhteinen lentopallo ja verkko.` },
   { t: '13. Vessat', icon: '🚻', body: `Käytössä kun kesävesi on päällä. Avain lukkoon oven ulkopuolelle merkiksi varauksesta. Vain eritteet ja vessapaperi pönttöön.` },
   { t: '14. Grillikatos', icon: '🔥', body: `Grillikatos kesämajalaisten käytettävissä. Polttopuulaatikon lukon koodi: <b>1532</b>.` },
@@ -2791,12 +2804,12 @@ const OPAS_DATA = [
   { t: '20. Nettisivut ja Facebook', icon: '🌐', body: `Yhdistyksen sivut: <a href="https://hklkesamajat.fi" target="_blank" style="color:var(--green);font-weight:600;">hklkesamajat.fi</a>\n\nSuljettu Facebook-ryhmä: <a href="https://www.facebook.com/groups/255284816782" target="_blank" style="color:var(--green);font-weight:600;">HKL-kesämajat ry</a> (liittyessä kysytään mökin numeroa).` },
   { t: '21. MobilePay', icon: '💳', body: `Yhdistystili: <b>#24434</b> tai nimellä <i>HKL-kesämajat ry</i>.\n\nMaksukategoriat:\n• Saunamaksu\n• Kannatusmaksu\n• Vesiverkkohuolto` },
   { t: '22. Sovellus puhelimeen', icon: '📱', body: `Tämän palvelun voi asentaa sovelluksena puhelimen tai tietokoneen työpöydälle.\n\n<b>iPhone / iPad (Safari):</b>\n1. Avaa hklkesamajat.fi/mokki.html Safarissa\n2. Paina jakamispainiketta (⬆️) alhaalla\n3. Valitse <i>"Lisää Koti-valikkoon"</i>\n4. Paina <i>Lisää</i>\n\n<b>Android (Chrome):</b>\n1. Avaa hklkesamajat.fi/mokki.html Chromessa\n2. Paina kolmea pistettä (⋮) oikealla ylhäällä\n3. Valitse <i>"Asenna sovellus"</i> tai <i>"Lisää aloitusnäytölle"</i>\n\n<b>Tietokone (Chrome/Edge):</b>\n1. Avaa hklkesamajat.fi/mokki.html\n2. Klikkaa osoitepalkin oikeassa reunassa olevaa asennuskuvaketta (⊕)\n3. Valitse <i>Asenna</i>\n\nSovellus avautuu ilman selaimen osoitepalkkia ja pysyy kirjautuneena.` },
-];
+]; }
 
 function renderOpas() {
   const el = document.getElementById('opas-sections');
   if (!el) return;
-  el.innerHTML = OPAS_DATA.map((s, i) => `
+  el.innerHTML = getOpasData().map((s, i) => `
     <div style="border-bottom:1px solid #f0f0f0;">
       <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.opas-chev').textContent=this.nextElementSibling.style.display==='none'?'▸':'▾'"
            style="display:flex;align-items:center;gap:10px;padding:11px 4px;cursor:pointer;transition:background .15s;border-radius:6px;"
