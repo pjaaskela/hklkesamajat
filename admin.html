@@ -1741,7 +1741,7 @@ async function loadAdminEvents() {
 async function massInvite(target) {
   let cottages = _data.mokkit.filter(c => (c.rooli||'asukas') !== 'ulkopuolinen');
   if (target === 'hallitus') cottages = cottages.filter(c => (c.rooli||'asukas') === 'hallitus');
-  else if (target === 'pending') cottages = cottages.filter(c => !c.password || c.password.startsWith('hkl'));
+  else if (target === 'pending') cottages = cottages.filter(c => !c.password_changed);
   const withEmail = cottages.filter(c => c.email);
   if (!withEmail.length) { document.getElementById('mass-msg').textContent = '❌ Ei mökkejä joilla on sähköposti'; return; }
   const label = target === 'hallitus' ? 'hallituksen jäsenille' : target === 'pending' ? 'odottaville' : 'kaikille';
