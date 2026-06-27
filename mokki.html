@@ -684,7 +684,7 @@ body { padding-top: 48px; }
         <div class="ai-stat"><div class="ai-stat-val" id="md-outdoor">–</div><div class="ai-stat-lbl">Ulkolämpö</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="md-water">–</div><div class="ai-stat-lbl">Vesi</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="md-wind">–</div><div class="ai-stat-lbl">Tuuli</div></div>
-        <div class="ai-stat"><div class="ai-stat-val" id="md-rain">–</div><div class="ai-stat-lbl">Sade</div></div>
+        <div class="ai-stat"><div class="ai-stat-val" id="md-rain">–</div><div class="ai-stat-lbl" id="md-rain-lbl">Sade</div></div>
       </div>
       <div class="md-time" id="mokki-day-time"></div>
     </div>
@@ -3323,7 +3323,14 @@ async function loadMokkiDay() {
     }
     if (rain) {
       const re = document.getElementById('md-rain');
-      if (re) re.textContent = rain.raining ? '🌧 Sataa' : (rain.rain_today_min > 0 ? rain.rain_today_min + ' mm' : 'Ei');
+      const rl = document.getElementById('md-rain-lbl');
+      if (re) re.textContent = rain.raining ? '🌧 Sataa' : (rain.rain_today_min > 0 ? rain.rain_today_min + ' mm' : 'Ei sadetta');
+      if (rl && rain.rain_duration_min > 0) {
+        const dur = rain.rain_duration_min >= 60
+          ? (rain.rain_duration_min / 60).toFixed(1).replace('.0','') + ' h'
+          : rain.rain_duration_min + ' min';
+        rl.textContent = 'Sade · ' + dur;
+      }
     }
     if (laituri && laituri.temp != null) {
       const le = document.getElementById('md-water'); if(le) le.textContent = laituri.temp.toFixed(1) + '°';
