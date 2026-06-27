@@ -1302,16 +1302,25 @@ body { padding-top: 48px; }
             <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">🔒 Vaihda salasana</div>
             <div class="settings-field">
               <label>Nykyinen salasana</label>
-              <input type="password" id="pw-current" class="settings-input" maxlength="100" autocomplete="current-password">
+              <div style="position:relative;">
+                <input type="password" id="pw-current" class="settings-input" maxlength="100" autocomplete="current-password" style="padding-right:36px;">
+                <button type="button" onclick="togglePw('pw-current',this)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;line-height:1;color:#888;">👁</button>
+              </div>
             </div>
             <div class="settings-field">
               <label>Uusi salasana</label>
-              <input type="password" id="pw-new" class="settings-input" maxlength="100" autocomplete="new-password" oninput="pwLiveCheck(this.value)">
+              <div style="position:relative;">
+                <input type="password" id="pw-new" class="settings-input" maxlength="100" autocomplete="new-password" oninput="pwLiveCheck(this.value)" style="padding-right:36px;">
+                <button type="button" onclick="togglePw('pw-new',this)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;line-height:1;color:#888;">👁</button>
+              </div>
               <div id="pw-strength" style="font-size:0.7rem;margin-top:3px;min-height:1em;"></div>
             </div>
             <div class="settings-field">
               <label>Vahvista uusi salasana</label>
-              <input type="password" id="pw-confirm" class="settings-input" maxlength="100" autocomplete="new-password">
+              <div style="position:relative;">
+                <input type="password" id="pw-confirm" class="settings-input" maxlength="100" autocomplete="new-password" style="padding-right:36px;">
+                <button type="button" onclick="togglePw('pw-confirm',this)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;line-height:1;color:#888;">👁</button>
+              </div>
             </div>
             <button class="thermo-save" style="margin-top:8px;" onclick="changePassword()">Vaihda salasana</button>
             <div id="pw-msg" class="thermo-msg"></div>
@@ -1867,6 +1876,11 @@ function handleProfilePhoto(input) {
 }
 
 // ========== PASSWORD CHANGE ==========
+function togglePw(id, btn) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+  btn.textContent = el.type === 'password' ? '👁' : '🙈';
+}
 function pwLiveCheck(pw) {
   const el = document.getElementById('pw-strength');
   if (!el || !pw) { if(el) el.textContent=''; return; }
@@ -2924,7 +2938,7 @@ async function submitLaituri() {
   try {
     const r = await fetch(API_BASE + '/api/hkl/laituri', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Hkl-Token': SESSION_TOKEN || '' },
+      headers: { 'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken || '' },
       body: JSON.stringify({ temp, name, note: '' })
     });
     if (r.ok) {
