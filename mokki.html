@@ -3369,6 +3369,9 @@ async function loadMokkiDay() {
         const ts = document.getElementById('md-temp-stat'); if(ts) ts.style.display = '';
         const te = document.getElementById('md-indoor'); if(te) te.textContent = sensors.indoor_temp.toFixed(1) + '°';
       }
+      const se = document.getElementById('sol-irr'); if(se) se.textContent = sensors.solar_irr != null ? sensors.solar_irr : '–';
+      const sp = document.getElementById('sol-power'); if(sp) sp.textContent = sensors.solar_power != null ? sensors.solar_power : '–';
+      const st = document.getElementById('sol-today'); if(st) st.textContent = sensors.solar_today_wh != null ? sensors.solar_today_wh : '–';
     }
     if (rain) {
       const row = document.getElementById('md-rain-row');
