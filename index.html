@@ -253,7 +253,7 @@ function renderBuffettiStatus() {
 
 async function loadWeatherHero() {
   try {
-    const d=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&timezone=Europe/Helsinki`).then(r=>r.json());
+    const d=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&wind_speed_unit=ms&timezone=Europe/Helsinki`).then(r=>r.json());
     const c=d.current;
     const ico=document.getElementById('h-wx-icon'); if(ico) ico.textContent=WMO_ICONS[c.weather_code]??'🌥️';
     document.getElementById('h-wind').textContent=fmt1(c.wind_speed_10m)+' m/s';
