@@ -3076,22 +3076,11 @@ function updateCamTimestamp() {
 
 // ========== SOLAR PANEL ==========
 async function loadSolar() {
-  const AREA = 2, EFF = 0.20;
   try {
-    const url = 'https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=shortwave_radiation,direct_radiation&hourly=shortwave_radiation&timezone=Europe/Helsinki&forecast_days=1';
-    const r = await fetch(url);
-    const d = await r.json();
-    const irr = d.current ? (d.current.shortwave_radiation || 0) : 0;
-    const power = Math.round(irr * AREA * EFF);
-    const el1 = document.getElementById('sol-irr'); if(el1) el1.textContent = Math.round(irr);
-    const el2 = document.getElementById('sol-power'); if(el2) el2.textContent = power;
-    const hourly = (d.hourly && d.hourly.shortwave_radiation) ? d.hourly.shortwave_radiation : [];
-    const currentHour = new Date().getHours();
-    let todayWh = 0;
-    for (let i = 0; i <= currentHour && i < hourly.length; i++) {
-      todayWh += (hourly[i] || 0) * AREA * EFF;
-    }
-    const el3 = document.getElementById('sol-today'); if(el3) el3.textContent = Math.round(todayWh);
+    const d = await fetch(API_BASE + '/api/hkl/local-sensor').then(r => r.json());
+    const el1 = document.getElementById('sol-irr'); if(el1) el1.textContent = d.solar_irr != null ? d.solar_irr : '–';
+    const el2 = document.getElementById('sol-power'); if(el2) el2.textContent = d.solar_power != null ? d.solar_power : '–';
+    const el3 = document.getElementById('sol-today'); if(el3) el3.textContent = d.solar_today_wh != null ? d.solar_today_wh : '–';
   } catch(e) {
     const el1 = document.getElementById('sol-irr'); if(el1) el1.textContent = '–';
     const el2 = document.getElementById('sol-power'); if(el2) el2.textContent = '–';
