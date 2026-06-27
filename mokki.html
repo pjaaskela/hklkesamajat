@@ -1219,12 +1219,12 @@ body { padding-top: 48px; }
 
 
     <!-- AURINKOPANEELI (collapsed default) -->
-    <div class="card" id="solar-card" data-collapse="true">
+    <div class="card" id="solar-card">
       <div class="card-header" onclick="toggleCardCollapse('solar-card')" style="cursor:pointer;">
         <div class="card-title">☀️ Aurinkopaneeli</div>
-        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▾</span>
       </div>
-      <div class="card-body card-collapse-body" style="display:none;">
+      <div class="card-body card-collapse-body">
         <div class="sensor-grid">
           <div class="sensor-item">
             <div class="sensor-label">⚡ Teho nyt</div>
@@ -3057,7 +3057,7 @@ async function loadAISummary() {
     const [aiData, sensorData, weatherData, rainData] = await Promise.allSettled([
       fetch(API_BASE + '/api/hkl/day-summary').then(r => r.json()),
       fetch(API_BASE + '/api/hkl/local-sensor').then(r => r.json()),
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=temperature_2m,wind_speed_10m&timezone=Europe/Helsinki`).then(r => r.json()),
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=temperature_2m,wind_speed_10m&wind_speed_unit=ms&timezone=Europe/Helsinki`).then(r => r.json()),
       fetch(API_BASE + '/api/hkl/weather-stats').then(r => r.json())
     ]);
     const hero = document.getElementById('ai-hero');
