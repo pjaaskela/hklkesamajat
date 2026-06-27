@@ -3112,7 +3112,7 @@ async function loadAISummary() {
       if (we2 && laituri.temp != null) we2.textContent = laituri.temp.toFixed(1) + '°';
     } catch(e) {}
 
-    hero.style.display = 'block';
+    if (getSectionPrefs()['ai'] !== false) hero.style.display = 'block';
   } catch(e) {}
 }
 
@@ -3537,7 +3537,7 @@ function applySectionVisibility() {
     const el = document.querySelector(s.sel);
     if (!el) return;
     const visible = prefs[s.key] !== false;
-    el.style.display = visible ? '' : 'none';
+    if (!visible) el.style.display = 'none';
   });
 }
 
