@@ -3341,7 +3341,7 @@ async function loadMokkiDay() {
   try {
     const [dayRes, weatherRes, rainRes, laituriRes, sensorsRes] = await Promise.allSettled([
       fetch(API_BASE + '/api/hkl/mokki-day', {headers: {'X-Hkl-Token': _hklToken}}).then(r => r.ok ? r.json() : null),
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=wind_speed_10m&wind_speed_unit=ms&timezone=Europe/Helsinki`).then(r => r.json()).catch(()=>null),
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=temperature_2m,wind_speed_10m&wind_speed_unit=ms&timezone=Europe/Helsinki`).then(r => r.json()).catch(()=>null),
       fetch(API_BASE + '/api/hkl/weather-stats').then(r => r.json()),
       fetch(API_BASE + '/api/hkl/laituri').then(r => r.json()),
       fetch(API_BASE + '/api/hkl/cottage-sensors', {headers: {'X-Hkl-Token': _hklToken}}).then(r => r.json())
@@ -3364,8 +3364,9 @@ async function loadMokkiDay() {
     }
     const sensors = sensorsRes.status === 'fulfilled' ? sensorsRes.value : null;
     if (sensors) {
-      if (sensors.outdoor_temp != null) {
-        const oe = document.getElementById('md-outdoor'); if(oe) oe.textContent = sensors.outdoor_temp.toFixed(1) + '°';
+      const outdoorTemp = sensors.outdoor_temp != null ? sensors.outdoor_temp : (w && w.current ? w.current.temperature_2m : null);
+      if (outdoorTemp != null) {
+        const oe = document.getElementById('md-outdoor'); if(oe) oe.textContent = outdoorTemp.toFixed(1) + '°';
       }
       if (sensors.outdoor_humidity != null) {
         const hs = document.getElementById('md-hum-stat'); if(hs) hs.style.display = '';
