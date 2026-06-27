@@ -304,6 +304,12 @@ textarea.inp{resize:vertical;min-height:72px}
       <option value="registered">Rekisteröityneet</option>
       <option value="pending">Odottavat</option>
       <option value="ulkopuolinen">Ulkopuoliset</option>
+      <option disabled>──────────</option>
+      <option value="int:lammitys">🔥 Lämmitys</option>
+      <option value="int:kamera">📹 Kamera</option>
+      <option value="int:aurinkopaneeli">☀️ Aurinkopaneeli</option>
+      <option value="int:sahko">⚡ Sähkö</option>
+      <option value="int:sensorit">📡 Sensorit</option>
     </select>
     <button class="btn btn-primary btn-sm" onclick="massInvite('all')">📨 Lähetä kaikille</button>
     <button class="btn btn-ghost btn-sm" onclick="massInvite('hallitus')">📨 Hallitukselle</button>
@@ -1110,6 +1116,9 @@ async function loadMokit() {
     updateStats();
   } catch(e) {}
 }
+function _getInterests(c){
+  try{return typeof c.interests==='string'?JSON.parse(c.interests||'{}'):c.interests||{};}catch(e){return {};}
+}
 function renderMokit(){
   const q=(document.getElementById('m-search')?.value||'').toLowerCase();
   const filter=document.getElementById('m-filter')?.value||'';
@@ -1119,7 +1128,11 @@ function renderMokit(){
   else if(filter==='registered') rows=rows.filter(c=>c.password_changed);
   else if(filter==='pending') rows=rows.filter(c=>!c.password_changed);
   else if(filter==='ulkopuolinen') rows=rows.filter(c=>(c.rooli||'asukas')==='ulkopuolinen');
-  else rows=rows.filter(c=>(c.rooli||'asukas')!=='ulkopuolinen');
+  else if(filter.startsWith('int:')){
+    const key=filter.slice(4);
+    rows=rows.filter(c=>_getInterests(c)[key]);
+  } else rows=rows.filter(c=>(c.rooli||'asukas')!=='ulkopuolinen');
+  // Kiinnostussuodatuksessa järjestetään mökin numeron mukaan (jo valmiiksi järjestyksessä API:sta)
   const el=document.getElementById('mokki-grid');
   if(!rows.length){el.innerHTML=`<div class="tbl-empty" style="grid-column:1/-1">${q?'Ei hakutuloksia':'Ei mökkejä rekisterissä'}</div>`;return;}
   el.innerHTML=rows.map(c=>{
@@ -1127,11 +1140,11 @@ function renderMokit(){
     const ownerUrl=API_BASE+'/api/hkl/cottage-owner-photo/'+c.number;
     const rooli=c.rooli||'asukas';
     let interests='';
-    try{const ints=typeof c.interests==='string'?JSON.parse(c.interests||'{}'):c.interests||{};
-      const labels={lammitys:'🔥',kamera:'📹',aurinkopaneeli:'☀️',sahko:'⚡',sensorit:'📡'};
+    {const ints=_getInterests(c);
+      const labels={lammitys:'🔥 Lämmitys',kamera:'📹 Kamera',aurinkopaneeli:'☀️ Aurinkopaneeli',sahko:'⚡ Sähkö',sensorit:'📡 Sensorit'};
       const active=Object.entries(ints).filter(([,v])=>v).map(([k])=>labels[k]||k);
-      if(active.length)interests=`<div style="margin-top:4px;font-size:11px;color:var(--green)">Kiinnostunut: ${active.join(' ')}</div>`;
-    }catch(e){}
+      if(active.length)interests=`<div style="margin-top:4px;font-size:11px;color:var(--green)">Kiinnostunut: ${active.join(' · ')}</div>`;
+    }
     const isDefault = !c.password_changed;
     const registered = !!c.password_changed;
     const statusColor = registered ? 'rgba(52,211,153,0.15)' : 'transparent';
