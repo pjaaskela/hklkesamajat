@@ -497,6 +497,25 @@ textarea.inp{resize:vertical;min-height:72px}
       </div>
 
       <div class="card" style="margin-bottom:16px;">
+        <div class="card-head">📬 Vikailmoitusten reititys</div>
+        <p style="font-size:12px;color:var(--muted);margin:8px 0 10px;">Vikailmoitukset lähetetään sähköpostilla kategoriaan vastuuhenkilölle. Tyhjä = webmaster.</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:grid;grid-template-columns:130px 1fr;align-items:center;gap:8px;">
+            <label style="font-size:12px;color:var(--muted);">💧 Vesiverkko</label>
+            <input class="inp" id="set-email-vesi" type="email" placeholder="vesivastaava@esimerkki.fi" style="font-size:12px;">
+          </div>
+          <div style="display:grid;grid-template-columns:130px 1fr;align-items:center;gap:8px;">
+            <label style="font-size:12px;color:var(--muted);">⚓ Laituri</label>
+            <input class="inp" id="set-email-laituri" type="email" placeholder="laiturivastaava@esimerkki.fi" style="font-size:12px;">
+          </div>
+          <div style="display:grid;grid-template-columns:130px 1fr;align-items:center;gap:8px;">
+            <label style="font-size:12px;color:var(--muted);">🔧 Muu vika</label>
+            <input class="inp" id="set-email-muu" type="email" placeholder="webmaster@hklkesamajat.fi" style="font-size:12px;">
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
         <div class="card-head">🧹 Siivousajat</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
           <div>
@@ -1667,6 +1686,9 @@ async function loadSiteSettings() {
   document.getElementById('set-hinta-asukas').value = _siteSettings.venepaikka_asukas ?? 300;
   document.getElementById('set-hinta-ulkopuolinen').value = _siteSettings.venepaikka_ulkopuolinen ?? 330;
   document.getElementById('set-saunamaksu').value = _siteSettings.saunamaksu ?? 3;
+  document.getElementById('set-email-vesi').value = _siteSettings.email_vesivastaava || '';
+  document.getElementById('set-email-laituri').value = _siteSettings.email_laiturivastaava || '';
+  document.getElementById('set-email-muu').value = _siteSettings.email_muu || '';
   document.getElementById('set-sauna-pre').value = _siteSettings.sauna_clean_pre || 'MA+TO klo 10-12';
   document.getElementById('set-sauna-peak').value = _siteSettings.sauna_clean_peak || 'MA+KE+PE klo 10-12';
   document.getElementById('set-wc-clean').value = _siteSettings.wc_clean || 'MA+TO klo 12-12:30';
@@ -1707,6 +1729,9 @@ async function saveSiteSettings() {
     venepaikka_asukas: parseInt(document.getElementById('set-hinta-asukas').value) || 300,
     venepaikka_ulkopuolinen: parseInt(document.getElementById('set-hinta-ulkopuolinen').value) || 330,
     saunamaksu: parseInt(document.getElementById('set-saunamaksu').value) || 3,
+    email_vesivastaava: document.getElementById('set-email-vesi').value.trim(),
+    email_laiturivastaava: document.getElementById('set-email-laituri').value.trim(),
+    email_muu: document.getElementById('set-email-muu').value.trim(),
     sauna_clean_pre: document.getElementById('set-sauna-pre').value.trim(),
     sauna_clean_peak: document.getElementById('set-sauna-peak').value.trim(),
     wc_clean: document.getElementById('set-wc-clean').value.trim(),
