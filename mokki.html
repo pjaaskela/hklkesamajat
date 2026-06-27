@@ -3077,14 +3077,18 @@ function updateCamTimestamp() {
 // ========== SOLAR PANEL ==========
 async function loadSolar() {
   try {
-    const d = await fetch(API_BASE + '/api/hkl/local-sensor').then(r => r.json());
-    const el1 = document.getElementById('sol-irr'); if(el1) el1.textContent = d.solar_irr != null ? d.solar_irr : '–';
-    const el2 = document.getElementById('sol-power'); if(el2) el2.textContent = d.solar_power != null ? d.solar_power : '–';
-    const el3 = document.getElementById('sol-today'); if(el3) el3.textContent = d.solar_today_wh != null ? d.solar_today_wh : '–';
+    const r = await fetch(API_BASE + '/api/hkl/local-sensor');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    console.log('[solar] data:', d.solar_irr, d.solar_power, d.solar_today_wh);
+    document.getElementById('sol-irr').textContent = d.solar_irr != null ? d.solar_irr : '–';
+    document.getElementById('sol-power').textContent = d.solar_power != null ? d.solar_power : '–';
+    document.getElementById('sol-today').textContent = d.solar_today_wh != null ? d.solar_today_wh : '–';
   } catch(e) {
-    const el1 = document.getElementById('sol-irr'); if(el1) el1.textContent = '–';
-    const el2 = document.getElementById('sol-power'); if(el2) el2.textContent = '–';
-    const el3 = document.getElementById('sol-today'); if(el3) el3.textContent = '–';
+    console.error('[solar] virhe:', e);
+    document.getElementById('sol-irr').textContent = '–';
+    document.getElementById('sol-power').textContent = '–';
+    document.getElementById('sol-today').textContent = '–';
   }
 }
 
