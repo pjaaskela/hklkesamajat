@@ -3053,6 +3053,7 @@ async function loadSolar() {
 
 // ========== AI SUMMARY + HERO STATS ==========
 async function loadAISummary() {
+  const hero = document.getElementById('ai-hero');
   try {
     const [aiData, sensorData, weatherData, rainData] = await Promise.allSettled([
       fetch(API_BASE + '/api/hkl/day-summary').then(r => r.json()),
@@ -3060,11 +3061,12 @@ async function loadAISummary() {
       fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=temperature_2m,wind_speed_10m&wind_speed_unit=ms&timezone=Europe/Helsinki`).then(r => r.json()),
       fetch(API_BASE + '/api/hkl/weather-stats').then(r => r.json())
     ]);
-    const hero = document.getElementById('ai-hero');
     const ai = aiData.status === 'fulfilled' ? aiData.value : null;
     const sensor = sensorData.status === 'fulfilled' ? sensorData.value : null;
     const weather = weatherData.status === 'fulfilled' ? weatherData.value : null;
     const rain = rainData.status === 'fulfilled' ? rainData.value : null;
+
+    if (getSectionPrefs()['ai'] !== false) hero.style.display = 'block';
 
     if (ai && ai.summary) {
       document.getElementById('ai-text').textContent = ai.summary;
@@ -3112,8 +3114,7 @@ async function loadAISummary() {
       if (we2 && laituri.temp != null) we2.textContent = laituri.temp.toFixed(1) + '°';
     } catch(e) {}
 
-    if (getSectionPrefs()['ai'] !== false) hero.style.display = 'block';
-  } catch(e) {}
+  } catch(e) { console.error('loadAISummary error:', e); }
 }
 
 // ========== WASTE SCHEDULE ==========
