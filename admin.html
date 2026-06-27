@@ -522,6 +522,23 @@ textarea.inp{resize:vertical;min-height:72px}
       </div>
 
       <div class="card" style="margin-bottom:16px;">
+        <div class="card-head">☕ Kesäkahvila Buffetti</div>
+        <p style="font-size:12px;color:var(--muted);margin:8px 0 10px;">Aukioloajat näytetään vierailija-sivulla. Päivät: 1=ma 2=ti 3=ke 4=to 5=pe 6=la 0=su</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div><label style="font-size:11px;color:var(--muted);">Kesäkk. alku</label><input class="inp" id="set-buf-kesa-alku" type="number" min="1" max="12" placeholder="6" style="margin-top:4px;"></div>
+          <div><label style="font-size:11px;color:var(--muted);">Kesäkk. loppu</label><input class="inp" id="set-buf-kesa-loppu" type="number" min="1" max="12" placeholder="7" style="margin-top:4px;"></div>
+          <div><label style="font-size:11px;color:var(--muted);">Kausi alku kk</label><input class="inp" id="set-buf-kausi-alku" type="number" min="1" max="12" placeholder="5" style="margin-top:4px;"></div>
+          <div><label style="font-size:11px;color:var(--muted);">Kausi loppu kk</label><input class="inp" id="set-buf-kausi-loppu" type="number" min="1" max="12" placeholder="9" style="margin-top:4px;"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+          <div><label style="font-size:11px;color:var(--muted);">Kesä päivät (esim. 6,0)</label><input class="inp" id="set-buf-kesa-paivat" placeholder="6,0" style="margin-top:4px;"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;"><div><label style="font-size:11px;color:var(--muted);">Kesä auki</label><input class="inp" id="set-buf-kesa-auki" type="number" min="0" max="24" placeholder="12" style="margin-top:4px;"></div><div><label style="font-size:11px;color:var(--muted);">Kesä kiinni</label><input class="inp" id="set-buf-kesa-kiinni" type="number" min="0" max="24" placeholder="17" style="margin-top:4px;"></div></div>
+          <div><label style="font-size:11px;color:var(--muted);">Muut päivät (esim. 5,6,0)</label><input class="inp" id="set-buf-paivat" placeholder="5,6,0" style="margin-top:4px;"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;"><div><label style="font-size:11px;color:var(--muted);">Muut auki</label><input class="inp" id="set-buf-auki" type="number" min="0" max="24" placeholder="11" style="margin-top:4px;"></div><div><label style="font-size:11px;color:var(--muted);">Muut kiinni</label><input class="inp" id="set-buf-kiinni" type="number" min="0" max="24" placeholder="18" style="margin-top:4px;"></div></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
         <div class="card-head">🧹 Siivousajat</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
           <div>
@@ -1709,6 +1726,16 @@ async function loadSiteSettings() {
   document.getElementById('set-email-vesi').value = _siteSettings.email_vesivastaava || '';
   document.getElementById('set-email-laituri').value = _siteSettings.email_laiturivastaava || '';
   document.getElementById('set-email-muu').value = _siteSettings.email_muu || '';
+  document.getElementById('set-buf-kesa-alku').value = _siteSettings.buf_kesa_alku ?? 6;
+  document.getElementById('set-buf-kesa-loppu').value = _siteSettings.buf_kesa_loppu ?? 8;
+  document.getElementById('set-buf-kausi-alku').value = _siteSettings.buf_kausi_alku ?? 5;
+  document.getElementById('set-buf-kausi-loppu').value = _siteSettings.buf_kausi_loppu ?? 8;
+  document.getElementById('set-buf-kesa-paivat').value = _siteSettings.buf_kesa_paivat ?? '6,0';
+  document.getElementById('set-buf-kesa-auki').value = _siteSettings.buf_kesa_auki ?? 12;
+  document.getElementById('set-buf-kesa-kiinni').value = _siteSettings.buf_kesa_kiinni ?? 17;
+  document.getElementById('set-buf-paivat').value = _siteSettings.buf_paivat ?? '5,6,0';
+  document.getElementById('set-buf-auki').value = _siteSettings.buf_auki ?? 11;
+  document.getElementById('set-buf-kiinni').value = _siteSettings.buf_kiinni ?? 18;
   document.getElementById('set-sauna-pre').value = _siteSettings.sauna_clean_pre || 'MA+TO klo 10-12';
   document.getElementById('set-sauna-peak').value = _siteSettings.sauna_clean_peak || 'MA+KE+PE klo 10-12';
   document.getElementById('set-wc-clean').value = _siteSettings.wc_clean || 'MA+TO klo 12-12:30';
@@ -1752,6 +1779,16 @@ async function saveSiteSettings() {
     email_vesivastaava: document.getElementById('set-email-vesi').value.trim(),
     email_laiturivastaava: document.getElementById('set-email-laituri').value.trim(),
     email_muu: document.getElementById('set-email-muu').value.trim(),
+    buf_kesa_alku:   parseInt(document.getElementById('set-buf-kesa-alku').value) || 6,
+    buf_kesa_loppu:  parseInt(document.getElementById('set-buf-kesa-loppu').value) || 8,
+    buf_kausi_alku:  parseInt(document.getElementById('set-buf-kausi-alku').value) || 5,
+    buf_kausi_loppu: parseInt(document.getElementById('set-buf-kausi-loppu').value) || 8,
+    buf_kesa_paivat: document.getElementById('set-buf-kesa-paivat').value.trim() || '6,0',
+    buf_kesa_auki:   parseInt(document.getElementById('set-buf-kesa-auki').value) || 12,
+    buf_kesa_kiinni: parseInt(document.getElementById('set-buf-kesa-kiinni').value) || 17,
+    buf_paivat:      document.getElementById('set-buf-paivat').value.trim() || '5,6,0',
+    buf_auki:        parseInt(document.getElementById('set-buf-auki').value) || 11,
+    buf_kiinni:      parseInt(document.getElementById('set-buf-kiinni').value) || 18,
     sauna_clean_pre: document.getElementById('set-sauna-pre').value.trim(),
     sauna_clean_peak: document.getElementById('set-sauna-peak').value.trim(),
     wc_clean: document.getElementById('set-wc-clean').value.trim(),
