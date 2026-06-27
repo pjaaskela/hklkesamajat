@@ -695,6 +695,7 @@ body { padding-top: 48px; }
         <div class="ai-stat"><div class="ai-stat-val" id="ai-outdoor">–</div><div class="ai-stat-lbl">Ulkolämpö</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="ai-water">–</div><div class="ai-stat-lbl">Vesi</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="ai-wind">–</div><div class="ai-stat-lbl">Tuuli</div></div>
+        <div class="ai-stat"><div class="ai-stat-val" id="ai-rain">–</div><div class="ai-stat-lbl">Sade</div></div>
       </div>
       <div class="ai-time" id="ai-time"></div>
     </div>
@@ -3053,15 +3054,17 @@ async function loadSolar() {
 // ========== AI SUMMARY + HERO STATS ==========
 async function loadAISummary() {
   try {
-    const [aiData, sensorData, weatherData] = await Promise.allSettled([
+    const [aiData, sensorData, weatherData, rainData] = await Promise.allSettled([
       fetch(API_BASE + '/api/hkl/day-summary').then(r => r.json()),
       fetch(API_BASE + '/api/hkl/local-sensor').then(r => r.json()),
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=temperature_2m,wind_speed_10m&timezone=Europe/Helsinki`).then(r => r.json())
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=temperature_2m,wind_speed_10m&timezone=Europe/Helsinki`).then(r => r.json()),
+      fetch(API_BASE + '/api/hkl/weather-stats').then(r => r.json())
     ]);
     const hero = document.getElementById('ai-hero');
     const ai = aiData.status === 'fulfilled' ? aiData.value : null;
     const sensor = sensorData.status === 'fulfilled' ? sensorData.value : null;
     const weather = weatherData.status === 'fulfilled' ? weatherData.value : null;
+    const rain = rainData.status === 'fulfilled' ? rainData.value : null;
 
     if (ai && ai.summary) {
       document.getElementById('ai-text').textContent = ai.summary;
@@ -3087,6 +3090,18 @@ async function loadAISummary() {
       const we = document.getElementById('ai-wind');
       if (oe) oe.textContent = weather.current.temperature_2m.toFixed(1) + '°';
       if (we) we.textContent = weather.current.wind_speed_10m.toFixed(0) + ' m/s';
+    }
+    if (rain) {
+      const re = document.getElementById('ai-rain');
+      if (re) {
+        if (rain.raining) {
+          re.textContent = '🌧 Sataa';
+          re.style.fontSize = '0.75rem';
+        } else {
+          re.textContent = rain.rain_today_min > 0 ? rain.rain_today_min + ' mm' : 'Ei sadetta';
+          re.style.fontSize = rain.rain_today_min > 0 ? '' : '0.65rem';
+        }
+      }
     }
 
     try {
