@@ -699,6 +699,14 @@ body { padding-top: 48px; }
       <div class="md-label">☀️ Tämän päivän mökkifiilis</div>
       <div class="md-text" id="mokki-day-text"><span class="skel" style="width:90%;height:3em;display:block;border-radius:8px;"></span></div>
       <div class="md-stats">
+        <div class="md-stat" id="md-temp-stat" style="display:none">
+          <span class="md-stat-icon">🏠</span>
+          <div class="md-stat-body"><div class="md-stat-val" id="md-indoor">–</div><div class="md-stat-lbl">Sisälämpö</div></div>
+        </div>
+        <div class="md-stat">
+          <span class="md-stat-icon">🌡️</span>
+          <div class="md-stat-body"><div class="md-stat-val" id="md-outdoor">–</div><div class="md-stat-lbl">Ulkolämpö</div></div>
+        </div>
         <div class="md-stat">
           <span class="md-stat-icon">🌊</span>
           <div class="md-stat-body"><div class="md-stat-val" id="md-water">–</div><div class="md-stat-lbl">Vesi</div></div>
@@ -3347,7 +3355,16 @@ async function loadMokkiDay() {
       card.style.display = '';
     }
     if (w && w.current) {
+      const oe = document.getElementById('md-outdoor'); if(oe) oe.textContent = w.current.temperature_2m.toFixed(1) + '°';
       const we = document.getElementById('md-wind'); if(we) we.textContent = w.current.wind_speed_10m.toFixed(0) + ' m/s';
+    }
+    if (_currentMokki === '484') {
+      try {
+        const sensor = await fetch(API_BASE + '/api/hkl/local-sensor').then(r => r.json());
+        const ts = document.getElementById('md-temp-stat'); if(ts) ts.style.display = '';
+        const te = document.getElementById('md-indoor');
+        if (te && sensor.indoor_temp != null) te.textContent = sensor.indoor_temp.toFixed(1) + '°';
+      } catch(e) {}
     }
     if (rain) {
       const row = document.getElementById('md-rain-row');
