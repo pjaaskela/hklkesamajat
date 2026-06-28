@@ -1474,6 +1474,7 @@ body { padding-top: 48px; }
           <input type="hidden" id="ilmoitus-kategoria">
           <input type="text" id="ilmoitus-otsikko" class="settings-input" placeholder="Otsikko *" maxlength="200" style="margin-bottom:8px;">
           <textarea id="ilmoitus-kuvaus" class="settings-input" placeholder="Kuvaus (vapaaehtoinen)" maxlength="2000" rows="3" style="margin-bottom:8px;resize:vertical;"></textarea>
+          <input type="email" id="ilmoitus-email" class="settings-input" placeholder="Sähköposti yhteydenottoa varten (vapaaehtoinen)" maxlength="200" style="margin-bottom:8px;">
           <div style="display:flex;gap:8px;">
             <button onclick="sendIlmoitus()" style="flex:1;padding:10px;border-radius:10px;border:none;background:var(--green);color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer;">Lähetä</button>
             <button onclick="document.getElementById('ilmoitus-form').style.display='none'" style="padding:10px 16px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:var(--text-muted);font-size:0.85rem;cursor:pointer;">Peruuta</button>
@@ -2644,6 +2645,7 @@ function openIlmoitus(kategoria) {
   document.getElementById('ilmoitus-type-label').textContent = (KATEGORIA_LABELS[kategoria] || kategoria).toUpperCase();
   document.getElementById('ilmoitus-otsikko').value = '';
   document.getElementById('ilmoitus-kuvaus').value = '';
+  document.getElementById('ilmoitus-email').value = '';
   document.getElementById('ilmoitus-msg').textContent = '';
   document.getElementById('ilmoitus-otsikko').focus();
 }
@@ -2655,6 +2657,7 @@ async function sendIlmoitus() {
   const otsikko = document.getElementById('ilmoitus-otsikko').value.trim();
   const kuvaus = document.getElementById('ilmoitus-kuvaus').value.trim();
   const kategoria = document.getElementById('ilmoitus-kategoria').value;
+  const email = document.getElementById('ilmoitus-email').value.trim();
   const msg = document.getElementById('ilmoitus-msg');
   if (!otsikko) { msg.textContent = '❌ Otsikko vaaditaan'; msg.style.color = '#ef4444'; return; }
   msg.textContent = 'Lähetetään...'; msg.style.color = 'var(--text-muted)';
@@ -2662,12 +2665,13 @@ async function sendIlmoitus() {
     const r = await fetch(API_BASE + '/api/hkl/ilmoitus', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'X-Hkl-Token': _hklToken},
-      body: JSON.stringify({otsikko, kuvaus, kategoria})
+      body: JSON.stringify({otsikko, kuvaus, kategoria, email})
     });
     if (r.ok) {
       msg.textContent = '✓ Ilmoitus lähetetty!'; msg.style.color = 'var(--green)';
       document.getElementById('ilmoitus-otsikko').value = '';
       document.getElementById('ilmoitus-kuvaus').value = '';
+      document.getElementById('ilmoitus-email').value = '';
       setTimeout(() => { document.getElementById('ilmoitus-form').style.display = 'none'; msg.textContent = ''; }, 2000);
       loadOmatIlmoitukset();
     } else { msg.textContent = '❌ Virhe'; msg.style.color = '#ef4444'; }
