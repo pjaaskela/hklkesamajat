@@ -6,15 +6,15 @@
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="https://jaaskel.com/hklkesamajat-fi/manifest.json">
 <meta name="theme-color" content="#0a2e1c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kesämajat">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="https://jaaskel.com/hklkesamajat-fi/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="https://jaaskel.com/hklkesamajat-fi/icon-192.png">
 <title>Oma Mökki – HKL-Kesämajat</title>
-<link rel="stylesheet" href="hkl-base.css">
+<link rel="stylesheet" href="https://jaaskel.com/hkl-base.css">
 <style>
 /* :root, * moved to hkl-base.css */
 body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--sand); color: var(--text); min-height: 100svh; }
@@ -892,9 +892,15 @@ body { padding-top: 48px; }
     <div id="mokki-cards">
     <!-- TAPAHTUMAT -->
     <div class="card" id="events-card">
-      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
         <div class="card-title">📅 Tapahtumat</div>
-        <button onclick="openEventForm()" style="padding:5px 12px;border-radius:8px;border:1px solid var(--green);background:var(--green-pale);color:var(--green);font-weight:700;font-size:0.75rem;cursor:pointer;">+ Luo tapahtuma</button>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label style="display:flex;align-items:center;gap:4px;font-size:0.72rem;color:var(--text-muted);cursor:pointer;white-space:nowrap;">
+            <input type="checkbox" id="ev-hide-past" onchange="loadEvents()" style="cursor:pointer;">
+            Piilota menneet
+          </label>
+          <button onclick="openEventForm()" style="padding:5px 12px;border-radius:8px;border:1px solid var(--green);background:var(--green-pale);color:var(--green);font-weight:700;font-size:0.75rem;cursor:pointer;">+ Luo tapahtuma</button>
+        </div>
       </div>
       <div class="card-body">
         <div id="event-form" style="display:none;margin-bottom:14px;background:var(--sand);border-radius:10px;padding:14px;">
@@ -981,52 +987,16 @@ body { padding-top: 48px; }
         <div style="font-size:0.6rem;color:var(--text-muted);margin-top:4px;">¹ Juhannuksesta alkaen</div>
 
         <!-- Saunan vierasmaksu -->
-        <div style="margin-top:16px;background:linear-gradient(135deg,#fef3c7 0%,#fff7ed 100%);border-radius:14px;padding:16px 18px;border:1px solid #fde68a;">
-          <div style="display:flex;gap:14px;align-items:flex-start;">
-            <div style="font-size:2.2rem;line-height:1;flex-shrink:0;">🧖‍♂️</div>
-            <div style="flex:1;">
-              <div style="font-weight:800;font-size:0.9rem;color:#92400e;margin-bottom:4px;">Tuotko vieraita saunaan?</div>
-              <p style="font-size:0.82rem;color:#78350f;line-height:1.5;margin:0 0 10px;">Tervetuloa! Saunamaksu on <strong class="sauna-guest-price">3 € / vieras</strong>. Samassa taloudessa asuvat ja alle 12-vuotiaat lapset ovat vapautettuja.</p>
-              <!-- Pikavalitsin -->
-              <div style="background:rgba(255,255,255,0.8);border-radius:12px;padding:14px;margin-bottom:10px;">
-                <div style="font-size:0.72rem;color:#92400e;font-weight:700;margin-bottom:8px;">PIKAMAKSU — Valitse vieraiden määrä</div>
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-                  <button onclick="saunaGuests(-1)" style="width:36px;height:36px;border-radius:50%;border:2px solid #fde68a;background:#fff;font-size:1.2rem;font-weight:700;cursor:pointer;color:#92400e;">−</button>
-                  <div style="text-align:center;min-width:50px;">
-                    <div id="sauna-guest-count" style="font-size:1.8rem;font-weight:900;color:#92400e;line-height:1;">3</div>
-                    <div style="font-size:0.65rem;color:#b45309;">vierasta</div>
-                  </div>
-                  <button onclick="saunaGuests(1)" style="width:36px;height:36px;border-radius:50%;border:2px solid #fde68a;background:#fff;font-size:1.2rem;font-weight:700;cursor:pointer;color:#92400e;">+</button>
-                  <div style="flex:1;text-align:right;">
-                    <div style="font-size:0.65rem;color:#b45309;">YHTEENSÄ</div>
-                    <div id="sauna-guest-total" style="font-size:1.5rem;font-weight:900;color:#92400e;">9 €</div>
-                  </div>
-                </div>
-                <div style="display:flex;gap:6px;">
-                  <button onclick="saunaGuestsSet(1)" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid #fde68a;background:#fff;font-size:0.78rem;font-weight:700;cursor:pointer;color:#92400e;">1</button>
-                  <button onclick="saunaGuestsSet(2)" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid #fde68a;background:#fff;font-size:0.78rem;font-weight:700;cursor:pointer;color:#92400e;">2</button>
-                  <button onclick="saunaGuestsSet(3)" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid #fde68a;background:#fffbeb;font-size:0.78rem;font-weight:700;cursor:pointer;color:#92400e;border-color:#f59e0b;">3</button>
-                  <button onclick="saunaGuestsSet(5)" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid #fde68a;background:#fff;font-size:0.78rem;font-weight:700;cursor:pointer;color:#92400e;">5</button>
-                </div>
-              </div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <div style="background:rgba(255,255,255,0.7);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;flex:1;min-width:140px;">
-                  <div style="font-size:1.3rem;">💰</div>
-                  <div>
-                    <div style="font-size:0.72rem;color:#888;font-weight:600;letter-spacing:0.04em;">KÄTEINEN</div>
-                    <div style="font-size:0.82rem;font-weight:700;color:#78350f;">Lipas pukuhuoneessa</div>
-                  </div>
-                </div>
-                <div onclick="window.open('https://qr.mobilepay.fi/vp/nVFSp_b9p','_blank')" style="background:rgba(255,255,255,0.7);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;flex:1;min-width:140px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(90,49,244,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.7)'">
-                  <div style="width:30px;height:30px;background:#5a31f4;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 3H7C4.79 3 3 4.79 3 7v10c0 2.21 1.79 4 4 4h10c2.21 0 4-1.79 4-4V7c0-2.21-1.79-4-4-4z" fill="#fff"/><path d="M15.5 12.5l-2.3-4c-.2-.4-.7-.5-1.1-.3l-2 1.2c-.4.2-.5.7-.3 1.1l2.3 4c.2.4.7.5 1.1.3l2-1.2c.4-.2.5-.7.3-1.1z" fill="#5a31f4"/></svg>
-                  </div>
-                  <div>
-                    <div style="font-size:0.72rem;color:#5a31f4;font-weight:600;letter-spacing:0.04em;">MOBILEPAY #24434 <span style="font-size:0.6rem;color:#999;">maksa MobilePaylla</span></div>
-                    <div id="sauna-mp-hint" style="font-size:0.82rem;font-weight:700;color:#5a31f4;">Saunamaksu · <span id="sauna-mp-amount">9</span> € <span class="mp-copied" style="display:none;font-size:0.7rem;color:var(--green);">✓ #24434 kopioitu! Avaa MobilePay.</span></div>
-                  </div>
-                </div>
-              </div>
+        <div style="margin-top:14px;background:#fef3c7;border-radius:12px;padding:12px 14px;border:1px solid #fde68a;">
+          <div style="font-size:0.78rem;color:#92400e;margin-bottom:8px;">🧖 Saunamaksu <strong class="sauna-guest-price">3 € / vieras</strong> · käteinen tai MobilePay</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div style="background:rgba(255,255,255,0.7);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:8px;flex:1;min-width:120px;">
+              <span style="font-size:1.1rem;">💰</span>
+              <div style="font-size:0.78rem;font-weight:700;color:#78350f;">Käteinen — lipas pukuhuoneessa</div>
+            </div>
+            <div onclick="window.open('https://qr.mobilepay.fi/vp/nVFSp_b9p','_blank')" style="background:rgba(90,49,244,0.08);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:8px;flex:1;min-width:120px;cursor:pointer;border:1px solid rgba(90,49,244,0.15);" onmouseover="this.style.background='rgba(90,49,244,0.15)'" onmouseout="this.style.background='rgba(90,49,244,0.08)'">
+              <span style="font-size:1.1rem;">📱</span>
+              <div style="font-size:0.78rem;font-weight:700;color:#5a31f4;">MobilePay #24434</div>
             </div>
           </div>
         </div>
@@ -1379,17 +1349,23 @@ body { padding-top: 48px; }
     </div>
 
     <!-- MÖKKIKARTTA -->
-    <div class="card" id="mokkikartta-card" data-collapse="true">
-      <div class="card-header" onclick="toggleCardCollapse('mokkikartta-card')" style="cursor:pointer;">
-        <div class="card-title">🏘️ Mökkikartta</div>
+    <!-- ALUEKARTTA -->
+    <div class="card" id="aluekartta-card" data-collapse="true">
+      <div class="card-header" onclick="toggleCardCollapse('aluekartta-card')" style="cursor:pointer;">
+        <div class="card-title">🗺️ Aluekartta</div>
         <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
       </div>
-      <div class="card-body card-collapse-body" style="display:none;padding:0;">
-        <a href="https://jaaskel.com/mokkikartta.pdf" target="_blank" style="display:block;text-decoration:none;color:inherit;">
-          <img src="https://jaaskel.com/mokkikartta.jpg" alt="Mökkikartta" loading="lazy"
-               style="width:100%;max-height:350px;object-fit:contain;display:block;padding:10px 14px;">
-          <div style="text-align:center;padding:0 14px 12px;font-size:0.78rem;color:var(--green);font-weight:600;">Avaa PDF ↗</div>
-        </a>
+      <div class="card-body card-collapse-body" style="display:none;padding:0 14px 14px;">
+        <div style="display:flex;gap:10px;margin:10px 0 8px;font-size:0.72rem;color:var(--text-muted);flex-wrap:wrap;align-items:center;">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:4px;"></span>Sulkuventtiili</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#3b82f6;margin-right:4px;"></span>Vesipiste</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:4px;"></span>Venepaikka</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;margin-right:4px;"></span>Vieraspaikka</span>
+          <a href="https://jaaskel.com/mokkikartta.pdf" target="_blank" style="margin-left:auto;font-size:0.72rem;color:var(--green);font-weight:600;text-decoration:none;">📄 Mökkikartta PDF ↗</a>
+        </div>
+        <div id="aluekartta" style="height:320px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);"></div>
+        <div id="aluekartta-empty" style="display:none;text-align:center;padding:20px;font-size:0.82rem;color:var(--text-muted);">Ei merkintöjä lisätty vielä.</div>
+        <div id="venepaikka-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
       </div>
     </div>
 
@@ -2415,6 +2391,7 @@ function showDashboard(num) {
   setTimeout(initVesselsMap, 500);
   renderFlagDays();
   applySectionVisibility();
+  loadAluekartta();
 }
 
 // ========== SENSOR DATA ==========
@@ -2780,7 +2757,12 @@ async function loadEvents() {
   try {
     const evHeaders = {};
     if (_hklToken) evHeaders['X-Hkl-Token'] = _hklToken;
-    const events = await fetch(API_BASE + '/api/hkl/events', {headers: evHeaders}).then(r => r.json());
+    let events = await fetch(API_BASE + '/api/hkl/events', {headers: evHeaders}).then(r => r.json());
+    const hidePast = document.getElementById('ev-hide-past')?.checked;
+    if (hidePast) {
+      const today = new Date().toISOString().slice(0, 10);
+      events = events.filter(ev => ev.event_date >= today);
+    }
     if (!events.length) { el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);">Ei tulevia tapahtumia.</div>'; return; }
     el.innerHTML = events.map(ev => {
       const d = new Date(ev.event_date + 'T00:00');
@@ -3075,6 +3057,92 @@ function updateCamTimestamp() {
 }
 
 // ========== SOLAR PANEL ==========
+let _aluekarttaMap = null;
+function _loadLeaflet() {
+  return new Promise((resolve, reject) => {
+    if (window.L) { resolve(); return; }
+    const css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(css);
+    const s = document.createElement('script');
+    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function loadAluekartta() {
+  const mapEl = document.getElementById('aluekartta');
+  const emptyEl = document.getElementById('aluekartta-empty');
+  const listEl = document.getElementById('venepaikka-list');
+  if (!mapEl) return;
+  const _e = s => (s||'').replace(/</g,'&lt;');
+  try {
+    const [rpisteet, rberths] = await Promise.all([
+      fetch(API_BASE + '/api/hkl/vesipisteet/mokki', {headers: {'X-Hkl-Token': _hklToken}}),
+      fetch(API_BASE + '/api/hkl/berths')
+    ]);
+    const pisteet = rpisteet.ok ? await rpisteet.json() : [];
+    const berths = rberths.ok ? await rberths.json() : [];
+    if (!pisteet.length && !berths.length) {
+      mapEl.style.display = 'none';
+      if (emptyEl) emptyEl.style.display = '';
+      return;
+    }
+    await _loadLeaflet();
+    if (!_aluekarttaMap) {
+      _aluekarttaMap = L.map('aluekartta').setView([60.1552, 24.8545], 18);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OSM'}).addTo(_aluekarttaMap);
+    } else {
+      _aluekarttaMap.eachLayer(l => { if (l instanceof L.Marker) _aluekarttaMap.removeLayer(l); });
+    }
+    const VP_C = {vesipiste: '#3b82f6', sulkuventtiili: '#ef4444', suihku: '#34d399', wc: '#a78bfa', jate: '#6b7280'};
+    const VP_I = {vesipiste: '💧', sulkuventtiili: '🔴', suihku: '🚿', wc: '🚽', jate: '♻️'};
+    const VP_LBL = {vesipiste: 'Vesipiste', sulkuventtiili: 'Sulkuventtiili', suihku: 'Suihku', wc: 'WC', jate: 'Jätepiste'};
+    const TILA_C = {vapaa: '#22c55e', varattu: '#ef4444', vieraspaikka: '#f59e0b'};
+    const TILA_L = {vapaa: 'Vapaa', varattu: 'Varattu', vieraspaikka: 'Vieraspaikka'};
+    const bounds = [];
+    pisteet.forEach(vp => {
+      if (!vp.lat || !vp.lon) return;
+      const bg = VP_C[vp.tyyppi] || '#52b788';
+      const ico = VP_I[vp.tyyppi] || '📍';
+      const lbl = VP_LBL[vp.tyyppi] || vp.tyyppi;
+      const cottageTag = vp.cottage_number ? `<span style="font-size:0.7rem;background:#166534;color:white;border-radius:3px;padding:1px 5px;margin-left:4px;">Mökki ${vp.cottage_number}</span>` : '<span style="font-size:0.7rem;color:#6b7280;">yhteinen</span>';
+      const icon = L.divIcon({
+        html: `<div style="background:${bg};border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4)">${ico}</div>`,
+        className: '', iconSize: [34, 34], iconAnchor: [17, 17]
+      });
+      const popup = `<strong>${_e(vp.nimi)}</strong> ${cottageTag}<br><span style="font-size:0.78rem;color:#6b7280">${lbl}</span>${vp.kuvaus ? '<br><span style="font-size:0.78rem">' + _e(vp.kuvaus) + '</span>' : ''}`;
+      L.marker([vp.lat, vp.lon], {icon}).bindPopup(popup).addTo(_aluekarttaMap);
+      bounds.push([vp.lat, vp.lon]);
+    });
+    berths.forEach(b => {
+      if (!b.lat || !b.lon) return;
+      const bg = TILA_C[b.tila] || '#6b7280';
+      const icon = L.divIcon({
+        html: `<div style="background:${bg};border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:white;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4);">${_e(b.numero||'?')}</div>`,
+        className: '', iconSize: [32, 32], iconAnchor: [16, 16]
+      });
+      const popup = `<strong>⛵ ${_e(b.numero||'')}</strong> <span style="font-size:0.78rem;color:${bg};font-weight:700">${TILA_L[b.tila]||b.tila}</span>${b.nimi ? '<br>' + _e(b.nimi) : ''}${b.kuvaus ? '<br><span style="font-size:0.75rem;color:#6b7280">' + _e(b.kuvaus) + '</span>' : ''}${b.tila==='vieraspaikka' ? '<br><span style="font-size:0.72rem;font-weight:600;color:#92400e;">💛 Kannatusmaksu MobilePay #24434</span>' : ''}`;
+      L.marker([b.lat, b.lon], {icon}).bindPopup(popup).addTo(_aluekarttaMap);
+      bounds.push([b.lat, b.lon]);
+    });
+    if (bounds.length) _aluekarttaMap.fitBounds(bounds, {padding: [30, 30], maxZoom: 19});
+    if (listEl && berths.length) {
+      listEl.innerHTML = '<div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">⛵ Venepaikat</div>' +
+        berths.map(b => `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--sand);">
+          <span style="width:10px;height:10px;border-radius:50%;background:${TILA_C[b.tila]||'#6b7280'};flex-shrink:0;display:inline-block;"></span>
+          <span style="font-weight:700;font-size:0.82rem;">${_e(b.numero||'–')}</span>
+          <span style="font-size:0.82rem;color:var(--text-muted);flex:1;">${_e(b.nimi||'')}</span>
+          <span style="font-size:0.72rem;font-weight:600;color:${TILA_C[b.tila]||'#6b7280'}">${TILA_L[b.tila]||b.tila}</span>
+        </div>`).join('');
+    }
+  } catch(e) { console.error('[aluekartta]', e); }
+}
+
 async function loadSolar() {
   try {
     const r = await fetch(API_BASE + '/api/hkl/local-sensor');
@@ -3509,6 +3577,7 @@ function toggleCardCollapse(id) {
   const open = body.style.display !== 'none';
   body.style.display = open ? 'none' : '';
   if (chevron) chevron.style.transform = open ? '' : 'rotate(90deg)';
+  if (!open && id === 'aluekartta-card' && _aluekarttaMap) setTimeout(() => _aluekarttaMap.invalidateSize(), 100);
 }
 
 // ========== FLAG DAYS (LIPUTUSPÄIVÄT) ==========
@@ -3604,7 +3673,7 @@ const SECTION_DEFS = [
   { key: 'laituri', label: '🌊 Laituri', sel: '#laituri-card' },
   { key: 'camera', label: '📹 Kamera', sel: '#camera-card', mokki: true },
   { key: 'profile', label: '👤 Profiili', sel: '#profile-card' },
-  { key: 'mokkikartta', label: '🏘️ Kartta', sel: '#mokkikartta-card' },
+  { key: 'aluekartta', label: '🗺️ Aluekartta', sel: '#aluekartta-card' },
   { key: 'opas', label: '📖 Opas', sel: '#opas-card' },
   { key: 'docs', label: '📄 Dokumentit', sel: '#docs-card' },
   { key: 'ilmoitus', label: '📢 Ilmoitukset', sel: '#ilmoitus-card' },
