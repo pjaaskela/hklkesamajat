@@ -3257,9 +3257,9 @@ async function loadAluekartta() {
     if (zoomEl) zoomEl.style.display = 'flex';
     _initVVPinch(mapEl);
 
-    // Rakenna kuva + numerobadget (kuva natiivissa koossa, ei skaalata)
+    // Rakenna kuva + numerobadget
     mapEl.innerHTML = `<div style="position:relative;display:inline-block;">
-      <img src="vesiverkkokartta.jpg" id="vv-map-img" style="display:block;max-width:none;height:auto;">
+      <img src="mokkikartta.jpg" id="vv-map-img" style="display:block;max-width:none;height:auto;">
     </div>`;
     const wrap = mapEl.querySelector('div');
 
