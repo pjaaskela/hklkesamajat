@@ -3257,14 +3257,12 @@ async function loadAluekartta() {
     if (zoomEl) zoomEl.style.display = 'flex';
     _initVVPinch(mapEl);
 
-    // Rakenna kuva + badget (kuva natiivissa koossa, ei skaalata)
+    // Rakenna kuva + numerobadget (kuva natiivissa koossa, ei skaalata)
     mapEl.innerHTML = `<div style="position:relative;display:inline-block;">
       <img src="vesiverkkokartta.jpg" id="vv-map-img" style="display:block;max-width:none;height:auto;">
     </div>`;
     const wrap = mapEl.querySelector('div');
 
-    // Kuvan klikkaus → etsi lähin mökki tallennetun pikselikoordinaatin perusteella
-    const THRESHOLD = 0.05; // 5% kuvan koosta
     function openCottageSheet(c) {
       const sheet = _getVVSheet();
       const isMine = c.number === _currentMokki;
@@ -3284,20 +3282,33 @@ async function loadAluekartta() {
       sheet.style.display = '';
     }
 
-    wrap.addEventListener('click', e => {
-      const img = document.getElementById('vv-map-img');
-      if (!img) return;
-      const rect = img.getBoundingClientRect();
-      const px = (e.clientX - rect.left) / rect.width;
-      const py = (e.clientY - rect.top) / rect.height;
-      let best = null, bestDist = Infinity;
-      cottages.forEach(c => {
-        if (c.map_px == null || c.map_py == null) return;
-        const cpx = parseFloat(c.map_px), cpy = parseFloat(c.map_py);
-        const dist = Math.hypot(px - cpx, py - cpy);
-        if (dist < bestDist) { bestDist = dist; best = c; }
-      });
-      if (best && bestDist < THRESHOLD) openCottageSheet(best);
+    // Aseta numerobadget kannan koordinaateista — klikkaa → avaa mökin tiedot
+    cottages.forEach(c => {
+      if (c.map_px == null || c.map_py == null) return;
+      const isMine = c.number === _currentMokki;
+      const btn = document.createElement('button');
+      btn.textContent = c.number;
+      btn.title = `Mökki ${c.number}`;
+      btn.style.cssText = [
+        'position:absolute',
+        `left:${(parseFloat(c.map_px)*100).toFixed(3)}%`,
+        `top:${(parseFloat(c.map_py)*100).toFixed(3)}%`,
+        'transform:translate(-50%,-50%)',
+        `background:${isMine ? '#0e5c3a' : 'rgba(30,58,138,0.85)'}`,
+        'color:#fff',
+        'border:none',
+        'border-radius:4px',
+        'padding:1px 4px',
+        'font-size:9px',
+        'font-weight:700',
+        'cursor:pointer',
+        'white-space:nowrap',
+        'z-index:10',
+        'line-height:1.4',
+        'pointer-events:auto',
+      ].join(';');
+      btn.addEventListener('click', e => { e.stopPropagation(); openCottageSheet(c); });
+      wrap.appendChild(btn);
     });
 
     // Venepaikka-lista
