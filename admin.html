@@ -400,11 +400,27 @@ textarea.inp{resize:vertical;min-height:72px}
     <!-- ALUEKARTTA -->
     <div id="sec-aluekartta" class="sec-page">
       <div class="page-title">🗺️ Aluekartta — mökkikohdistus</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Raahaa mökin numero oikeaan kohtaan kartalla. Sijainti tallentuu automaattisesti. <span id="aluek-status" style="color:#0e5c3a;font-weight:600;"></span></div>
-      <div class="card" style="padding:0;overflow:hidden;">
-        <div id="admin-aluekartta" style="height:700px;"></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
+        Klikkaa kartan mökin numeroa → syötä mökin numero → tallennetaan. <span id="aluek-status" style="color:#0e5c3a;font-weight:600;"></span>
+      </div>
+      <div class="card" style="padding:10px;overflow:auto;max-height:80vh;-webkit-overflow-scrolling:touch;">
+        <div id="admin-aluekartta-wrap" style="position:relative;display:inline-block;cursor:crosshair;">
+          <img id="admin-vv-img" src="vesiverkkokartta.jpg" style="display:block;max-width:none;height:auto;">
+        </div>
       </div>
       <div id="admin-aluekartta-legend" style="margin-top:10px;font-size:12px;color:var(--muted);"></div>
+      <!-- Pikakeräilijä -->
+      <div id="aluek-prompt" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:14px;padding:22px 20px;min-width:260px;box-shadow:0 8px 32px rgba(0,0,0,.3);">
+          <div style="font-weight:700;font-size:1rem;margin-bottom:12px;">📍 Mökin numero tässä kohdassa?</div>
+          <input id="aluek-num-input" type="number" inputmode="numeric" placeholder="esim. 405"
+            style="width:100%;padding:10px 12px;font-size:1.1rem;border:1.5px solid #d1d5db;border-radius:8px;box-sizing:border-box;margin-bottom:12px;">
+          <div style="display:flex;gap:8px;">
+            <button onclick="aluekSave()" style="flex:1;padding:10px;background:#0e5c3a;color:#fff;border:none;border-radius:8px;font-size:0.95rem;font-weight:700;cursor:pointer;">Tallenna</button>
+            <button onclick="document.getElementById('aluek-prompt').style.display='none'" style="padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;background:#fff;font-size:0.95rem;cursor:pointer;">Peruuta</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- VESIPISTEET -->
@@ -1197,76 +1213,75 @@ async function loadVesipisteet(){try{_data.vesipisteet=await fetch(API_BASE+'/ap
 const VP_ICONS={vesipiste:'💧',sulkuventtiili:'🔴',wc:'🚽',suihku:'🚿',sahko:'⚡',jate:'♻️'};
 const VP_COLORS={vesipiste:'#38bdf8',sulkuventtiili:'#ef4444',wc:'#a78bfa',suihku:'#34d399',sahko:'#fbbf24',jate:'#6b7280'};
 // ===== ALUEKARTTA (admin) =====
-let _adminAluekarttaMap=null;
+let _aluekPendingPx=null, _aluekPendingPy=null, _aluekCottages=[];
 async function initAdminAluekartta(){
-  const mapEl=document.getElementById('admin-aluekartta');
-  if(!mapEl)return;
+  const wrap=document.getElementById('admin-aluekartta-wrap');
+  const img=document.getElementById('admin-vv-img');
+  if(!wrap||img._initialized)return;
+  img._initialized=true;
   const h=ah();
-  const rc=await fetch(API_BASE+'/api/hkl/cottages/locations',{headers:h}).then(r=>r.json()).catch(()=>[]);
-  if(!window.L){
-    await new Promise(res=>{const s=document.createElement('script');s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';s.onload=res;document.head.appendChild(s);
-    const l=document.createElement('link');l.rel='stylesheet';l.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(l);});
-  }
-  // Vesiverkkokartta CRS.Simple — ei venytystä, pikselikoordinaatit
-  const VV_W=724, VV_H=1024;
-  const imgBounds=[[0,0],[VV_H,VV_W]];
-  function pxToLL(px,py){return L.latLng(VV_H*(1-py),VV_W*px);}
-  function llToPx(ll){return{px:ll.lng/VV_W, py:1-ll.lat/VV_H};}
-
-  if(!_adminAluekarttaMap){
-    _adminAluekarttaMap=L.map('admin-aluekartta',{crs:L.CRS.Simple,minZoom:-2,maxZoom:4});
-    L.imageOverlay('vesiverkkokartta.jpg',imgBounds,{opacity:1}).addTo(_adminAluekarttaMap);
-    _adminAluekarttaMap.fitBounds(imgBounds);
-    _adminAluekarttaMap._mokkiGrp=L.layerGroup().addTo(_adminAluekarttaMap);
-  } else {
-    _adminAluekarttaMap._mokkiGrp.clearLayers();
-  }
-
-  // Kohdistetut vs kohdistamattomat
-  const placed=rc.filter(c=>c.map_px!=null&&c.map_py!=null);
-  const unplaced=rc.filter(c=>c.map_px==null||c.map_py==null);
-
-  // Kohdistamattomien "parkkipaikka" vasemmassa reunassa kuvan ulkopuolella
-  let parkIdx=0;
-  const statusEl=document.getElementById('aluek-status');
-
-  const makeMokkiMarker=(c,pos)=>{
-    const isPlaced=c.map_px!=null;
-    const icon=L.divIcon({
-      html:`<div style="background:${isPlaced?'#fff3cd':'#fee2e2'};color:#334155;border:1.5px solid ${isPlaced?'#f59e0b':'#ef4444'};border-radius:3px;padding:0 3px;font-size:9px;font-weight:700;white-space:nowrap;line-height:16px;box-shadow:0 1px 4px rgba(0,0,0,.4);cursor:grab;">${esc(c.number)}</div>`,
-      className:'',iconSize:[28,16],iconAnchor:[14,8]
-    });
-    const coordId='coord-'+c.number;
-    const m=L.marker(pos,{icon,draggable:true,zIndexOffset:isPlaced?0:1000});
-    m.bindPopup(`<div style="min-width:140px"><b>Mökki ${esc(c.number)}</b><div id="${coordId}" style="font-size:0.68rem;color:#6b7280;margin-top:4px;">${isPlaced?'📍 kohdistettu':'❗ ei kohdistettu'}</div></div>`,{maxWidth:180});
-    m.on('dragend',async e=>{
-      const ll=e.target.getLatLng();
-      const {px,py}=llToPx(ll);
-      const coordEl=document.getElementById(coordId);
-      if(coordEl)coordEl.textContent='⏳ Tallennetaan...';
-      if(statusEl)statusEl.textContent='⏳ Tallennetaan '+c.number+'...';
-      try{
-        await fetch(API_BASE+'/api/hkl/cottages/'+encodeURIComponent(c.number)+'/location',{method:'POST',headers:{...ah(),'Content-Type':'application/json'},body:JSON.stringify({px,py})});
-        if(coordEl)coordEl.textContent='✅ x='+px.toFixed(3)+' y='+py.toFixed(3);
-        if(statusEl)statusEl.textContent='✅ Mökki '+c.number+' tallennettu';
-        // Päivitä ikoni vihreäksi
-        const newIcon=L.divIcon({html:`<div style="background:#d1fae5;color:#065f46;border:1.5px solid #10b981;border-radius:3px;padding:0 3px;font-size:9px;font-weight:700;white-space:nowrap;line-height:16px;box-shadow:0 1px 4px rgba(0,0,0,.4);cursor:grab;">${esc(c.number)}</div>`,className:'',iconSize:[28,16],iconAnchor:[14,8]});
-        m.setIcon(newIcon);
-      }catch(err){if(coordEl)coordEl.textContent='❌ Virhe';if(statusEl)statusEl.textContent='❌ Virhe tallennuksessa';}
-    });
-    m.addTo(_adminAluekarttaMap._mokkiGrp);
-  };
-
-  placed.forEach(c=>makeMokkiMarker(c,pxToLL(c.map_px,c.map_py)));
-  unplaced.forEach((c,i)=>{
-    // Pino vasemmalle reunalle kuvan ulkopuolelle (x=-60px, y jakautuu tasaisesti)
-    const py=0.05+i*(0.90/Math.max(unplaced.length,1));
-    makeMokkiMarker(c,pxToLL(-0.08,py));
-    parkIdx++;
+  _aluekCottages=await fetch(API_BASE+'/api/hkl/cottages/locations',{headers:h}).then(r=>r.json()).catch(()=>[]);
+  renderAluekDots();
+  wrap.addEventListener('click',e=>{
+    if(e.target.closest('.aluek-dot'))return; // dot-klikkaus käsitellään erikseen
+    const rect=img.getBoundingClientRect();
+    _aluekPendingPx=(e.clientX-rect.left)/rect.width;
+    _aluekPendingPy=(e.clientY-rect.top)/rect.height;
+    const p=document.getElementById('aluek-prompt');
+    const inp=document.getElementById('aluek-num-input');
+    if(p){p.style.display='flex';if(inp){inp.value='';setTimeout(()=>inp.focus(),50);}}
   });
-
+  document.getElementById('aluek-num-input')?.addEventListener('keydown',e=>{if(e.key==='Enter')aluekSave();});
   const info=document.getElementById('admin-aluekartta-legend');
-  if(info)info.innerHTML=`<span style="background:#fff3cd;border:1.5px solid #f59e0b;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:600;">Keltainen</span> = kohdistettu &nbsp; <span style="background:#fee2e2;border:1.5px solid #ef4444;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:600;">Punainen</span> = ei vielä kohdistettu (vasemmassa reunassa) &nbsp; <span style="background:#d1fae5;border:1.5px solid #10b981;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:600;">Vihreä</span> = juuri tallennettu. Yhteensä: ${placed.length}/${rc.length} kohdistettu.`;
+  if(info)info.innerHTML='';
+}
+function renderAluekDots(){
+  const wrap=document.getElementById('admin-aluekartta-wrap');
+  const img=document.getElementById('admin-vv-img');
+  if(!wrap||!img)return;
+  wrap.querySelectorAll('.aluek-dot').forEach(d=>d.remove());
+  _aluekCottages.forEach(c=>{
+    if(c.map_px==null||c.map_py==null)return;
+    const px=parseFloat(c.map_px),py=parseFloat(c.map_py);
+    if(isNaN(px)||isNaN(py))return;
+    const dot=document.createElement('div');
+    dot.className='aluek-dot';
+    dot.style.cssText=`position:absolute;left:${px*100}%;top:${py*100}%;transform:translate(-50%,-50%);
+      background:#0e5c3a;color:#fff;border:1.5px solid #fff;border-radius:4px;
+      padding:1px 4px;font-size:8px;font-weight:700;white-space:nowrap;cursor:pointer;
+      box-shadow:0 1px 4px rgba(0,0,0,.5);z-index:10;`;
+    dot.textContent=c.number;
+    dot.title='Klikkaa siirtääksesi';
+    dot.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(confirm('Poista kohdistus mökilta '+c.number+'?')){
+        fetch(API_BASE+'/api/hkl/cottages/'+encodeURIComponent(c.number)+'/location',{method:'POST',headers:{...ah(),'Content-Type':'application/json'},body:JSON.stringify({px:null,py:null})}).then(()=>{
+          const idx=_aluekCottages.findIndex(x=>x.number===c.number);
+          if(idx>=0){_aluekCottages[idx].map_px=null;_aluekCottages[idx].map_py=null;}
+          renderAluekDots();
+        });
+      }
+    });
+    wrap.appendChild(dot);
+  });
+  const placed=_aluekCottages.filter(c=>c.map_px!=null).length;
+  const statusEl=document.getElementById('aluek-status');
+  if(statusEl)statusEl.textContent=placed+'/'+_aluekCottages.length+' kohdistettu';
+}
+async function aluekSave(){
+  const inp=document.getElementById('aluek-num-input');
+  const num=(inp?.value||'').trim();
+  if(!num){alert('Syötä mökin numero');return;}
+  const statusEl=document.getElementById('aluek-status');
+  document.getElementById('aluek-prompt').style.display='none';
+  if(statusEl)statusEl.textContent='⏳ Tallennetaan '+num+'...';
+  try{
+    await fetch(API_BASE+'/api/hkl/cottages/'+encodeURIComponent(num)+'/location',{method:'POST',headers:{...ah(),'Content-Type':'application/json'},body:JSON.stringify({px:_aluekPendingPx,py:_aluekPendingPy})});
+    const idx=_aluekCottages.findIndex(c=>c.number===num);
+    if(idx>=0){_aluekCottages[idx].map_px=_aluekPendingPx;_aluekCottages[idx].map_py=_aluekPendingPy;}
+    renderAluekDots();
+    if(statusEl)statusEl.textContent='✅ Mökki '+num+' tallennettu';
+  }catch(e){if(statusEl)statusEl.textContent='❌ Virhe tallennuksessa';}
 }
 
 let _vvOverlay=null;
