@@ -1206,6 +1206,30 @@ body { padding-top: 48px; }
       </div>
     </div>
 
+    <!-- ALUEKARTTA -->
+    <div class="card" id="aluekartta-card" data-collapse="true">
+      <div class="card-header" onclick="toggleCardCollapse('aluekartta-card')" style="cursor:pointer;">
+        <div class="card-title">🗺️ Aluekartta</div>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
+      </div>
+      <div class="card-body card-collapse-body" style="display:none;padding:0 14px 14px;">
+        <div id="aluekartta" style="height:340px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);display:none;margin-top:10px;"></div>
+        <div id="aluekartta-empty" style="text-align:center;padding:24px 14px;font-size:0.82rem;color:var(--text-muted);">
+          <div style="font-size:1.6rem;margin-bottom:8px;">🗺️</div>
+          <div style="font-weight:600;margin-bottom:4px;">Ladataan karttaa...</div>
+        </div>
+        <div id="venepaikka-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+        <!-- Vesiverkkokartta reference -->
+        <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">🔵 Vesiverkkokartta</div>
+          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px;border:1px solid var(--border);">
+            <img src="vesiverkkokartta.jpg" alt="Vesiverkkokartta" style="display:block;max-width:100%;height:auto;min-width:300px;">
+          </div>
+          <div style="font-size:0.68rem;color:var(--text-muted);margin-top:4px;">Vesijohdot sinisellä · oranssi = linjasulku · sininen ympyrä = aluesulku · ruskea = liinakatto</div>
+        </div>
+      </div>
+    </div>
+
     <!-- 8. KAMERAVALVONTA CARD (compact) -->
     <div class="card" id="camera-card" style="display:none" data-mokki="484">
       <div class="card-header">
@@ -1350,36 +1374,6 @@ body { padding-top: 48px; }
 
     <!-- MÖKKIKARTTA -->
     <!-- ALUEKARTTA -->
-    <div class="card" id="aluekartta-card" data-collapse="true">
-      <div class="card-header" onclick="toggleCardCollapse('aluekartta-card')" style="cursor:pointer;">
-        <div class="card-title">🗺️ Aluekartta</div>
-        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
-      </div>
-      <div class="card-body card-collapse-body" style="display:none;padding:0 14px 14px;">
-        <div style="display:flex;gap:10px;margin:10px 0 8px;font-size:0.72rem;color:var(--text-muted);flex-wrap:wrap;align-items:center;">
-          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:4px;"></span>Sulkuventtiili</span>
-          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#3b82f6;margin-right:4px;"></span>Palvelupiste</span>
-          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:4px;"></span>Venelaituri (vapaa)</span>
-          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:4px;"></span>Venelaituri (varattu)</span>
-          <a href="https://jaaskel.com/mokkikartta.pdf" target="_blank" style="margin-left:auto;font-size:0.72rem;color:var(--green);font-weight:600;text-decoration:none;">📄 Mökkikartta ↗</a>
-        </div>
-        <div id="aluekartta" style="height:320px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);display:none;"></div>
-        <div id="aluekartta-empty" style="text-align:center;padding:24px 14px;font-size:0.82rem;color:var(--text-muted);">
-          <div style="font-size:1.6rem;margin-bottom:8px;">🗺️</div>
-          <div style="font-weight:600;margin-bottom:4px;">Ladataan karttaa...</div>
-        </div>
-        <div id="venepaikka-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
-        <!-- Vesiverkkokartta reference -->
-        <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;">
-          <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">🔵 Vesiverkkokartta</div>
-          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px;border:1px solid var(--border);">
-            <img src="vesiverkkokartta.jpg" alt="Vesiverkkokartta" style="display:block;max-width:100%;height:auto;min-width:300px;">
-          </div>
-          <div style="font-size:0.68rem;color:var(--text-muted);margin-top:4px;">Vesijohdot merkitty sinisellä · oranssi = linjasulku · sininen ympyrä = aluesulku · ruskea = liinakatto</div>
-        </div>
-      </div>
-    </div>
-
     <!-- KESÄMAJALAISEN OPAS -->
     <div class="card" id="opas-card" data-collapse="true">
       <div class="card-header" onclick="toggleCardCollapse('opas-card')" style="cursor:pointer;">
@@ -3187,9 +3181,21 @@ async function loadAluekartta() {
     await _loadLeaflet();
     if (!_aluekarttaMap) {
       _aluekarttaMap = L.map('aluekartta').setView([60.1552, 24.8545], 18);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OSM'}).addTo(_aluekarttaMap);
+      const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OSM', maxZoom: 20});
+      const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution: '© ESRI', maxZoom: 20});
+      osmLayer.addTo(_aluekarttaMap);
+      _aluekarttaMap._baseLayers = {'🗺️ Kartta': osmLayer, '🛰️ Satelliitti': satLayer};
+      _aluekarttaMap._overlayGroups = {
+        palvelupisteet: L.layerGroup().addTo(_aluekarttaMap),
+        venepaikat: L.layerGroup().addTo(_aluekarttaMap)
+      };
+      L.control.layers(_aluekarttaMap._baseLayers, {
+        '💧 Palvelupisteet': _aluekarttaMap._overlayGroups.palvelupisteet,
+        '⛵ Venelaitureita': _aluekarttaMap._overlayGroups.venepaikat
+      }, {collapsed: false, position: 'topright'}).addTo(_aluekarttaMap);
     } else {
-      _aluekarttaMap.eachLayer(l => { if (l instanceof L.Marker) _aluekarttaMap.removeLayer(l); });
+      _aluekarttaMap._overlayGroups.palvelupisteet.clearLayers();
+      _aluekarttaMap._overlayGroups.venepaikat.clearLayers();
     }
     const VP_C = {vesipiste: '#3b82f6', sulkuventtiili: '#ef4444', suihku: '#34d399', wc: '#a78bfa', jate: '#6b7280'};
     const VP_I = {vesipiste: '💧', sulkuventtiili: '🔴', suihku: '🚿', wc: '🚽', jate: '♻️'};
@@ -3211,11 +3217,11 @@ async function loadAluekartta() {
       const lbl = VP_LBL[vp.tyyppi] || vp.tyyppi;
       const cottageTag = vp.cottage_number ? `<span style="font-size:0.7rem;background:#166534;color:white;border-radius:3px;padding:1px 5px;margin-left:4px;">Mökki ${vp.cottage_number}</span>` : '<span style="font-size:0.7rem;color:#6b7280;">yhteinen</span>';
       const icon = L.divIcon({
-        html: `<div style="background:${bg};border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4)">${ico}</div>`,
-        className: '', iconSize: [34, 34], iconAnchor: [17, 17]
+        html: `<div style="background:${bg};border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4)">${ico}</div>`,
+        className: '', iconSize: [38, 38], iconAnchor: [19, 19]
       });
       const popup = `<strong>${_e(vp.nimi)}</strong> ${cottageTag}<br><span style="font-size:0.78rem;color:#6b7280">${lbl}</span>${vp.kuvaus ? '<br><span style="font-size:0.78rem">' + _e(vp.kuvaus) + '</span>' : ''}`;
-      L.marker([vp.lat, vp.lon], {icon}).bindPopup(popup).addTo(_aluekarttaMap);
+      L.marker([vp.lat, vp.lon], {icon}).bindPopup(popup).addTo(_aluekarttaMap._overlayGroups.palvelupisteet);
       bounds.push([vp.lat, vp.lon]);
     });
 
@@ -3226,8 +3232,8 @@ async function loadAluekartta() {
       const varatut = pierSlots.filter(s => s.tila === 'varattu').length;
       const bg = vapaat > 0 ? TILA_C.vapaa : (varatut === pierSlots.length && pierSlots.length ? TILA_C.varattu : '#6b7280');
       const icon = L.divIcon({
-        html: `<div style="background:${bg};border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:white;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,.4);">${_e(b.numero||'?')}</div>`,
-        className: '', iconSize: [36, 36], iconAnchor: [18, 18]
+        html: `<div style="background:${bg};border-radius:8px;width:52px;height:34px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:white;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,.5);">${_e(b.numero||'?')}</div>`,
+        className: '', iconSize: [52, 34], iconAnchor: [26, 17]
       });
       const slotRows = pierSlots.map(s => {
         const sc = TILA_C[s.tila] || '#6b7280';
@@ -3243,7 +3249,7 @@ async function loadAluekartta() {
         <div style="font-size:0.75rem;margin-bottom:6px;">Vapaana: <b style="color:#22c55e">${vapaat}</b> / ${pierSlots.length} paikkaa</div>
         ${slotRows}
       </div>`;
-      L.marker([b.lat, b.lon], {icon}).bindPopup(popup, {maxWidth: 220}).addTo(_aluekarttaMap);
+      L.marker([b.lat, b.lon], {icon}).bindPopup(popup, {maxWidth: 220}).addTo(_aluekarttaMap._overlayGroups.venepaikat);
       bounds.push([b.lat, b.lon]);
     });
 
