@@ -1383,6 +1383,17 @@ body { padding-top: 48px; }
       </div>
     </div>
 
+    <!-- VENEPAIKAN HALTIJAN OHJE -->
+    <div class="card" id="veneohje-card" data-collapse="true">
+      <div class="card-header" onclick="toggleCardCollapse('veneohje-card')" style="cursor:pointer;">
+        <div class="card-title">⚓ Venepaikan haltijan ohje <span style="font-size:0.65rem;font-weight:400;color:var(--text-muted);text-transform:none;letter-spacing:0;">2025</span></div>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
+      </div>
+      <div class="card-body card-collapse-body" style="display:none;">
+        <div id="veneohje-sections" style="display:flex;flex-direction:column;gap:2px;"></div>
+      </div>
+    </div>
+
     <!-- 10. DOKUMENTIT & OHJEET CARD (collapsed default) -->
     <div class="card" id="docs-card" data-collapse="true">
       <div class="card-header" onclick="toggleCardCollapse('docs-card')" style="cursor:pointer;">
@@ -2394,6 +2405,7 @@ function showDashboard(num) {
   setTimeout(initVesselsMap, 500);
   renderFlagDays();
   applySectionVisibility();
+  renderVeneohje();
 }
 
 // ========== SENSOR DATA ==========
@@ -2873,6 +2885,36 @@ function renderOpas() {
     </div>`).join('');
 }
 renderOpas();
+
+// ========== VENEPAIKAN HALTIJAN OHJE ==========
+function getVeneohjeData() { return [
+  { t: '1. Venepaikat lyhyesti', icon: '⚓', body: `HKL-kesämajat ry:llä on Länsiulapanniemessä <b>3 pienvenelaituria</b>, joissa kussakin on 16 venepaikkaa. Kaikkiaan paikkoja on <b>48</b>.\n\nVeneen maksimimitat: pituus <b>5,6 m</b> ja leveys <b>2,17 m</b>.\n\nVenepaikat ovat toistaiseksi voimassa — niitä ei tarvitse hakea uudestaan vuosittain. Mikäli haluat luopua paikasta seuraavaksi kesäkaudeksi, ilmoita laiturivastaavalle viimeistään <b>31.12. mennessä</b>.` },
+  { t: '2. Hinnasto', icon: '💰', body: `Venepaikan vuosihinta:\n• <b>Mökkiläinen: ${_hinnat.venepaikka_asukas} €/v</b>\n• Kannatusjäsen: ${_hinnat.venepaikka_ulkopuolinen} €/v\n\nVenepaikkamaksu maksetaan keväällä MobilePay #24434 (HKL-kesämajat ry).\n\nVapaita paikkoja tiedustellaan laiturivastaavalta. Paikat jaetaan jonojärjestyksessä. Mökkiläisillä on etusija kannatusjäseniin nähden.` },
+  { t: '3. Aikataulut', icon: '📅', body: `<b>Kevät:</b>\n• Veneet vesille viimeistään <b>25.5.</b>\n• Trailerit ja venepukit pois piha-alueelta <b>25.5. mennessä</b>\n• Venepukkeja voi säilyttää WC-rakennuksen takana olevassa aitauksessa — merkitse pukit omalla nimelläsi tai venepaikan numerolla\n\n<b>Syksy:</b>\n• Trailerit alueelle aikaisintaan <b>14.9.</b> veneen nostoa varten\n• Ilmoita laiturivastaavalle kun olet lopettanut veneilykauden\n• Aisat eivät saa jäätyä veteen\n\n<b>Talkoot:</b>\n• Laituritalkoita järjestetään <b>toukokuussa</b> (aisat veteen) ja <b>marraskuussa</b> (aisat ylös)` },
+  { t: '4. Veneenlasku ja -nosto', icon: '🚤', body: `Ramppi veneenlaskua ja -nostoa varten löytyy <b>ykköslaiturin ja grillikatoksen välistä</b>.\n\nPienten veneiden nostossa apuna käytettäviä muoviputkia säilytetään <b>tanssilavan alla</b> pienen luukun takana.` },
+  { t: '5. Veneen kiinnitys', icon: '🔗', body: `Vene tulee kiinnittää:\n• <b>Takaa aisoihin</b>\n• <b>Edestä laituriin</b>\n\nsiten, että vene ei pääse hakkaamaan laituriin tai aisoihin kovassakaan aallokossa.\n\n<b>Jokainen köysi vaatii jouistimen!</b> Joustimet pehmentävät aallokon aiheuttamaa nykivää liikettä sekä estävät veneen, aisojen ja laiturin ennenaikaista kulumista. Kiinnityksessä voi käyttää myös metallijoustinta.\n\nJos aiot vaihtaa veneen, ole ensin yhteydessä laiturivastaavaan. Aisat on numeroitu venepaikkojen mukaan.` },
+  { t: '6. Siisteys laitureilla', icon: '🧹', body: `Laitureilla, ranta-alueilla tai grillikatoksella <b>ei saa säilyttää mitään</b>.\n\nEsimerkiksi kalastustarvikkeet säilytetään veneessä tai mökillä. Tanssilavan alla säilytetään veneennostoputkia ja laitureiden ylläpidon varaosia.\n\nLaitureihin ei saa asentaa mitään lupaa kysymättä.\n\nErityistä tarkkuutta on noudatettava siimojen ja verkkojen kanssa — ne ovat vaarallisia linnuille. Tupakannatsat eivät kuulu rantaluontoon.\n\nKalanperkuupaikka on <b>grillikatoksen takana rannalla</b>.` },
+  { t: '7. Ylläpito ja vakuutus', icon: '🛠️', body: `Sateiden aikaan käy tarkistamassa, ettei vene ole täyttynyt vedestä — tarvittaessa äyskäröi tyhjäksi. Seuraa sääennusteita ja huomioi kovat tuulet ja myrskyt.\n\nYlläpitoasioissa noudatetaan <b>yhteisvastuullisuutta ja naapuriapua</b>.\n\nMikäli veneität aisannostotalkoiden jälkeen, aisat on nostettava omatoimisesti.\n\n<b>Yhdistys ei vastaa</b> mahdollisista myrskytuhoista, ilkivallasta tms. <b>Venevaakuutusta suositellaan kaikille veneilijöille.</b>` },
+  { t: '8. Talvisäilytys', icon: '❄️', body: `Talvella veneitä on tapana säilyttää <b>tanssilavan ympärillä</b>. Paikat täytetään tiiviisti.\n\nVenepukkeja voi säilyttää WC-rakennuksen takana olevassa aitauksessa — merkitse omalla nimelläsi tai venepaikan numerolla.` },
+  { t: '9. Laiturivastaava', icon: '📞', body: `Laiturivastaava: <b>Jyrki Luokkanen</b> (mökki 469)\n📧 <a href="mailto:jyrki.luokkanen@gmail.com" style="color:var(--green);">jyrki.luokkanen@gmail.com</a>\n📧 <a href="mailto:laiturivastaava@hklkesamajat.fi" style="color:var(--green);">laiturivastaava@hklkesamajat.fi</a>\n📞 <a href="tel:+358440748796" style="color:var(--green);">0440 74 87 96</a>\n\nLaiturivastaavan tehtäviin kuuluu venepaikkojen jakaminen sekä laituritalkoiden järjestäminen. Hänet voi tavoittaa myös mökistä 469.` },
+]; }
+
+function renderVeneohje() {
+  const el = document.getElementById('veneohje-sections');
+  if (!el) return;
+  el.innerHTML = getVeneohjeData().map(s => `
+    <div style="border-bottom:1px solid #f0f0f0;">
+      <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.vo-chev').textContent=this.nextElementSibling.style.display==='none'?'▸':'▾'"
+           style="display:flex;align-items:center;gap:10px;padding:11px 4px;cursor:pointer;transition:background .15s;border-radius:6px;"
+           onmouseover="this.style.background='var(--sand)'" onmouseout="this.style.background=''">
+        <span style="font-size:1.2rem;width:28px;text-align:center;">${s.icon}</span>
+        <span style="flex:1;font-size:0.85rem;font-weight:700;color:var(--text);">${s.t}</span>
+        <span class="vo-chev" style="font-size:0.75rem;color:var(--text-muted);width:16px;text-align:center;">▸</span>
+      </div>
+      <div style="display:none;padding:4px 4px 14px 42px;font-size:0.84rem;color:var(--text-muted);line-height:1.7;white-space:pre-line;">${s.body}</div>
+    </div>`).join('');
+}
+// renderVeneohje() called from showDashboard() after _hinnat loaded
 
 // ========== PHOTOS ==========
 const PHOTOS_KEY = () => 'hkl_photos_' + _currentMokki;
@@ -3681,6 +3723,7 @@ const SECTION_DEFS = [
   { key: 'profile', label: '👤 Profiili', sel: '#profile-card' },
   { key: 'aluekartta', label: '🗺️ Aluekartta', sel: '#aluekartta-card' },
   { key: 'opas', label: '📖 Opas', sel: '#opas-card' },
+  { key: 'veneohje', label: '⚓ Veneohje', sel: '#veneohje-card' },
   { key: 'docs', label: '📄 Dokumentit', sel: '#docs-card' },
   { key: 'ilmoitus', label: '📢 Ilmoitukset', sel: '#ilmoitus-card' },
   { key: 'hallitus', label: '🏛️ Hallitus', sel: '#hallitus-card' },
