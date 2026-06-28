@@ -3206,14 +3206,12 @@ async function loadAluekartta() {
     const TILA_L = {vapaa: 'Vapaa', varattu: 'Varattu', vieraspaikka: 'Vieraspaikka'};
     const bounds = [];
 
-    const MK_BOUNDS = [[60.1534, 24.8522], [60.1572, 24.8589]];
+    const VV_BOUNDS = [[60.1495, 24.845], [60.1605, 24.863]];
     if (!_aluekarttaMap) {
       _aluekarttaMap = L.map('aluekartta', {maxZoom: 20}).setView([60.1552, 24.8547], 17);
-      document.getElementById('aluekartta').style.background = '#e8e4dc';
-      const blankBase = L.tileLayer('', {maxZoom: 20}).addTo(_aluekarttaMap);
-      const satLayer  = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution: '© ESRI', maxZoom: 20});
-      const mkLayer   = L.imageOverlay('mokkikartta.jpg', MK_BOUNDS, {opacity: 1, zIndex: 5}).addTo(_aluekarttaMap);
-      _aluekarttaMap._mkLayer = mkLayer;
+      document.getElementById('aluekartta').style.background = '#f0ede8';
+      L.imageOverlay('vesiverkkokartta.jpg', VV_BOUNDS, {opacity: 1, zIndex: 1}).addTo(_aluekarttaMap);
+      const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution: '© ESRI', maxZoom: 20});
       const mokkiGroup = L.layerGroup().addTo(_aluekarttaMap);
       const vesiGroup  = L.layerGroup().addTo(_aluekarttaMap);
       const veneGroup  = L.layerGroup().addTo(_aluekarttaMap);
@@ -3227,7 +3225,6 @@ async function loadAluekartta() {
       _aluekarttaMap._overlayGroups.mokkit.clearLayers();
       _aluekarttaMap._overlayGroups.palvelupisteet.clearLayers();
       _aluekarttaMap._overlayGroups.venepaikat.clearLayers();
-      if (_aluekarttaMap._mkLayer) _aluekarttaMap._mkLayer.setBounds(MK_BOUNDS);
     }
 
     // Mökit
