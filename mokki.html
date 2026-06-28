@@ -3199,16 +3199,13 @@ async function loadAluekartta() {
       const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OSM', maxZoom: 20});
       const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution: '© ESRI', maxZoom: 20});
       osmLayer.addTo(_aluekarttaMap);
-      // Vesiverkko image overlay — bounds calibrated to cottage coordinate range
-      const vesiverkkoLayer = L.imageOverlay('vesiverkkokartta.jpg',
-        [[60.1495, 24.845], [60.1605, 24.863]], {opacity: 0.55, zIndex: 5});
       const mokkiGroup    = L.layerGroup().addTo(_aluekarttaMap);
       const vesiGroup     = L.layerGroup().addTo(_aluekarttaMap);
       const veneGroup     = L.layerGroup().addTo(_aluekarttaMap);
-      _aluekarttaMap._overlayGroups = {mokkit: mokkiGroup, palvelupisteet: vesiGroup, venepaikat: veneGroup, vesiverkko: vesiverkkoLayer};
+      _aluekarttaMap._overlayGroups = {mokkit: mokkiGroup, palvelupisteet: vesiGroup, venepaikat: veneGroup};
       L.control.layers(
         {'🗺️ Kartta': osmLayer, '🛰️ Satelliitti': satLayer},
-        {'🏘️ Mökit': mokkiGroup, '💧 Palvelupisteet': vesiGroup, '🔵 Vesiverkko': vesiverkkoLayer, '⛵ Venelaitureita': veneGroup},
+        {'🏘️ Mökit': mokkiGroup, '💧 Palvelupisteet': vesiGroup, '⛵ Venelaitureita': veneGroup},
         {collapsed: false, position: 'topright'}
       ).addTo(_aluekarttaMap);
     } else {
