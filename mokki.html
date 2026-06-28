@@ -1392,7 +1392,6 @@ body { padding-top: 48px; }
         <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
       </div>
       <div class="card-body card-collapse-body" style="display:none;">
-        <div id="venepaikat-status" style="margin-bottom:10px;"></div>
         <div id="veneohje-sections" style="display:flex;flex-direction:column;gap:2px;"></div>
       </div>
     </div>
@@ -2929,7 +2928,6 @@ function renderVeneohje() {
       <div style="display:none;padding:4px 4px 14px 42px;font-size:0.84rem;color:var(--text-muted);line-height:1.7;white-space:pre-line;">${s.body}</div>
     </div>`).join('');
   _veneohjeRendered = true;
-  loadVenepaikkaStatus();
 }
 
 async function loadVenepaikkaStatus() {
@@ -3845,8 +3843,9 @@ function applySectionVisibility() {
   SECTION_DEFS.forEach(s => {
     const el = document.querySelector(s.sel);
     if (!el) return;
+    if (s.mokki && _currentMokki !== s.mokki) { el.style.display = 'none'; return; }
     const visible = prefs[s.key] !== false;
-    if (!visible) el.style.display = 'none';
+    el.style.display = visible ? '' : 'none';
   });
 }
 
