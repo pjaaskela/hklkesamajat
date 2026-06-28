@@ -750,11 +750,11 @@ body { padding-top: 48px; }
   </div>
 
   <!-- ILMANLAATU STRIP -->
-  <div id="aq-strip" style="margin:0 16px 10px;background:#fff;border-radius:12px;padding:10px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid #e8ede9;display:none;">
+  <div id="aq-strip" style="margin:0 16px 10px;background:#fff;border-radius:12px;padding:10px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid #e8ede9;">
     <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px;">💨 Ilmanlaatu · UV · Siitepöly</div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
-      <span style="font-size:0.82rem;font-weight:700;" id="aq-aqi-val">—</span>
-      <span id="aq-aqi-badge" style="font-size:0.72rem;border-radius:8px;padding:2px 8px;font-weight:600;background:#e0fce7;color:#065f46;">—</span>
+      <span style="font-size:0.82rem;font-weight:700;" id="aq-aqi-val"><span class="skel" style="width:24px;display:inline-block;"></span></span>
+      <span id="aq-aqi-badge" style="font-size:0.72rem;border-radius:8px;padding:2px 8px;font-weight:600;background:#e8ede9;color:#64748b;">…</span>
       <span style="font-size:0.75rem;color:var(--text-muted);" id="aq-pm25-val"></span>
       <span id="aq-uv-badge" style="font-size:0.72rem;border-radius:8px;padding:2px 8px;font-weight:600;background:#fef9c3;color:#854d0e;display:none;"></span>
       <span id="aq-pollen-strip" style="display:flex;gap:6px;flex-wrap:wrap;"></span>
@@ -3363,8 +3363,10 @@ async function loadAirQuality() {
     document.getElementById('aq-pollen-strip').innerHTML = pollens.map(p =>
       `<span style="font-size:0.72rem;border-radius:8px;padding:2px 7px;font-weight:600;background:${p.info[1]};color:${p.info[2]};">${p.name}: ${p.info[0]}</span>`
     ).join('');
-    document.getElementById('aq-strip').style.display = '';
-  } catch(e) { console.warn('loadAirQuality', e); }
+  } catch(e) {
+    console.warn('loadAirQuality', e);
+    document.getElementById('aq-aqi-badge').textContent = '—';
+  }
 }
 
 async function loadSolar() {
