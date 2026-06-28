@@ -155,7 +155,8 @@ textarea.inp{resize:vertical;min-height:72px}
     <a href="#" onclick="return nav('mokkit')" data-sec="mokkit">🏠 Mökit</a>
     <a href="#" onclick="return nav('ilmoitukset')" data-sec="ilmoitukset">🏡 Ilmoitukset</a>
     <a href="#" onclick="return nav('dokumentit')" data-sec="dokumentit">📄 Dokumentit</a>
-    <a href="#" onclick="return nav('vesipisteet')" data-sec="vesipisteet">🗺️ Palvelupisteet</a>
+    <a href="#" onclick="return nav('aluekartta')" data-sec="aluekartta">🗺️ Aluekartta</a>
+    <a href="#" onclick="return nav('vesipisteet')" data-sec="vesipisteet">💧 Palvelupisteet</a>
     <a href="#" onclick="return nav('venepaikat')" data-sec="venepaikat">⛵ Venepaikat</a>
     <a href="#" onclick="return nav('vesiverkko')" data-sec="vesiverkko">🔧 Vesiverkko</a>
     <div class="sidenav-section">Järjestelmä</div>
@@ -394,6 +395,19 @@ textarea.inp{resize:vertical;min-height:72px}
         <div class="tab" onclick="setListingFilter('myydaan',this)">🏷️ Myydään</div>
       </div>
       <div id="listings-list"></div>
+    </div>
+
+    <!-- ALUEKARTTA -->
+    <div id="sec-aluekartta" class="sec-page">
+      <div class="page-title">🗺️ Aluekartta</div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div id="admin-aluekartta" style="height:600px;"></div>
+      </div>
+      <div id="admin-aluekartta-legend" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted);">
+        <span>🏠 Mökit (kuvaus/kuva popupissa)</span>
+        <span>💧 Palvelupisteet</span>
+        <span>⛵ Venelaitureita</span>
+      </div>
     </div>
 
     <!-- VESIPISTEET -->
@@ -923,6 +937,7 @@ function nav(sec){
   if(sec==='asetukset')loadSiteSettings();
   if(sec==='palautteet')loadFeedback();
   if(sec==='venepaikat')initVeneMap();
+  if(sec==='aluekartta')initAdminAluekartta();
   document.getElementById('sidenav').classList.remove('open');
   document.getElementById('sidenav-overlay').classList.remove('open');
   return false;
@@ -1184,6 +1199,73 @@ async function addLaituri(){
 async function loadVesipisteet(){try{_data.vesipisteet=await fetch(API_BASE+'/api/hkl/vesipisteet').then(r=>r.json());renderVesipisteet();updateStats();if(_vesiMap)updateVesiMarkers();}catch(e){}}
 const VP_ICONS={vesipiste:'💧',sulkuventtiili:'🔴',wc:'🚽',suihku:'🚿',sahko:'⚡',jate:'♻️'};
 const VP_COLORS={vesipiste:'#38bdf8',sulkuventtiili:'#ef4444',wc:'#a78bfa',suihku:'#34d399',sahko:'#fbbf24',jate:'#6b7280'};
+// ===== ALUEKARTTA (admin) =====
+let _adminAluekarttaMap=null;
+async function initAdminAluekartta(){
+  const mapEl=document.getElementById('admin-aluekartta');
+  if(!mapEl)return;
+  const h=ah();
+  const [rp,rb,rc]=await Promise.all([
+    fetch(API_BASE+'/api/hkl/vesipisteet').then(r=>r.json()).catch(()=>[]),
+    fetch(API_BASE+'/api/hkl/berths').then(r=>r.json()).catch(()=>[]),
+    fetch(API_BASE+'/api/hkl/cottages/locations',{headers:h}).then(r=>r.json()).catch(()=>[])
+  ]);
+  if(!window.L){
+    await new Promise(res=>{const s=document.createElement('script');s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';s.onload=res;document.head.appendChild(s);
+    const l=document.createElement('link');l.rel='stylesheet';l.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(l);});
+  }
+  if(_adminAluekarttaMap){
+    _adminAluekarttaMap.eachLayer(l=>{if(l._url===undefined)_adminAluekarttaMap.removeLayer(l);});
+  } else {
+    _adminAluekarttaMap=L.map('admin-aluekartta').setView([60.1552,24.8547],17);
+    const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:20});
+    const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© ESRI',maxZoom:20});
+    sat.addTo(_adminAluekarttaMap);
+    const mokkiGrp=L.layerGroup().addTo(_adminAluekarttaMap);
+    const vesiGrp=L.layerGroup().addTo(_adminAluekarttaMap);
+    const veneGrp=L.layerGroup().addTo(_adminAluekarttaMap);
+    _adminAluekarttaMap._grp={mokkit:mokkiGrp,vesi:vesiGrp,vene:veneGrp};
+    L.control.layers({'🗺️ Kartta':osm,'🛰️ Satelliitti':sat},{'🏘️ Mökit':mokkiGrp,'💧 Palvelupisteet':vesiGrp,'⛵ Venelaitureita':veneGrp},{collapsed:false,position:'topright'}).addTo(_adminAluekarttaMap);
+  }
+  const g=_adminAluekarttaMap._grp;
+  g.mokkit.clearLayers();g.vesi.clearLayers();g.vene.clearLayers();
+
+  const VP_C={vesipiste:'#3b82f6',sulkuventtiili:'#ef4444',suihku:'#34d399',wc:'#a78bfa',jate:'#6b7280'};
+  const VP_I={vesipiste:'💧',sulkuventtiili:'🔴',suihku:'🚿',wc:'🚽',jate:'♻️'};
+  const TILA_C={vapaa:'#22c55e',varattu:'#ef4444',vieraspaikka:'#f59e0b'};
+
+  // Mökit
+  rc.forEach(c=>{
+    if(!c.lat||!c.lon)return;
+    const icon=L.divIcon({html:`<div style="background:#f0f4f8;color:#334155;border:1.5px solid #94a3b8;border-radius:4px;padding:1px 4px;font-size:10px;font-weight:500;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.25);">${esc(c.number)}</div>`,className:'',iconSize:[32,18],iconAnchor:[16,9]});
+    const photoHtml=c.has_photo?`<img src="${API_BASE}/api/hkl/cottage-photo/${esc(c.number)}" style="width:180px;height:110px;object-fit:cover;border-radius:6px;display:block;margin:6px 0;" onerror="this.style.display='none'">`:'';
+    const kuvaus=c.kuvaus?`<div style="font-size:0.78rem;color:#475569;margin-top:4px;">${esc(c.kuvaus)}</div>`:'';
+    const editLink=`<a href="#" onclick="nav('mokkit');setTimeout(()=>document.querySelector('[data-num=\\'${esc(c.number)}\\']')?.click(),400);return false;" style="font-size:0.72rem;color:#0a4a6e;margin-top:6px;display:block;">✏️ Muokkaa →</a>`;
+    L.marker([c.lat,c.lon],{icon}).bindPopup(`<div style="min-width:180px"><b>Mökki ${esc(c.number)}</b>${photoHtml}${kuvaus||'<div style="font-size:0.75rem;color:#94a3b8;margin-top:4px;">Ei kuvausta</div>'}${editLink}</div>`,{maxWidth:220}).addTo(g.mokkit);
+  });
+
+  // Palvelupisteet
+  rp.forEach(vp=>{
+    if(!vp.lat||!vp.lon)return;
+    const icon=L.divIcon({html:`<div style="background:${VP_C[vp.tyyppi]||'#52b788'};border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4)">${VP_I[vp.tyyppi]||'📍'}</div>`,className:'',iconSize:[30,30],iconAnchor:[15,15]});
+    L.marker([vp.lat,vp.lon],{icon}).bindPopup(`<strong>${esc(vp.nimi)}</strong><br><span style="font-size:0.78rem;color:#6b7280">${esc(vp.tyyppi)}</span>${vp.kuvaus?'<br><span style="font-size:0.78rem">'+esc(vp.kuvaus)+'</span>':''}`).addTo(g.vesi);
+  });
+
+  // Venelaitureita
+  const piers=rb.filter(b=>!b.laituri);
+  const slots=rb.filter(b=>b.laituri);
+  const byPier={};slots.forEach(s=>{(byPier[s.laituri]=byPier[s.laituri]||[]).push(s);});
+  piers.forEach(b=>{
+    if(!b.lat||!b.lon)return;
+    const ps=byPier[b.numero]||[];
+    const vapaat=ps.filter(s=>s.tila==='vapaa').length;
+    const bg=vapaat>0?TILA_C.vapaa:(ps.length&&vapaat===0?TILA_C.varattu:'#6b7280');
+    const icon=L.divIcon({html:`<div style="background:${bg};border-radius:6px;min-width:52px;height:34px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4);padding:0 6px;">${esc(b.numero)}<br><span style="font-size:9px;">${vapaat}/${ps.length} vapaa</span></div>`,className:'',iconSize:[58,36],iconAnchor:[29,18]});
+    const rows=ps.map(s=>`<tr><td style="padding:1px 6px;font-size:11px;">${esc(s.numero)}</td><td style="padding:1px 6px;font-size:11px;color:${TILA_C[s.tila]||'#6b7280'}">${s.tila}</td></tr>`).join('');
+    L.marker([b.lat,b.lon],{icon}).bindPopup(`<b>${esc(b.nimi||b.numero)}</b><br><table style="margin-top:4px">${rows}</table>`,{maxWidth:180,maxHeight:300}).addTo(g.vene);
+  });
+}
+
 let _vvOverlay=null;
 function initVesiMap(){
   if(_vesiMap)return;
