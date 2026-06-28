@@ -399,28 +399,12 @@ textarea.inp{resize:vertical;min-height:72px}
 
     <!-- ALUEKARTTA -->
     <div id="sec-aluekartta" class="sec-page">
-      <div class="page-title">🗺️ Aluekartta</div>
+      <div class="page-title">🗺️ Aluekartta — mökkikohdistus</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Raahaa mökin numero oikeaan kohtaan kartalla. Sijainti tallentuu automaattisesti. <span id="aluek-status" style="color:#0e5c3a;font-weight:600;"></span></div>
       <div class="card" style="padding:0;overflow:hidden;">
-        <div id="admin-aluekartta" style="height:600px;"></div>
+        <div id="admin-aluekartta" style="height:700px;"></div>
       </div>
       <div id="admin-aluekartta-legend" style="margin-top:10px;font-size:12px;color:var(--muted);"></div>
-
-      <!-- MÖKKIKARTTA KALIBROINTI -->
-      <div class="card" style="margin-top:14px;">
-        <div class="card-title" style="margin-bottom:10px;">📐 Mökkikartta-kalibrointi</div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Säädä bounds kunnes mökkikartta osuu kohdalleen satelliittikuvan kanssa. Ota 🗺️ Mökkikartta -layer päälle kartasta.</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-          <div><label style="font-size:10px;color:var(--muted);font-weight:600;">SW lat (etelä)</label><input id="mk-sw-lat" type="number" step="0.00001" value="60.15340" style="width:100%;padding:5px 7px;border:1.5px solid #e0e7ef;border-radius:6px;font-size:12px;font-family:monospace;" oninput="updateMkOverlay()"></div>
-          <div><label style="font-size:10px;color:var(--muted);font-weight:600;">SW lon (länsi)</label><input id="mk-sw-lon" type="number" step="0.00001" value="24.85220" style="width:100%;padding:5px 7px;border:1.5px solid #e0e7ef;border-radius:6px;font-size:12px;font-family:monospace;" oninput="updateMkOverlay()"></div>
-          <div><label style="font-size:10px;color:var(--muted);font-weight:600;">NE lat (pohjoinen)</label><input id="mk-ne-lat" type="number" step="0.00001" value="60.15720" style="width:100%;padding:5px 7px;border:1.5px solid #e0e7ef;border-radius:6px;font-size:12px;font-family:monospace;" oninput="updateMkOverlay()"></div>
-          <div><label style="font-size:10px;color:var(--muted);font-weight:600;">NE lon (itä)</label><input id="mk-ne-lon" type="number" step="0.00001" value="24.85890" style="width:100%;padding:5px 7px;border:1.5px solid #e0e7ef;border-radius:6px;font-size:12px;font-family:monospace;" oninput="updateMkOverlay()"></div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <label style="font-size:10px;color:var(--muted);font-weight:600;">Peittävyys</label>
-          <input type="range" min="20" max="100" value="75" oninput="updateMkOpacity(this.value)" style="flex:1;">
-          <button onclick="copyMkCoords()" style="padding:5px 12px;background:#0e5c3a;color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer;">📋 Kopioi</button>
-        </div>
-      </div>
     </div>
 
     <!-- VESIPISTEET -->
@@ -1218,93 +1202,71 @@ async function initAdminAluekartta(){
   const mapEl=document.getElementById('admin-aluekartta');
   if(!mapEl)return;
   const h=ah();
-  const [rp,rb,rc]=await Promise.all([
-    fetch(API_BASE+'/api/hkl/vesipisteet').then(r=>r.json()).catch(()=>[]),
-    fetch(API_BASE+'/api/hkl/berths').then(r=>r.json()).catch(()=>[]),
-    fetch(API_BASE+'/api/hkl/cottages/locations',{headers:h}).then(r=>r.json()).catch(()=>[])
-  ]);
+  const rc=await fetch(API_BASE+'/api/hkl/cottages/locations',{headers:h}).then(r=>r.json()).catch(()=>[]);
   if(!window.L){
     await new Promise(res=>{const s=document.createElement('script');s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';s.onload=res;document.head.appendChild(s);
     const l=document.createElement('link');l.rel='stylesheet';l.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(l);});
   }
-  const getMkBounds=()=>[[
-    parseFloat(document.getElementById('mk-sw-lat')?.value||'60.1535'),
-    parseFloat(document.getElementById('mk-sw-lon')?.value||'24.8500')
-  ],[
-    parseFloat(document.getElementById('mk-ne-lat')?.value||'60.1578'),
-    parseFloat(document.getElementById('mk-ne-lon')?.value||'24.8620')
-  ]];
-  if(_adminAluekarttaMap){
-    _adminAluekarttaMap.eachLayer(l=>{if(l._url===undefined)_adminAluekarttaMap.removeLayer(l);});
-    if(_adminAluekarttaMap._mkOverlay)_adminAluekarttaMap.removeLayer(_adminAluekarttaMap._mkOverlay);
+  // Vesiverkkokartta CRS.Simple — ei venytystä, pikselikoordinaatit
+  const VV_W=724, VV_H=1024;
+  const imgBounds=[[0,0],[VV_H,VV_W]];
+  function pxToLL(px,py){return L.latLng(VV_H*(1-py),VV_W*px);}
+  function llToPx(ll){return{px:ll.lng/VV_W, py:1-ll.lat/VV_H};}
+
+  if(!_adminAluekarttaMap){
+    _adminAluekarttaMap=L.map('admin-aluekartta',{crs:L.CRS.Simple,minZoom:-2,maxZoom:4});
+    L.imageOverlay('vesiverkkokartta.jpg',imgBounds,{opacity:1}).addTo(_adminAluekarttaMap);
+    _adminAluekarttaMap.fitBounds(imgBounds);
+    _adminAluekarttaMap._mokkiGrp=L.layerGroup().addTo(_adminAluekarttaMap);
   } else {
-    _adminAluekarttaMap=L.map('admin-aluekartta').setView([60.1552,24.8547],17);
-    const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:20});
-    const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© ESRI',maxZoom:20});
-    sat.addTo(_adminAluekarttaMap);
-    const mokkiGrp=L.layerGroup().addTo(_adminAluekarttaMap);
-    const vesiGrp=L.layerGroup().addTo(_adminAluekarttaMap);
-    const veneGrp=L.layerGroup().addTo(_adminAluekarttaMap);
-    _adminAluekarttaMap._grp={mokkit:mokkiGrp,vesi:vesiGrp,vene:veneGrp};
-    const mkOv=L.imageOverlay('mokkikartta.jpg',getMkBounds(),{opacity:0.75,zIndex:5});
-    _adminAluekarttaMap._mkOverlay=mkOv;
-    L.control.layers({'🗺️ Kartta':osm,'🛰️ Satelliitti':sat},{'🏘️ Mökit':mokkiGrp,'💧 Palvelupisteet':vesiGrp,'⛵ Venelaitureita':veneGrp,'🗺️ Mökkikartta':mkOv},{collapsed:false,position:'topright'}).addTo(_adminAluekarttaMap);
+    _adminAluekarttaMap._mokkiGrp.clearLayers();
   }
-  const g=_adminAluekarttaMap._grp;
-  g.mokkit.clearLayers();g.vesi.clearLayers();g.vene.clearLayers();
 
-  const VP_C={vesipiste:'#3b82f6',sulkuventtiili:'#ef4444',suihku:'#34d399',wc:'#a78bfa',jate:'#6b7280'};
-  const VP_I={vesipiste:'💧',sulkuventtiili:'🔴',suihku:'🚿',wc:'🚽',jate:'♻️'};
-  const TILA_C={vapaa:'#22c55e',varattu:'#ef4444',vieraspaikka:'#f59e0b'};
+  // Kohdistetut vs kohdistamattomat
+  const placed=rc.filter(c=>c.map_px!=null&&c.map_py!=null);
+  const unplaced=rc.filter(c=>c.map_px==null||c.map_py==null);
 
-  // Mökit — draggable, koordinaatit tallentuvat raahauksen jälkeen
-  const allBounds=[];
-  rc.forEach(c=>{
-    if(!c.lat||!c.lon)return;
-    const icon=L.divIcon({html:`<div style="background:#fff3cd;color:#334155;border:1.5px solid #f59e0b;border-radius:3px;padding:0 3px;font-size:8px;font-weight:600;white-space:nowrap;line-height:14px;box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:grab;">${esc(c.number)}</div>`,className:'',iconSize:[26,14],iconAnchor:[13,7]});
-    const photoHtml=c.has_cabin_photo?`<img src="${API_BASE}/api/hkl/cottage-photo/${esc(c.number)}" style="width:180px;height:110px;object-fit:cover;border-radius:6px;display:block;margin:6px 0;" onerror="this.style.display='none'">`:'';
-    const kuvaus=c.kuvaus?`<div style="font-size:0.78rem;color:#475569;margin-top:4px;">${esc(c.kuvaus)}</div>`:'';
-    const editLink=`<a href="#" onclick="nav('mokkit');setTimeout(()=>document.querySelector('[data-num=\\'${esc(c.number)}\\']')?.click(),400);return false;" style="font-size:0.72rem;color:#0a4a6e;margin-top:6px;display:block;">✏️ Muokkaa →</a>`;
-    const m=L.marker([c.lat,c.lon],{icon,draggable:true}).bindPopup(`<div style="min-width:180px"><b>Mökki ${esc(c.number)}</b>${photoHtml}${kuvaus||'<div style="font-size:0.75rem;color:#94a3b8;margin-top:4px;">Ei kuvausta</div>'}${editLink}<div id="coord-${esc(c.number)}" style="font-size:0.68rem;color:#6b7280;margin-top:4px;">📍 ${c.lat.toFixed(6)}, ${c.lon.toFixed(6)}</div></div>`,{maxWidth:220});
+  // Kohdistamattomien "parkkipaikka" vasemmassa reunassa kuvan ulkopuolella
+  let parkIdx=0;
+  const statusEl=document.getElementById('aluek-status');
+
+  const makeMokkiMarker=(c,pos)=>{
+    const isPlaced=c.map_px!=null;
+    const icon=L.divIcon({
+      html:`<div style="background:${isPlaced?'#fff3cd':'#fee2e2'};color:#334155;border:1.5px solid ${isPlaced?'#f59e0b':'#ef4444'};border-radius:3px;padding:0 3px;font-size:9px;font-weight:700;white-space:nowrap;line-height:16px;box-shadow:0 1px 4px rgba(0,0,0,.4);cursor:grab;">${esc(c.number)}</div>`,
+      className:'',iconSize:[28,16],iconAnchor:[14,8]
+    });
+    const coordId='coord-'+c.number;
+    const m=L.marker(pos,{icon,draggable:true,zIndexOffset:isPlaced?0:1000});
+    m.bindPopup(`<div style="min-width:140px"><b>Mökki ${esc(c.number)}</b><div id="${coordId}" style="font-size:0.68rem;color:#6b7280;margin-top:4px;">${isPlaced?'📍 kohdistettu':'❗ ei kohdistettu'}</div></div>`,{maxWidth:180});
     m.on('dragend',async e=>{
       const ll=e.target.getLatLng();
-      const coordEl=document.getElementById('coord-'+c.number);
+      const {px,py}=llToPx(ll);
+      const coordEl=document.getElementById(coordId);
       if(coordEl)coordEl.textContent='⏳ Tallennetaan...';
+      if(statusEl)statusEl.textContent='⏳ Tallennetaan '+c.number+'...';
       try{
-        await fetch(API_BASE+'/api/hkl/cottages/'+encodeURIComponent(c.number)+'/location',{method:'POST',headers:{...ah(),'Content-Type':'application/json'},body:JSON.stringify({lat:ll.lat,lon:ll.lng})});
-        if(coordEl)coordEl.textContent='✅ '+ll.lat.toFixed(6)+', '+ll.lng.toFixed(6);
-      }catch(err){if(coordEl)coordEl.textContent='❌ Virhe tallennuksessa';}
+        await fetch(API_BASE+'/api/hkl/cottages/'+encodeURIComponent(c.number)+'/location',{method:'POST',headers:{...ah(),'Content-Type':'application/json'},body:JSON.stringify({px,py})});
+        if(coordEl)coordEl.textContent='✅ x='+px.toFixed(3)+' y='+py.toFixed(3);
+        if(statusEl)statusEl.textContent='✅ Mökki '+c.number+' tallennettu';
+        // Päivitä ikoni vihreäksi
+        const newIcon=L.divIcon({html:`<div style="background:#d1fae5;color:#065f46;border:1.5px solid #10b981;border-radius:3px;padding:0 3px;font-size:9px;font-weight:700;white-space:nowrap;line-height:16px;box-shadow:0 1px 4px rgba(0,0,0,.4);cursor:grab;">${esc(c.number)}</div>`,className:'',iconSize:[28,16],iconAnchor:[14,8]});
+        m.setIcon(newIcon);
+      }catch(err){if(coordEl)coordEl.textContent='❌ Virhe';if(statusEl)statusEl.textContent='❌ Virhe tallennuksessa';}
     });
-    m.addTo(g.mokkit);
-    allBounds.push([c.lat,c.lon]);
+    m.addTo(_adminAluekarttaMap._mokkiGrp);
+  };
+
+  placed.forEach(c=>makeMokkiMarker(c,pxToLL(c.map_px,c.map_py)));
+  unplaced.forEach((c,i)=>{
+    // Pino vasemmalle reunalle kuvan ulkopuolelle (x=-60px, y jakautuu tasaisesti)
+    const py=0.05+i*(0.90/Math.max(unplaced.length,1));
+    makeMokkiMarker(c,pxToLL(-0.08,py));
+    parkIdx++;
   });
 
-  if(allBounds.length)_adminAluekarttaMap.fitBounds(allBounds,{padding:[30,30],maxZoom:19});
-
-  // Ohje
   const info=document.getElementById('admin-aluekartta-legend');
-  if(info)info.innerHTML='<span style="background:#fff3cd;border:1.5px solid #f59e0b;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:600;">Keltainen = mökki</span> — <b>Raahaa markkeria</b> siirtääksesi mökin oikeaan paikkaan. Koordinaatit tallentuvat automaattisesti.';
-
-  // Palvelupisteet
-  rp.forEach(vp=>{
-    if(!vp.lat||!vp.lon)return;
-    const icon=L.divIcon({html:`<div style="background:${VP_C[vp.tyyppi]||'#52b788'};border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4)">${VP_I[vp.tyyppi]||'📍'}</div>`,className:'',iconSize:[30,30],iconAnchor:[15,15]});
-    L.marker([vp.lat,vp.lon],{icon}).bindPopup(`<strong>${esc(vp.nimi)}</strong><br><span style="font-size:0.78rem;color:#6b7280">${esc(vp.tyyppi)}</span>${vp.kuvaus?'<br><span style="font-size:0.78rem">'+esc(vp.kuvaus)+'</span>':''}`).addTo(g.vesi);
-  });
-
-  // Venelaitureita
-  const piers=rb.filter(b=>!b.laituri);
-  const slots=rb.filter(b=>b.laituri);
-  const byPier={};slots.forEach(s=>{(byPier[s.laituri]=byPier[s.laituri]||[]).push(s);});
-  piers.forEach(b=>{
-    if(!b.lat||!b.lon)return;
-    const ps=byPier[b.numero]||[];
-    const vapaat=ps.filter(s=>s.tila==='vapaa').length;
-    const bg=vapaat>0?TILA_C.vapaa:(ps.length&&vapaat===0?TILA_C.varattu:'#6b7280');
-    const icon=L.divIcon({html:`<div style="background:${bg};border-radius:6px;min-width:52px;height:34px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4);padding:0 6px;">${esc(b.numero)}<br><span style="font-size:9px;">${vapaat}/${ps.length} vapaa</span></div>`,className:'',iconSize:[58,36],iconAnchor:[29,18]});
-    const rows=ps.map(s=>`<tr><td style="padding:1px 6px;font-size:11px;">${esc(s.numero)}</td><td style="padding:1px 6px;font-size:11px;color:${TILA_C[s.tila]||'#6b7280'}">${s.tila}</td></tr>`).join('');
-    L.marker([b.lat,b.lon],{icon}).bindPopup(`<b>${esc(b.nimi||b.numero)}</b><br><table style="margin-top:4px">${rows}</table>`,{maxWidth:180,maxHeight:300}).addTo(g.vene);
-  });
+  if(info)info.innerHTML=`<span style="background:#fff3cd;border:1.5px solid #f59e0b;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:600;">Keltainen</span> = kohdistettu &nbsp; <span style="background:#fee2e2;border:1.5px solid #ef4444;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:600;">Punainen</span> = ei vielä kohdistettu (vasemmassa reunassa) &nbsp; <span style="background:#d1fae5;border:1.5px solid #10b981;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:600;">Vihreä</span> = juuri tallennettu. Yhteensä: ${placed.length}/${rc.length} kohdistettu.`;
 }
 
 let _vvOverlay=null;
@@ -1341,18 +1303,6 @@ function copyVesiverkkoCoords(){
     const m=document.getElementById('vv-copy-msg');
     m.textContent='✓ Kopioitu!';setTimeout(()=>{m.textContent='';},2000);
   });
-}
-function updateMkOverlay(){
-  if(!_adminAluekarttaMap||!_adminAluekarttaMap._mkOverlay)return;
-  const b=[[parseFloat(document.getElementById('mk-sw-lat').value),parseFloat(document.getElementById('mk-sw-lon').value)],[parseFloat(document.getElementById('mk-ne-lat').value),parseFloat(document.getElementById('mk-ne-lon').value)]];
-  _adminAluekarttaMap._mkOverlay.setBounds(b);
-}
-function updateMkOpacity(v){
-  if(_adminAluekarttaMap&&_adminAluekarttaMap._mkOverlay)_adminAluekarttaMap._mkOverlay.setOpacity(v/100);
-}
-function copyMkCoords(){
-  const b=[[parseFloat(document.getElementById('mk-sw-lat').value),parseFloat(document.getElementById('mk-sw-lon').value)],[parseFloat(document.getElementById('mk-ne-lat').value),parseFloat(document.getElementById('mk-ne-lon').value)]];
-  navigator.clipboard.writeText(`[[${b[0][0]}, ${b[0][1]}], [${b[1][0]}, ${b[1][1]}]]`).then(()=>alert('📋 Kopioitu! Päivitä MK_BOUNDS mokki.html:iin.'));
 }
 function updateVesiMarkers(){
   _vesiMarkers.forEach(m=>_vesiMap.removeLayer(m));_vesiMarkers=[];

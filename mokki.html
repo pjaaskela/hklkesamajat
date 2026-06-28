@@ -3206,36 +3206,33 @@ async function loadAluekartta() {
     const TILA_L = {vapaa: 'Vapaa', varattu: 'Varattu', vieraspaikka: 'Vieraspaikka'};
     const bounds = [];
 
-    const VV_BOUNDS = [[60.1495, 24.845], [60.1605, 24.863]];
+    // Vesiverkkokartta natiivina (724×1024 px), CRS.Simple — ei venytystä
+    const VV_IMG_W = 724, VV_IMG_H = 1024;
+    const imgBounds = [[0, 0], [VV_IMG_H, VV_IMG_W]];
+    // px/py (0-1) → CRS.Simple latLng
+    function pxToLatLng(px, py) {
+      return L.latLng(VV_IMG_H * (1 - py), VV_IMG_W * px);
+    }
     if (!_aluekarttaMap) {
-      _aluekarttaMap = L.map('aluekartta', {maxZoom: 20}).setView([60.1552, 24.8547], 17);
-      document.getElementById('aluekartta').style.background = '#f0ede8';
-      L.imageOverlay('vesiverkkokartta.jpg', VV_BOUNDS, {opacity: 1, zIndex: 1}).addTo(_aluekarttaMap);
-      const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution: '© ESRI', maxZoom: 20});
+      _aluekarttaMap = L.map('aluekartta', {crs: L.CRS.Simple, minZoom: -2, maxZoom: 4});
+      L.imageOverlay('vesiverkkokartta.jpg', imgBounds, {opacity: 1}).addTo(_aluekarttaMap);
+      _aluekarttaMap.fitBounds(imgBounds);
       const mokkiGroup = L.layerGroup().addTo(_aluekarttaMap);
-      const vesiGroup  = L.layerGroup().addTo(_aluekarttaMap);
-      const veneGroup  = L.layerGroup().addTo(_aluekarttaMap);
-      _aluekarttaMap._overlayGroups = {mokkit: mokkiGroup, palvelupisteet: vesiGroup, venepaikat: veneGroup};
-      L.control.layers(
-        {},
-        {'🏘️ Mökit': mokkiGroup, '💧 Palvelupisteet': vesiGroup, '⛵ Venelaitureita': veneGroup, '🛰️ Satelliitti': satLayer},
-        {collapsed: true, position: 'topright'}
-      ).addTo(_aluekarttaMap);
+      _aluekarttaMap._overlayGroups = {mokkit: mokkiGroup};
+      L.control.layers({}, {'🏘️ Mökit': mokkiGroup}, {collapsed: true, position: 'topright'}).addTo(_aluekarttaMap);
     } else {
       _aluekarttaMap._overlayGroups.mokkit.clearLayers();
-      _aluekarttaMap._overlayGroups.palvelupisteet.clearLayers();
-      _aluekarttaMap._overlayGroups.venepaikat.clearLayers();
     }
 
-    // Mökit
+    // Mökit — vain ne joille on kohdistettu pikselikoordinaatit
     cottages.forEach(c => {
-      if (!c.lat || !c.lon) return;
+      if (c.map_px == null || c.map_py == null) return;
       const isMine = c.number === _currentMokki;
       const icon = L.divIcon({
         html: `<div style="background:${isMine ? '#0e5c3a' : '#f0f4f8'};color:${isMine ? 'white' : '#334155'};border:${isMine ? '2px solid #52b788' : '1px solid #94a3b8'};border-radius:3px;padding:0 3px;font-size:8px;font-weight:${isMine?'800':'500'};white-space:nowrap;line-height:14px;box-shadow:0 1px 3px rgba(0,0,0,.3);">${c.number}</div>`,
         className: '', iconSize: [26, 14], iconAnchor: [13, 7]
       });
-      const marker = L.marker([c.lat, c.lon], {icon, zIndexOffset: isMine ? 1000 : 0});
+      const marker = L.marker(pxToLatLng(c.map_px, c.map_py), {icon, zIndexOffset: isMine ? 1000 : 0});
       const popupId = 'mp-' + c.number;
       const photoHtml = c.has_cabin_photo
         ? `<img src="${API_BASE}/api/hkl/cottage-photo/${c.number}" style="width:180px;height:120px;object-fit:cover;border-radius:6px;display:block;margin:6px 0;" onerror="this.style.display='none'">`
@@ -3246,60 +3243,7 @@ async function loadAluekartta() {
       const content = `<div style="min-width:180px"><b style="font-size:0.9rem;">Mökki ${c.number}</b>${ownBadge}${photoHtml}${kuvaus || (!hasAnyPhoto ? '<div style="font-size:0.75rem;color:#94a3b8;margin-top:4px;">Ei kuvausta</div>' : '')}</div>`;
       marker.bindPopup(content, {maxWidth: 210});
       marker.addTo(_aluekarttaMap._overlayGroups.mokkit);
-      bounds.push([c.lat, c.lon]);
     });
-
-    // Palvelupisteet
-    pisteet.forEach(vp => {
-      if (!vp.lat || !vp.lon) return;
-      const bg = VP_C[vp.tyyppi] || '#52b788';
-      const ico = VP_I[vp.tyyppi] || '📍';
-      const lbl = VP_LBL[vp.tyyppi] || vp.tyyppi;
-      const cottageTag = vp.cottage_number ? `<span style="font-size:0.7rem;background:#166534;color:white;border-radius:3px;padding:1px 5px;margin-left:4px;">Mökki ${vp.cottage_number}</span>` : '<span style="font-size:0.7rem;color:#6b7280;">yhteinen</span>';
-      const icon = L.divIcon({
-        html: `<div style="background:${bg};border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4)">${ico}</div>`,
-        className: '', iconSize: [34, 34], iconAnchor: [17, 17]
-      });
-      const popup = `<strong>${_e(vp.nimi)}</strong> ${cottageTag}<br><span style="font-size:0.78rem;color:#6b7280">${lbl}</span>${vp.kuvaus ? '<br><span style="font-size:0.78rem">' + _e(vp.kuvaus) + '</span>' : ''}`;
-      L.marker([vp.lat, vp.lon], {icon}).bindPopup(popup).addTo(_aluekarttaMap._overlayGroups.palvelupisteet);
-      bounds.push([vp.lat, vp.lon]);
-    });
-
-    // Venelaitureita (pier-tason markerit, ei yksittäisiä paikkoja)
-    const piers = berths.filter(b => !b.laituri);
-    const slots = berths.filter(b => b.laituri);
-    const slotsByPier = {};
-    slots.forEach(s => { (slotsByPier[s.laituri] = slotsByPier[s.laituri] || []).push(s); });
-
-    piers.forEach(b => {
-      if (!b.lat || !b.lon) return;
-      const pierSlots = slotsByPier[b.numero] || [];
-      const vapaat = pierSlots.filter(s => s.tila === 'vapaa').length;
-      const varatut = pierSlots.filter(s => s.tila === 'varattu').length;
-      const bg = vapaat > 0 ? TILA_C.vapaa : (varatut === pierSlots.length && pierSlots.length ? TILA_C.varattu : '#6b7280');
-      const icon = L.divIcon({
-        html: `<div style="background:${bg};border-radius:8px;width:52px;height:34px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:white;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,.5);">${_e(b.numero||'?')}</div>`,
-        className: '', iconSize: [52, 34], iconAnchor: [26, 17]
-      });
-      const slotRows = pierSlots.map(s => {
-        const sc = TILA_C[s.tila] || '#6b7280';
-        return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #f0f0f0;">
-          <span style="width:8px;height:8px;border-radius:50%;background:${sc};flex-shrink:0;display:inline-block;"></span>
-          <span style="font-size:0.78rem;font-weight:600;min-width:46px;">${_e(s.numero)}</span>
-          <span style="font-size:0.72rem;color:${sc};font-weight:600;">${TILA_L[s.tila]||s.tila}</span>
-        </div>`;
-      }).join('');
-      const popup = `<div style="min-width:180px;max-height:260px;overflow-y:auto;">
-        <div style="font-weight:800;font-size:0.95rem;margin-bottom:4px;">⚓ ${_e(b.numero)} — ${_e(b.nimi)}</div>
-        <div style="font-size:0.72rem;color:#6b7280;margin-bottom:6px;">${_e(b.kuvaus||'')}</div>
-        <div style="font-size:0.75rem;margin-bottom:6px;">Vapaana: <b style="color:#22c55e">${vapaat}</b> / ${pierSlots.length} paikkaa</div>
-        ${slotRows}
-      </div>`;
-      L.marker([b.lat, b.lon], {icon}).bindPopup(popup, {maxWidth: 220}).addTo(_aluekarttaMap._overlayGroups.venepaikat);
-      bounds.push([b.lat, b.lon]);
-    });
-
-    if (bounds.length) _aluekarttaMap.fitBounds(bounds, {padding: [30, 30], maxZoom: 19});
 
     // Venepaikka-lista: laitureittain, default suljettu
     if (listEl && piers.length) {
