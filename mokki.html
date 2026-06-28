@@ -1363,8 +1363,11 @@ body { padding-top: 48px; }
           <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;margin-right:4px;"></span>Vieraspaikka</span>
           <a href="https://jaaskel.com/mokkikartta.pdf" target="_blank" style="margin-left:auto;font-size:0.72rem;color:var(--green);font-weight:600;text-decoration:none;">📄 Mökkikartta PDF ↗</a>
         </div>
-        <div id="aluekartta" style="height:320px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);"></div>
-        <div id="aluekartta-empty" style="display:none;text-align:center;padding:20px;font-size:0.82rem;color:var(--text-muted);">Ei merkintöjä lisätty vielä.</div>
+        <div id="aluekartta" style="height:320px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);display:none;"></div>
+        <div id="aluekartta-empty" style="text-align:center;padding:24px 14px;font-size:0.82rem;color:var(--text-muted);">
+          <div style="font-size:1.6rem;margin-bottom:8px;">🗺️</div>
+          <div style="font-weight:600;margin-bottom:4px;">Ladataan karttaa...</div>
+        </div>
         <div id="venepaikka-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
       </div>
     </div>
@@ -2391,7 +2394,6 @@ function showDashboard(num) {
   setTimeout(initVesselsMap, 500);
   renderFlagDays();
   applySectionVisibility();
-  loadAluekartta();
 }
 
 // ========== SENSOR DATA ==========
@@ -3087,10 +3089,11 @@ async function loadAluekartta() {
     const pisteet = rpisteet.ok ? await rpisteet.json() : [];
     const berths = rberths.ok ? await rberths.json() : [];
     if (!pisteet.length && !berths.length) {
-      mapEl.style.display = 'none';
-      if (emptyEl) emptyEl.style.display = '';
+      if (emptyEl) { emptyEl.innerHTML = '<div style="font-size:1.6rem;margin-bottom:8px;">🗺️</div><div style="font-weight:600;margin-bottom:4px;">Ei merkintöjä vielä</div><div>Vesipisteet ja venepaikat lisätään <a href="admin.html" style="color:var(--green);font-weight:600;">hallintapaneelista</a>.</div>'; emptyEl.style.display = ''; }
       return;
     }
+    if (emptyEl) emptyEl.style.display = 'none';
+    mapEl.style.display = '';
     await _loadLeaflet();
     if (!_aluekarttaMap) {
       _aluekarttaMap = L.map('aluekartta').setView([60.1552, 24.8545], 18);
@@ -3577,7 +3580,10 @@ function toggleCardCollapse(id) {
   const open = body.style.display !== 'none';
   body.style.display = open ? 'none' : '';
   if (chevron) chevron.style.transform = open ? '' : 'rotate(90deg)';
-  if (!open && id === 'aluekartta-card' && _aluekarttaMap) setTimeout(() => _aluekarttaMap.invalidateSize(), 100);
+  if (!open && id === 'aluekartta-card') {
+    if (_aluekarttaMap) setTimeout(() => _aluekarttaMap.invalidateSize(), 100);
+    else setTimeout(loadAluekartta, 100);
+  }
 }
 
 // ========== FLAG DAYS (LIPUTUSPÄIVÄT) ==========
