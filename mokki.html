@@ -756,8 +756,7 @@ body { padding-top: 48px; }
       <span style="font-size:0.82rem;font-weight:700;" id="aq-aqi-val">—</span>
       <span id="aq-aqi-badge" style="font-size:0.72rem;border-radius:8px;padding:2px 8px;font-weight:600;background:#e0fce7;color:#065f46;">—</span>
       <span style="font-size:0.75rem;color:var(--text-muted);" id="aq-pm25-val"></span>
-      <span style="font-size:0.75rem;color:var(--text-muted);margin-left:4px;">UV:</span>
-      <span id="aq-uv-badge" style="font-size:0.72rem;border-radius:8px;padding:2px 8px;font-weight:600;background:#fef9c3;color:#854d0e;">—</span>
+      <span id="aq-uv-badge" style="font-size:0.72rem;border-radius:8px;padding:2px 8px;font-weight:600;background:#fef9c3;color:#854d0e;display:none;"></span>
       <span id="aq-pollen-strip" style="display:flex;gap:6px;flex-wrap:wrap;"></span>
     </div>
   </div>
@@ -3342,13 +3341,15 @@ function solarSearch() {
 
 async function loadAirQuality() {
   try {
-    const url = 'https://air-quality-api.open-meteo.com/v1/air-quality?latitude=60.15524&longitude=24.85453&current=european_aqi,pm2_5,uv_index,birch_pollen,grass_pollen,alder_pollen,mugwort_pollen&timezone=Europe/Helsinki';
-    const d = await fetch(url).then(r => r.json());
-    const c = d.current;
+    const [aqd, fcd] = await Promise.all([
+      fetch('https://air-quality-api.open-meteo.com/v1/air-quality?latitude=60.15524&longitude=24.85453&current=european_aqi,pm2_5,birch_pollen,grass_pollen,alder_pollen,mugwort_pollen&timezone=Europe/Helsinki').then(r => r.json()),
+      fetch('https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=uv_index&timezone=Europe/Helsinki').then(r => r.json()).catch(() => null)
+    ]);
+    const c = aqd.current;
     const aqi = c.european_aqi;
     const aqiInfo = aqi <= 20 ? ['Erinomainen','#d1fae5','#065f46'] : aqi <= 40 ? ['Hyvä','#d1fae5','#065f46'] : aqi <= 60 ? ['Kohtalainen','#fef9c3','#854d0e'] : aqi <= 80 ? ['Heikko','#ffedd5','#9a3412'] : ['Huono','#fee2e2','#991b1b'];
-    const uv = c.uv_index ?? 0;
-    const uvInfo = uv <= 2 ? ['Matala','#d1fae5','#065f46'] : uv <= 5 ? ['Kohtalainen','#fef9c3','#854d0e'] : uv <= 7 ? ['Korkea','#ffedd5','#9a3412'] : ['Erittäin korkea','#fee2e2','#991b1b'];
+    const uv = fcd?.current?.uv_index ?? null;
+    const uvInfo = uv === null ? null : uv <= 2 ? ['Matala','#d1fae5','#065f46'] : uv <= 5 ? ['Kohtalainen','#fef9c3','#854d0e'] : uv <= 7 ? ['Korkea','#ffedd5','#9a3412'] : ['Erittäin korkea','#fee2e2','#991b1b'];
     const pollenLvl = (v, t) => { if (!v) return null; const thr = t === 'grass' ? [[5,'Vähäinen','#d1fae5','#065f46'],[50,'Kohtalainen','#fef9c3','#854d0e'],[200,'Korkea','#ffedd5','#9a3412'],[Infinity,'Erittäin korkea','#fee2e2','#991b1b']] : [[10,'Vähäinen','#d1fae5','#065f46'],[100,'Kohtalainen','#fef9c3','#854d0e'],[1000,'Korkea','#ffedd5','#9a3412'],[Infinity,'Erittäin korkea','#fee2e2','#991b1b']]; for (const [l,lbl,bg,col] of thr) if (v <= l) return [lbl,bg,col]; return null; };
     const pollens = [['Koivu', c.birch_pollen, 'birch'], ['Heinä', c.grass_pollen, 'grass'], ['Leppä', c.alder_pollen, 'birch'], ['Pujo', c.mugwort_pollen, 'birch']].map(([name,val,type]) => { const info = pollenLvl(val, type); return info ? {name, info} : null; }).filter(Boolean);
 
@@ -3357,7 +3358,8 @@ async function loadAirQuality() {
     badge.textContent = aqiInfo[0]; badge.style.background = aqiInfo[1]; badge.style.color = aqiInfo[2];
     document.getElementById('aq-pm25-val').textContent = `PM2.5: ${c.pm2_5?.toFixed(1) ?? '—'} µg/m³`;
     const uvB = document.getElementById('aq-uv-badge');
-    uvB.textContent = `${uv.toFixed(1)} ${uvInfo[0]}`; uvB.style.background = uvInfo[1]; uvB.style.color = uvInfo[2];
+    if (uvInfo) { uvB.textContent = `UV ${uv.toFixed(1)} ${uvInfo[0]}`; uvB.style.background = uvInfo[1]; uvB.style.color = uvInfo[2]; uvB.style.display = ''; }
+    else uvB.style.display = 'none';
     document.getElementById('aq-pollen-strip').innerHTML = pollens.map(p =>
       `<span style="font-size:0.72rem;border-radius:8px;padding:2px 7px;font-weight:600;background:${p.info[1]};color:${p.info[2]};">${p.name}: ${p.info[0]}</span>`
     ).join('');
