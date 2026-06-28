@@ -896,7 +896,7 @@ body { padding-top: 48px; }
         <div class="card-title">📅 Tapahtumat</div>
         <div style="display:flex;align-items:center;gap:8px;">
           <label style="display:flex;align-items:center;gap:4px;font-size:0.72rem;color:var(--text-muted);cursor:pointer;white-space:nowrap;">
-            <input type="checkbox" id="ev-hide-past" onchange="loadEvents()" style="cursor:pointer;">
+            <input type="checkbox" id="ev-hide-past" onchange="saveHidePast();loadEvents()" style="cursor:pointer;">
             Piilota menneet
           </label>
           <button onclick="openEventForm()" style="padding:5px 12px;border-radius:8px;border:1px solid var(--green);background:var(--green-pale);color:var(--green);font-weight:700;font-size:0.75rem;cursor:pointer;">+ Luo tapahtuma</button>
@@ -1207,7 +1207,7 @@ body { padding-top: 48px; }
     </div>
 
     <!-- 8. KAMERAVALVONTA CARD (compact) -->
-    <div class="card" id="camera-card" data-mokki="484">
+    <div class="card" id="camera-card" style="display:none" data-mokki="484">
       <div class="card-header">
         <div class="card-title">📹 Kamera</div>
         <span style="font-size:0.72rem;color:var(--text-muted);" id="cam-motion-indicator">⚪ Ei liikettä</span>
@@ -2371,6 +2371,7 @@ function showDashboard(num) {
   loadMokkiDocs();
   loadListings();
   loadOmatIlmoitukset();
+  initHidePast();
   loadEvents();
   applySiteSettings();
 
@@ -2765,6 +2766,16 @@ async function toggleRsvp(eid) {
     });
     if (r.ok) loadEvents();
   } catch(e) {}
+}
+
+function saveHidePast() {
+  const cb = document.getElementById('ev-hide-past');
+  if (cb) localStorage.setItem('hkl_hide_past', cb.checked ? '1' : '0');
+}
+function initHidePast() {
+  const cb = document.getElementById('ev-hide-past');
+  if (!cb) return;
+  cb.checked = localStorage.getItem('hkl_hide_past') !== '0';
 }
 
 async function loadEvents() {
@@ -3749,7 +3760,6 @@ const SECTION_DEFS = [
   { key: 'beaches', label: '🏖️ Rannat', sel: '#beaches-card' },
   { key: 'photos', label: '📷 Kuvat', sel: '#photos-card' },
   { key: 'laituri', label: '🌊 Laituri', sel: '#laituri-card' },
-  { key: 'camera', label: '📹 Kamera', sel: '#camera-card', mokki: true },
   { key: 'profile', label: '👤 Profiili', sel: '#profile-card' },
   { key: 'aluekartta', label: '🗺️ Aluekartta', sel: '#aluekartta-card' },
   { key: 'opas', label: '📖 Opas', sel: '#opas-card' },
