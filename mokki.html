@@ -1358,10 +1358,10 @@ body { padding-top: 48px; }
       <div class="card-body card-collapse-body" style="display:none;padding:0 14px 14px;">
         <div style="display:flex;gap:10px;margin:10px 0 8px;font-size:0.72rem;color:var(--text-muted);flex-wrap:wrap;align-items:center;">
           <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:4px;"></span>Sulkuventtiili</span>
-          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#3b82f6;margin-right:4px;"></span>Vesipiste</span>
-          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:4px;"></span>Venepaikka</span>
-          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;margin-right:4px;"></span>Vieraspaikka</span>
-          <a href="https://jaaskel.com/mokkikartta.pdf" target="_blank" style="margin-left:auto;font-size:0.72rem;color:var(--green);font-weight:600;text-decoration:none;">📄 Mökkikartta PDF ↗</a>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#3b82f6;margin-right:4px;"></span>Palvelupiste</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:4px;"></span>Venelaituri (vapaa)</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:4px;"></span>Venelaituri (varattu)</span>
+          <a href="https://jaaskel.com/mokkikartta.pdf" target="_blank" style="margin-left:auto;font-size:0.72rem;color:var(--green);font-weight:600;text-decoration:none;">📄 Mökkikartta ↗</a>
         </div>
         <div id="aluekartta" style="height:320px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);display:none;"></div>
         <div id="aluekartta-empty" style="text-align:center;padding:24px 14px;font-size:0.82rem;color:var(--text-muted);">
@@ -1369,6 +1369,14 @@ body { padding-top: 48px; }
           <div style="font-weight:600;margin-bottom:4px;">Ladataan karttaa...</div>
         </div>
         <div id="venepaikka-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+        <!-- Vesiverkkokartta reference -->
+        <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">🔵 Vesiverkkokartta</div>
+          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px;border:1px solid var(--border);">
+            <img src="vesiverkkokartta.jpg" alt="Vesiverkkokartta" style="display:block;max-width:100%;height:auto;min-width:300px;">
+          </div>
+          <div style="font-size:0.68rem;color:var(--text-muted);margin-top:4px;">Vesijohdot merkitty sinisellä · oranssi = linjasulku · sininen ympyrä = aluesulku · ruskea = liinakatto</div>
+        </div>
       </div>
     </div>
 
@@ -3189,6 +3197,13 @@ async function loadAluekartta() {
     const TILA_C = {vapaa: '#22c55e', varattu: '#ef4444', vieraspaikka: '#f59e0b'};
     const TILA_L = {vapaa: 'Vapaa', varattu: 'Varattu', vieraspaikka: 'Vieraspaikka'};
     const bounds = [];
+
+    // Separate piers (laituri='') from individual slots (laituri='L1'/'L2'/'L3')
+    const piers = berths.filter(b => !b.laituri);
+    const slots = berths.filter(b => b.laituri);
+    const slotsByPier = {};
+    slots.forEach(s => { (slotsByPier[s.laituri] = slotsByPier[s.laituri] || []).push(s); });
+
     pisteet.forEach(vp => {
       if (!vp.lat || !vp.lon) return;
       const bg = VP_C[vp.tyyppi] || '#52b788';
@@ -3203,27 +3218,65 @@ async function loadAluekartta() {
       L.marker([vp.lat, vp.lon], {icon}).bindPopup(popup).addTo(_aluekarttaMap);
       bounds.push([vp.lat, vp.lon]);
     });
-    berths.forEach(b => {
+
+    piers.forEach(b => {
       if (!b.lat || !b.lon) return;
-      const bg = TILA_C[b.tila] || '#6b7280';
+      const pierSlots = slotsByPier[b.numero] || [];
+      const vapaat = pierSlots.filter(s => s.tila === 'vapaa').length;
+      const varatut = pierSlots.filter(s => s.tila === 'varattu').length;
+      const bg = vapaat > 0 ? TILA_C.vapaa : (varatut === pierSlots.length && pierSlots.length ? TILA_C.varattu : '#6b7280');
       const icon = L.divIcon({
-        html: `<div style="background:${bg};border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:white;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4);">${_e(b.numero||'?')}</div>`,
-        className: '', iconSize: [32, 32], iconAnchor: [16, 16]
+        html: `<div style="background:${bg};border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:white;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,.4);">${_e(b.numero||'?')}</div>`,
+        className: '', iconSize: [36, 36], iconAnchor: [18, 18]
       });
-      const popup = `<strong>⛵ ${_e(b.numero||'')}</strong> <span style="font-size:0.78rem;color:${bg};font-weight:700">${TILA_L[b.tila]||b.tila}</span>${b.nimi ? '<br>' + _e(b.nimi) : ''}${b.kuvaus ? '<br><span style="font-size:0.75rem;color:#6b7280">' + _e(b.kuvaus) + '</span>' : ''}${b.tila==='vieraspaikka' ? '<br><span style="font-size:0.72rem;font-weight:600;color:#92400e;">💛 Kannatusmaksu MobilePay #24434</span>' : ''}`;
-      L.marker([b.lat, b.lon], {icon}).bindPopup(popup).addTo(_aluekarttaMap);
+      const slotRows = pierSlots.map(s => {
+        const sc = TILA_C[s.tila] || '#6b7280';
+        return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #f0f0f0;">
+          <span style="width:8px;height:8px;border-radius:50%;background:${sc};flex-shrink:0;display:inline-block;"></span>
+          <span style="font-size:0.78rem;font-weight:600;min-width:46px;">${_e(s.numero)}</span>
+          <span style="font-size:0.72rem;color:${sc};font-weight:600;">${TILA_L[s.tila]||s.tila}</span>
+        </div>`;
+      }).join('');
+      const popup = `<div style="min-width:180px;max-height:260px;overflow-y:auto;">
+        <div style="font-weight:800;font-size:0.95rem;margin-bottom:4px;">⚓ ${_e(b.numero)} — ${_e(b.nimi)}</div>
+        <div style="font-size:0.72rem;color:#6b7280;margin-bottom:6px;">${_e(b.kuvaus||'')}</div>
+        <div style="font-size:0.75rem;margin-bottom:6px;">Vapaana: <b style="color:#22c55e">${vapaat}</b> / ${pierSlots.length} paikkaa</div>
+        ${slotRows}
+      </div>`;
+      L.marker([b.lat, b.lon], {icon}).bindPopup(popup, {maxWidth: 220}).addTo(_aluekarttaMap);
       bounds.push([b.lat, b.lon]);
     });
+
     if (bounds.length) _aluekarttaMap.fitBounds(bounds, {padding: [30, 30], maxZoom: 19});
-    if (listEl && berths.length) {
+
+    if (listEl && piers.length) {
       listEl.innerHTML = '<div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">⛵ Venepaikat</div>' +
-        berths.map(b => `
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--sand);">
-          <span style="width:10px;height:10px;border-radius:50%;background:${TILA_C[b.tila]||'#6b7280'};flex-shrink:0;display:inline-block;"></span>
-          <span style="font-weight:700;font-size:0.82rem;">${_e(b.numero||'–')}</span>
-          <span style="font-size:0.82rem;color:var(--text-muted);flex:1;">${_e(b.nimi||'')}</span>
-          <span style="font-size:0.72rem;font-weight:600;color:${TILA_C[b.tila]||'#6b7280'}">${TILA_L[b.tila]||b.tila}</span>
-        </div>`).join('');
+        piers.map(b => {
+          const pierSlots = slotsByPier[b.numero] || [];
+          const vapaat = pierSlots.filter(s => s.tila === 'vapaa').length;
+          const varatut = pierSlots.filter(s => s.tila === 'varattu').length;
+          const uid = 'pier_' + b.id;
+          const slotHtml = pierSlots.map(s => {
+            const sc = TILA_C[s.tila] || '#6b7280';
+            return `<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:white;border-radius:6px;margin-bottom:3px;">
+              <span style="width:8px;height:8px;border-radius:50%;background:${sc};flex-shrink:0;display:inline-block;"></span>
+              <span style="font-size:0.8rem;font-weight:600;min-width:48px;">${_e(s.numero)}</span>
+              <span style="font-size:0.72rem;color:${sc};font-weight:600;">${TILA_L[s.tila]||s.tila}</span>
+            </div>`;
+          }).join('');
+          return `<div style="background:var(--sand);border-radius:10px;overflow:hidden;margin-bottom:6px;">
+            <div onclick="const d=document.getElementById('${uid}');const open=d.style.display!=='none';d.style.display=open?'none':'block';this.querySelector('.pier-chev').textContent=open?'▸':'▾';"
+                 style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;">
+              <span style="width:10px;height:10px;border-radius:50%;background:${vapaat>0?TILA_C.vapaa:TILA_C.varattu};flex-shrink:0;display:inline-block;"></span>
+              <span style="font-weight:700;font-size:0.85rem;">${_e(b.numero)} — ${_e(b.nimi)}</span>
+              <span style="font-size:0.75rem;color:var(--text-muted);flex:1;">${vapaat} vapaa / ${pierSlots.length}</span>
+              <span class="pier-chev" style="font-size:0.75rem;color:var(--text-muted);">▸</span>
+            </div>
+            <div id="${uid}" style="display:none;padding:0 8px 8px;">
+              ${slotHtml}
+            </div>
+          </div>`;
+        }).join('');
     }
   } catch(e) { console.error('[aluekartta]', e); }
 }
