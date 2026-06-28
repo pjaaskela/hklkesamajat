@@ -3207,18 +3207,20 @@ async function loadAluekartta() {
     const TILA_L = {vapaa: 'Vapaa', varattu: 'Varattu', vieraspaikka: 'Vieraspaikka'};
     const bounds = [];
 
+    const MK_BOUNDS = [[60.1535, 24.8500], [60.1578, 24.8620]];
     if (!_aluekarttaMap) {
       _aluekarttaMap = L.map('aluekartta').setView([60.1552, 24.8547], 17);
       const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OSM', maxZoom: 20});
       const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution: '© ESRI', maxZoom: 20});
-      osmLayer.addTo(_aluekarttaMap);
+      satLayer.addTo(_aluekarttaMap);
+      const mkLayer = L.imageOverlay('mokkikartta.jpg', MK_BOUNDS, {opacity: 0.85, zIndex: 5});
       const mokkiGroup    = L.layerGroup().addTo(_aluekarttaMap);
       const vesiGroup     = L.layerGroup().addTo(_aluekarttaMap);
       const veneGroup     = L.layerGroup().addTo(_aluekarttaMap);
       _aluekarttaMap._overlayGroups = {mokkit: mokkiGroup, palvelupisteet: vesiGroup, venepaikat: veneGroup};
       L.control.layers(
         {'🗺️ Kartta': osmLayer, '🛰️ Satelliitti': satLayer},
-        {'🏘️ Mökit': mokkiGroup, '💧 Palvelupisteet': vesiGroup, '⛵ Venelaitureita': veneGroup},
+        {'🏘️ Mökit': mokkiGroup, '💧 Palvelupisteet': vesiGroup, '⛵ Venelaitureita': veneGroup, '🗺️ Mökkikartta': mkLayer},
         {collapsed: false, position: 'topright'}
       ).addTo(_aluekarttaMap);
     } else {
