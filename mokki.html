@@ -771,8 +771,24 @@ body { padding-top: 48px; }
         <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
       </div>
       <div class="card-body card-collapse-body" style="display:none;padding:0 14px 14px;">
-        <div id="aluekartta" style="overflow:auto;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);display:none;margin-top:10px;-webkit-overflow-scrolling:touch;max-height:70vh;"></div>
-        <div id="aluekartta-popup" style="display:none;position:fixed;z-index:9999;background:white;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.25);padding:12px;min-width:160px;max-width:220px;font-size:0.82rem;"></div>
+        <div style="position:relative;margin-top:10px;">
+          <div id="aluekartta" style="overflow:auto;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);display:none;-webkit-overflow-scrolling:touch;max-height:70vh;"></div>
+          <div id="aluekartta-zoom" style="display:none;position:absolute;top:8px;right:8px;z-index:20;display:flex;flex-direction:column;gap:2px;">
+            <button onclick="_vvZoom(1)" style="width:32px;height:32px;border-radius:6px 6px 0 0;background:rgba(255,255,255,0.92);border:1px solid #d1d5db;font-size:1.1rem;font-weight:700;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2);">+</button>
+            <button onclick="_vvZoom(-1)" style="width:32px;height:32px;border-radius:0 0 6px 6px;background:rgba(255,255,255,0.92);border:1px solid #d1d5db;border-top:none;font-size:1.1rem;font-weight:700;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2);">−</button>
+          </div>
+        </div>
+        <!-- Mökkikortti bottom sheet -->
+        <div id="aluekartta-sheet" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.4);">
+          <div style="position:absolute;bottom:0;left:0;right:0;background:white;border-radius:18px 18px 0 0;max-height:80vh;overflow-y:auto;padding:0 0 env(safe-area-inset-bottom,16px);">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px 10px;">
+              <div id="sheet-title" style="font-size:1rem;font-weight:800;color:#1e293b;"></div>
+              <button onclick="document.getElementById('aluekartta-sheet').style.display='none'" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#94a3b8;padding:0 4px;">✕</button>
+            </div>
+            <div id="sheet-photo" style="margin:0 16px 10px;border-radius:10px;overflow:hidden;"></div>
+            <div id="sheet-body" style="padding:0 16px 16px;font-size:0.85rem;color:#475569;line-height:1.6;"></div>
+          </div>
+        </div>
         <div id="aluekartta-empty" style="text-align:center;padding:24px 14px;font-size:0.82rem;color:var(--text-muted);">
           <div style="font-size:1.6rem;margin-bottom:8px;">🗺️</div>
           <div style="font-weight:600;margin-bottom:4px;">Ladataan karttaa...</div>
@@ -3181,10 +3197,43 @@ function _loadLeaflet() {
   });
 }
 
+let _vvScale = 1;
+function _vvZoom(dir) {
+  const steps = [0.5, 0.75, 1, 1.5, 2, 3];
+  const img = document.getElementById('vv-map-img');
+  if (!img) return;
+  let idx = steps.findIndex(s => Math.abs(s - _vvScale) < 0.01);
+  if (idx < 0) idx = 2;
+  idx = Math.max(0, Math.min(steps.length - 1, idx + dir));
+  _vvScale = steps[idx];
+  img.style.width = (img.naturalWidth * _vvScale) + 'px';
+  img.style.height = 'auto';
+}
+function _initVVPinch(el) {
+  let startDist = null, startScale = 1;
+  el.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      startDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      startScale = _vvScale;
+    }
+  }, {passive: true});
+  el.addEventListener('touchmove', e => {
+    if (e.touches.length !== 2 || !startDist) return;
+    const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    const img = document.getElementById('vv-map-img');
+    if (!img) return;
+    _vvScale = Math.max(0.4, Math.min(4, startScale * d / startDist));
+    img.style.width = (img.naturalWidth * _vvScale) + 'px';
+    img.style.height = 'auto';
+  }, {passive: true});
+  el.addEventListener('touchend', () => { startDist = null; }, {passive: true});
+}
+
 async function loadAluekartta() {
   const mapEl = document.getElementById('aluekartta');
   const emptyEl = document.getElementById('aluekartta-empty');
   const listEl = document.getElementById('venepaikka-list');
+  const zoomEl = document.getElementById('aluekartta-zoom');
   if (!mapEl) return;
   const _e = s => (s||'').replace(/</g,'&lt;');
   try {
@@ -3196,19 +3245,19 @@ async function loadAluekartta() {
     const cottages = rcottages.ok ? await rcottages.json() : [];
     if (emptyEl) emptyEl.style.display = 'none';
     mapEl.style.display = '';
-
-    // Sulje popup kun klikataan muualle
-    const popupEl = document.getElementById('aluekartta-popup');
-    document.addEventListener('click', e => {
-      if (popupEl && !popupEl.contains(e.target) && !e.target.classList.contains('vv-badge'))
-        popupEl.style.display = 'none';
-    }, {once: false});
+    if (zoomEl) zoomEl.style.display = 'flex';
+    _initVVPinch(mapEl);
 
     // Rakenna kuva + badget (kuva natiivissa koossa, ei skaalata)
-    mapEl.innerHTML = `<div style="position:relative;display:inline-block;min-width:100%;">
-      <img src="vesiverkkokartta.jpg" id="vv-map-img" style="display:block;max-width:none;height:auto;" onload="this.parentElement.style.width=this.naturalWidth+'px'">
+    mapEl.innerHTML = `<div style="position:relative;display:inline-block;">
+      <img src="vesiverkkokartta.jpg" id="vv-map-img" style="display:block;max-width:none;height:auto;">
     </div>`;
     const wrap = mapEl.querySelector('div');
+
+    const sheetEl = document.getElementById('aluekartta-sheet');
+    const sheetTitle = document.getElementById('sheet-title');
+    const sheetPhoto = document.getElementById('sheet-photo');
+    const sheetBody = document.getElementById('sheet-body');
 
     cottages.forEach(c => {
       if (c.map_px == null || c.map_py == null) return;
@@ -3223,18 +3272,20 @@ async function loadAluekartta() {
       badge.textContent = c.number;
       badge.onclick = e => {
         e.stopPropagation();
-        const photoHtml = c.has_cabin_photo
-          ? `<img src="${API_BASE}/api/hkl/cottage-photo/${c.number}" style="width:100%;height:100px;object-fit:cover;border-radius:6px;display:block;margin:6px 0;" onerror="this.style.display='none'">`
-          : '';
-        const kuvaus = c.kuvaus ? `<div style="font-size:0.78rem;color:#475569;line-height:1.5;margin-top:4px;">${_e(c.kuvaus)}</div>` : '';
-        const ownBadge = isMine ? `<span style="background:#0e5c3a;color:#fff;border-radius:3px;padding:1px 5px;font-size:0.65rem;font-weight:700;margin-left:4px;">Oma</span>` : '';
-        if (popupEl) {
-          popupEl.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:flex-start;"><b>Mökki ${c.number}</b>${ownBadge}<button onclick="document.getElementById('aluekartta-popup').style.display='none'" style="background:none;border:none;font-size:1rem;cursor:pointer;color:#94a3b8;margin-left:8px;">✕</button></div>${photoHtml}${kuvaus||(!c.has_cabin_photo?'<div style="font-size:0.75rem;color:#94a3b8;margin-top:4px;">Ei kuvausta</div>':'')}`;
-          const rect = badge.getBoundingClientRect();
-          popupEl.style.display = 'block';
-          popupEl.style.left = Math.min(rect.left, window.innerWidth - 230) + 'px';
-          popupEl.style.top = (rect.bottom + 6) + 'px';
+        const ownBadge = isMine ? `<span style="background:#0e5c3a;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.7rem;font-weight:700;margin-left:6px;">Oma mökki</span>` : '';
+        if (sheetTitle) sheetTitle.innerHTML = `Mökki ${_e(c.number)}${ownBadge}`;
+        if (sheetPhoto) {
+          sheetPhoto.innerHTML = c.has_cabin_photo
+            ? `<img src="${API_BASE}/api/hkl/cottage-photo/${c.number}" style="width:100%;height:200px;object-fit:cover;display:block;" onerror="this.parentElement.style.display='none'">`
+            : '';
+          sheetPhoto.style.display = c.has_cabin_photo ? '' : 'none';
         }
+        if (sheetBody) {
+          sheetBody.innerHTML = c.kuvaus
+            ? _e(c.kuvaus)
+            : `<span style="color:#94a3b8;">Ei kuvausta</span>`;
+        }
+        if (sheetEl) sheetEl.style.display = '';
       };
       wrap.appendChild(badge);
     });
