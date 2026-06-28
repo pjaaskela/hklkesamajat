@@ -3224,12 +3224,16 @@ async function loadAluekartta() {
       });
       const marker = L.marker([c.lat, c.lon], {icon});
       const popupId = 'mp-' + c.number;
-      const photoHtml = c.has_photo
-        ? `<img id="${popupId}-img" src="${API_BASE}/api/hkl/cottage-photo/${c.number}" style="width:180px;height:120px;object-fit:cover;border-radius:6px;display:block;margin:6px 0;" onerror="this.style.display='none'">`
+      const photoSrc = c.has_cabin_photo
+        ? `${API_BASE}/api/hkl/cottage-photo/${c.number}`
+        : c.has_owner_photo ? `${API_BASE}/api/hkl/cottage-owner-photo/${c.number}` : '';
+      const photoHtml = photoSrc
+        ? `<img src="${photoSrc}" style="width:180px;height:120px;object-fit:cover;border-radius:6px;display:block;margin:6px 0;" onerror="this.style.display='none'">`
         : '';
+      const hasAnyPhoto = c.has_cabin_photo || c.has_owner_photo;
       const kuvaus = c.kuvaus ? `<div style="font-size:0.78rem;color:#475569;line-height:1.5;margin-top:4px;">${_e(c.kuvaus)}</div>` : '';
       const ownBadge = isMine ? `<span style="background:#0e5c3a;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.65rem;font-weight:700;margin-left:4px;">Oma</span>` : '';
-      const content = `<div style="min-width:180px"><b style="font-size:0.9rem;">Mökki ${c.number}</b>${ownBadge}${photoHtml}${kuvaus || (!c.has_photo ? '<div style="font-size:0.75rem;color:#94a3b8;margin-top:4px;">Ei kuvausta</div>' : '')}</div>`;
+      const content = `<div style="min-width:180px"><b style="font-size:0.9rem;">Mökki ${c.number}</b>${ownBadge}${photoHtml}${kuvaus || (!hasAnyPhoto ? '<div style="font-size:0.75rem;color:#94a3b8;margin-top:4px;">Ei kuvausta</div>' : '')}</div>`;
       marker.bindPopup(content, {maxWidth: 210});
       marker.addTo(_aluekarttaMap._overlayGroups.mokkit);
       if (isMine) bounds.push([c.lat, c.lon]);
