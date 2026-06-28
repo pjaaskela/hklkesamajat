@@ -1234,16 +1234,33 @@ async function initAdminAluekartta(){
   const VP_I={vesipiste:'💧',sulkuventtiili:'🔴',suihku:'🚿',wc:'🚽',jate:'♻️'};
   const TILA_C={vapaa:'#22c55e',varattu:'#ef4444',vieraspaikka:'#f59e0b'};
 
-  // Mökit
+  // Mökit — draggable, koordinaatit tallentuvat raahauksen jälkeen
+  const allBounds=[];
   rc.forEach(c=>{
     if(!c.lat||!c.lon)return;
-    const icon=L.divIcon({html:`<div style="background:#f0f4f8;color:#334155;border:1.5px solid #94a3b8;border-radius:4px;padding:1px 4px;font-size:10px;font-weight:500;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.25);">${esc(c.number)}</div>`,className:'',iconSize:[32,18],iconAnchor:[16,9]});
+    const icon=L.divIcon({html:`<div style="background:#fff3cd;color:#334155;border:1.5px solid #f59e0b;border-radius:3px;padding:0 3px;font-size:8px;font-weight:600;white-space:nowrap;line-height:14px;box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:grab;">${esc(c.number)}</div>`,className:'',iconSize:[26,14],iconAnchor:[13,7]});
     const photoHtml=c.has_cabin_photo?`<img src="${API_BASE}/api/hkl/cottage-photo/${esc(c.number)}" style="width:180px;height:110px;object-fit:cover;border-radius:6px;display:block;margin:6px 0;" onerror="this.style.display='none'">`:'';
-    const hasAnyPhoto=c.has_cabin_photo;
     const kuvaus=c.kuvaus?`<div style="font-size:0.78rem;color:#475569;margin-top:4px;">${esc(c.kuvaus)}</div>`:'';
     const editLink=`<a href="#" onclick="nav('mokkit');setTimeout(()=>document.querySelector('[data-num=\\'${esc(c.number)}\\']')?.click(),400);return false;" style="font-size:0.72rem;color:#0a4a6e;margin-top:6px;display:block;">✏️ Muokkaa →</a>`;
-    L.marker([c.lat,c.lon],{icon}).bindPopup(`<div style="min-width:180px"><b>Mökki ${esc(c.number)}</b>${photoHtml}${kuvaus||(!hasAnyPhoto?'<div style="font-size:0.75rem;color:#94a3b8;margin-top:4px;">Ei kuvausta</div>':'')}${editLink}</div>`,{maxWidth:220}).addTo(g.mokkit);
+    const m=L.marker([c.lat,c.lon],{icon,draggable:true}).bindPopup(`<div style="min-width:180px"><b>Mökki ${esc(c.number)}</b>${photoHtml}${kuvaus||'<div style="font-size:0.75rem;color:#94a3b8;margin-top:4px;">Ei kuvausta</div>'}${editLink}<div id="coord-${esc(c.number)}" style="font-size:0.68rem;color:#6b7280;margin-top:4px;">📍 ${c.lat.toFixed(6)}, ${c.lon.toFixed(6)}</div></div>`,{maxWidth:220});
+    m.on('dragend',async e=>{
+      const ll=e.target.getLatLng();
+      const coordEl=document.getElementById('coord-'+c.number);
+      if(coordEl)coordEl.textContent='⏳ Tallennetaan...';
+      try{
+        await fetch(API_BASE+'/api/hkl/cottages/'+encodeURIComponent(c.number)+'/location',{method:'POST',headers:{...ah(),'Content-Type':'application/json'},body:JSON.stringify({lat:ll.lat,lon:ll.lng})});
+        if(coordEl)coordEl.textContent='✅ '+ll.lat.toFixed(6)+', '+ll.lng.toFixed(6);
+      }catch(err){if(coordEl)coordEl.textContent='❌ Virhe tallennuksessa';}
+    });
+    m.addTo(g.mokkit);
+    allBounds.push([c.lat,c.lon]);
   });
+
+  if(allBounds.length)_adminAluekarttaMap.fitBounds(allBounds,{padding:[30,30],maxZoom:19});
+
+  // Ohje
+  const info=document.getElementById('admin-aluekartta-legend');
+  if(info)info.innerHTML='<span style="background:#fff3cd;border:1.5px solid #f59e0b;border-radius:3px;padding:1px 5px;font-size:11px;font-weight:600;">Keltainen = mökki</span> — <b>Raahaa markkeria</b> siirtääksesi mökin oikeaan paikkaan. Koordinaatit tallentuvat automaattisesti.';
 
   // Palvelupisteet
   rp.forEach(vp=>{
