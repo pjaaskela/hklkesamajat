@@ -1171,22 +1171,6 @@ body { padding-top: 48px; }
             </div>
             <div style="font-size:0.72rem;color:#94a3b8;font-weight:700;">~600m</div>
           </a>
-          <a href="https://jaaskel.com/beach.html?id=1257" target="_blank" class="beach-link" style="display:flex;align-items:center;gap:12px;background:#f8fafc;border-radius:10px;padding:10px 14px;text-decoration:none;color:inherit;border:1px solid #e2e8f0;">
-            <div style="font-size:1.3rem;">🏝️</div>
-            <div style="flex:1;">
-              <div style="font-weight:700;font-size:0.85rem;">Lemissaaren nokka</div>
-              <div style="font-size:0.75rem;color:#64748b;">Iltaaurinko, kivi/sora · keskitaso</div>
-            </div>
-            <div style="font-size:0.72rem;color:#94a3b8;font-weight:700;">~900m</div>
-          </a>
-          <a href="https://jaaskel.com/beach.html?id=1251" target="_blank" class="beach-link" style="display:flex;align-items:center;gap:12px;background:#f8fafc;border-radius:10px;padding:10px 14px;text-decoration:none;color:inherit;border:1px solid #e2e8f0;">
-            <div style="font-size:1.3rem;">🏖️</div>
-            <div style="flex:1;">
-              <div style="font-weight:700;font-size:0.85rem;">Kasinonranta</div>
-              <div style="font-size:0.75rem;color:#64748b;">Pääuimaranta · rantapelastajat, ravintola, WC · helppo</div>
-            </div>
-            <div style="font-size:0.72rem;color:#94a3b8;font-weight:700;">~1.2km</div>
-          </a>
         </div>
         <div style="margin-top:10px;text-align:center;">
           <a href="https://jaaskel.com/rannat.html?lat=60.155&lon=24.855&near=1" target="_blank" style="font-size:0.78rem;color:var(--green);font-weight:600;text-decoration:none;">Näytä kaikki 18 Lauttasaaren rantaa kartalla →</a>
@@ -1289,8 +1273,14 @@ body { padding-top: 48px; }
             <div class="sensor-sub">kWh/vuosi</div>
           </div>
         </div>
-        <div style="margin-top:10px;font-size:0.72rem;color:var(--text-muted);">
-          2 m² · 20% hyötysuhde · etelä-suunta ·
+        <div style="margin-top:10px;font-size:0.72rem;color:var(--text-muted);">2 m² · 20% hyötysuhde · etelä-suunta · mökin sijainti</div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--text);margin-bottom:6px;">🔍 Harkitsetko aurinkopaneelia muualle?</div>
+          <div style="display:flex;gap:6px;">
+            <input id="solar-addr" type="text" placeholder="Anna osoite, esim. Mannerheimintie 1, Helsinki" style="flex:1;padding:8px 10px;border:1.5px solid #e0e7ef;border-radius:8px;font-size:0.82rem;background:#f8fafc;" onkeydown="if(event.key==='Enter')solarSearch()">
+            <button onclick="solarSearch()" style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:700;font-size:0.82rem;cursor:pointer;white-space:nowrap;">☀️ Laske</button>
+          </div>
+          <div style="font-size:0.68rem;color:var(--text-muted);margin-top:5px;">Siirtyy jaaskel.com/solar.html · Google Solar API</div>
         </div>
       </div>
     </div>
@@ -3300,6 +3290,12 @@ async function loadAluekartta() {
         }).join('');
     }
   } catch(e) { console.error('[aluekartta]', e); }
+}
+
+function solarSearch() {
+  const addr = (document.getElementById('solar-addr')?.value || '').trim();
+  if (!addr) return;
+  window.open('https://jaaskel.com/solar.html?q=' + encodeURIComponent(addr), '_blank');
 }
 
 async function loadSolar() {
