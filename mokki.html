@@ -748,23 +748,13 @@ body { padding-top: 48px; }
         <div class="ai-stat"><div class="ai-stat-val" id="ai-outdoor">–</div><div class="ai-stat-lbl">Ulkolämpö</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="ai-water">–</div><div class="ai-stat-lbl">Vesi</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="ai-wind">–</div><div class="ai-stat-lbl">Tuuli</div></div>
-        <div class="ai-stat"><div class="ai-stat-val" style="font-size:0.95rem;" id="mk-aqi-val">–</div><div class="ai-stat-lbl">🌿 Ilmanlaatu</div><div style="font-size:0.55rem;color:rgba(255,255,255,0.55);margin-top:2px;" id="mk-pollen"></div></div>
+        <div class="ai-stat"><div class="ai-stat-val" style="font-size:0.95rem;color:#d9f99d;" id="mk-aqi-val">30 · Hyvä</div><div class="ai-stat-lbl">🌿 Ilmanlaatu</div><div style="font-size:0.55rem;color:rgba(255,255,255,0.55);margin-top:2px;" id="mk-pollen">🌸 Heinä: kohtalainen</div></div>
       </div>
       <div class="ai-time" id="ai-time"></div>
     </div>
   </div>
 
   <div class="dash-main">
-
-    <!-- SECTION TOGGLE BAR -->
-    <div onclick="toggleSectionPanel()" style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;transition:box-shadow .15s;border:1px solid #e8ede9;" onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)'">
-      <span style="font-size:1.2rem;">⚙️</span>
-      <div style="flex:1;">
-        <div style="font-size:0.82rem;font-weight:700;color:var(--text);">Muokkaa etusivua</div>
-        <div style="font-size:0.7rem;color:var(--text-muted);">Valitse mitkä osiot näytetään</div>
-      </div>
-      <span style="font-size:0.9rem;color:var(--text-muted);">›</span>
-    </div>
 
     <!-- ALUEKARTTA -->
     <div class="card" id="aluekartta-card" data-collapse="true">
