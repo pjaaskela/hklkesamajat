@@ -3302,7 +3302,7 @@ async function loadAluekartta() {
       const TILA_C2 = {vapaa:'#22c55e',varattu:'#ef4444',vieraspaikka:'#f59e0b'};
       const TILA_L2 = {vapaa:'Vapaa',varattu:'Varattu',vieraspaikka:'Vieraspaikka'};
       const vapaat = pierSlots.filter(s => s.tila === 'vapaa').length;
-      sheet.querySelector('#vv-sheet-title').innerHTML = `⚓ ${_e(pier.nimi||pier.numero)}`;
+      sheet.querySelector('#vv-sheet-title').innerHTML = `⚓ Laituri ${_e(pier.numero)}`;
       sheet.querySelector('#vv-sheet-photo').style.display = 'none';
       sheet.querySelector('#vv-sheet-body').innerHTML =
         `<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;">${vapaat} vapaa / ${pierSlots.length} paikkaa</div>` +
