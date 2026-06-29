@@ -130,6 +130,7 @@ footer a { color: rgba(82,183,136,0.55); }
         <div class="glass-pill-label">🌿 Ilmanlaatu</div>
         <div class="glass-pill-value" style="font-size:1.1rem;" id="h-aqi-val">–</div>
         <div class="glass-pill-sub" id="h-aqi-label">–</div>
+        <div class="glass-pill-sub" id="h-pollen" style="margin-top:3px;opacity:0.8;">–</div>
       </div>
       <div class="glass-pill">
         <div class="glass-pill-label">☕ Buffetti</div>
@@ -287,15 +288,30 @@ async function loadLocalSensorHero() {
 
 async function loadAirQualityHero() {
   try {
-    const d=await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${LAT}&longitude=${LON}&current=european_aqi,pm2_5`).then(r=>r.json());
-    const aqi=d.current?.european_aqi;
-    if(aqi==null) return;
-    const label=aqi<=20?'Erinomainen':aqi<=40?'Hyvä':aqi<=60?'Kohtalainen':aqi<=80?'Huono':'Erittäin huono';
-    const color=aqi<=20?'#86efac':aqi<=40?'#d9f99d':aqi<=60?'#fde047':aqi<=80?'#fca5a5':'#f87171';
-    const el=document.getElementById('h-aqi-val');
-    if(el){el.textContent=Math.round(aqi);el.style.color=color;}
-    const lb=document.getElementById('h-aqi-label');
-    if(lb) lb.textContent=label;
+    const d=await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${LAT}&longitude=${LON}&current=european_aqi,birch_pollen,grass_pollen,alder_pollen,mugwort_pollen`).then(r=>r.json());
+    const c=d.current||{};
+    const aqi=c.european_aqi;
+    if(aqi!=null){
+      const label=aqi<=20?'Erinomainen':aqi<=40?'Hyvä':aqi<=60?'Kohtalainen':aqi<=80?'Huono':'Erittäin huono';
+      const color=aqi<=20?'#86efac':aqi<=40?'#d9f99d':aqi<=60?'#fde047':aqi<=80?'#fca5a5':'#f87171';
+      const el=document.getElementById('h-aqi-val');
+      if(el){el.textContent=Math.round(aqi);el.style.color=color;}
+      const lb=document.getElementById('h-aqi-label');
+      if(lb) lb.textContent=label;
+    }
+    // Siitepöly: näytä korkein
+    const pollens=[
+      {name:'Koivu',v:c.birch_pollen,t:[10,80,500]},
+      {name:'Heinä',v:c.grass_pollen,t:[5,30,100]},
+      {name:'Leppä',v:c.alder_pollen,t:[10,80,500]},
+      {name:'Koiruoho',v:c.mugwort_pollen,t:[5,30,100]},
+    ].filter(p=>p.v!=null&&p.v>0);
+    if(pollens.length){
+      const top=pollens.sort((a,b)=>b.v-a.v)[0];
+      const lvl=top.v<top.t[0]?'matala':top.v<top.t[1]?'kohtalainen':top.v<top.t[2]?'korkea':'erittäin korkea';
+      const pe=document.getElementById('h-pollen');
+      if(pe) pe.textContent=`🌸 ${top.name}: ${lvl}`;
+    }
   } catch(e){}
 }
 
