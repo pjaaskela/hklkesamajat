@@ -423,8 +423,11 @@ body { padding-top: 48px; }
 /* ========== MOKKI DAY AI ========== */
 .mokki-day-card {
   background: linear-gradient(145deg, #0a3d2a 0%, #0e5c46 50%, #0a4a6e 100%);
-  border-radius: var(--radius); padding: 20px 18px; position: relative; overflow: hidden;
+  border-radius: var(--radius); padding: 20px 18px; position: relative;
   box-shadow: var(--shadow);
+}
+.mokki-day-card .md-orbs {
+  position: absolute; inset: 0; overflow: hidden; border-radius: var(--radius); pointer-events: none;
 }
 .mokki-day-card .md-orb {
   position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.15;
@@ -701,8 +704,7 @@ body { padding-top: 48px; }
 
   <!-- MÖKKIPÄIVÄ AI-KUVAUS -->
   <div class="mokki-day-card" id="mokki-day-card" style="margin:0 16px 14px;display:none;">
-    <div class="md-orb md-orb-1"></div>
-    <div class="md-orb md-orb-2"></div>
+    <div class="md-orbs"><div class="md-orb md-orb-1"></div><div class="md-orb md-orb-2"></div></div>
     <div class="md-inner">
       <div class="md-label">☀️ Tämän päivän mökkifiilis</div>
       <div class="md-text" id="mokki-day-text"><span class="skel" style="width:90%;height:3em;display:block;border-radius:8px;"></span></div>
@@ -717,7 +719,7 @@ body { padding-top: 48px; }
         </div>
         <div class="md-stat" id="md-hum-stat" style="display:none">
           <span class="md-stat-icon">💧</span>
-          <div class="md-stat-body"><div class="md-stat-val" id="md-humidity">–</div><div class="md-stat-lbl">Kosteus</div></div>
+          <div class="md-stat-body"><div class="md-stat-val" id="md-humidity">–</div><div class="md-stat-lbl">Suhteellinen kosteus</div></div>
         </div>
         <div class="md-stat">
           <span class="md-stat-icon">🌊</span>
@@ -726,6 +728,10 @@ body { padding-top: 48px; }
         <div class="md-stat">
           <span class="md-stat-icon">💨</span>
           <div class="md-stat-body"><div class="md-stat-val" id="md-wind">–</div><div class="md-stat-lbl">Tuuli</div></div>
+        </div>
+        <div class="md-stat" id="md-aqi-stat">
+          <span class="md-stat-icon">🌿</span>
+          <div class="md-stat-body"><div class="md-stat-val" id="md-aqi-val" style="font-size:0.78rem;">–</div><div class="md-stat-lbl">Ilmanlaatu</div><div style="font-size:0.55rem;color:rgba(255,255,255,0.5);margin-top:1px;" id="md-pollen"></div></div>
         </div>
         <div class="md-rain-row" id="md-rain-row" style="display:none">
           <span id="md-rain-icon">🌧</span>
@@ -737,6 +743,19 @@ body { padding-top: 48px; }
       </div>
       <div class="md-time" id="mokki-day-time"></div>
     </div>
+  </div>
+
+  <!-- ILMANLAATU & SIITEPÖLY -->
+  <div id="aqi-card" style="display:none;margin:0 16px 14px;background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border:1px solid #e8ede9;">
+    <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:10px;">🌿 Ilmanlaatu &amp; siitepöly</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+      <div id="aqi-badge" style="font-size:1.5rem;font-weight:900;color:#22c55e;">–</div>
+      <div>
+        <div id="aqi-label" style="font-size:0.8rem;font-weight:700;color:var(--text);">–</div>
+        <div style="font-size:0.7rem;color:var(--text-muted);">Eurooppalainen ilmanlaatu-indeksi</div>
+      </div>
+    </div>
+    <div id="aqi-pollens" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
   </div>
 
   <!-- AI PÄIVÄNKUVAUS + LIVE SNAPSHOT -->
@@ -2404,7 +2423,7 @@ function showDashboard(num) {
   loadMokkiAnnouncements();
   loadAISummary();
   loadSolar();
-  loadAirQuality();
+  // loadAirQuality called globally at page load
   loadWasteSchedule();
   setTimeout(initVesselsMap, 500);
   renderFlagDays();
@@ -3387,29 +3406,43 @@ function solarSearch() {
 }
 
 async function loadAirQuality() {
+  const aqiVal=document.getElementById('md-aqi-val');
+  if(aqiVal) aqiVal.textContent='B';
+  const aqiPol=document.getElementById('md-pollen');
+  const aqiCard=document.getElementById('aqi-card');
+  const aqiBadge=document.getElementById('aqi-badge');
+  const aqiLbl=document.getElementById('aqi-label');
+  const aqiGrid=document.getElementById('aqi-pollens');
   try {
     const d=await fetch('https://air-quality-api.open-meteo.com/v1/air-quality?latitude=60.15524&longitude=24.85453&current=european_aqi,birch_pollen,grass_pollen,alder_pollen,mugwort_pollen').then(r=>r.json());
     const c=d.current||{};
     const aqi=c.european_aqi;
+    const aqiLabel=v=>v<=20?'Erinomainen':v<=40?'Hyvä':v<=60?'Kohtalainen':v<=80?'Huono':'Erittäin huono';
+    const aqiColor=v=>v<=20?'#86efac':v<=40?'#d9f99d':v<=60?'#fde047':v<=80?'#fca5a5':'#f87171';
     if(aqi!=null){
-      const label=aqi<=20?'Erinomainen':aqi<=40?'Hyvä':aqi<=60?'Kohtalainen':aqi<=80?'Huono':'Erittäin huono';
-      const color=aqi<=20?'#86efac':aqi<=40?'#d9f99d':aqi<=60?'#fde047':aqi<=80?'#fca5a5':'#f87171';
-      const el=document.getElementById('mk-aqi-val');
-      if(el){el.textContent=Math.round(aqi)+' '+label;el.style.color=color;}
+      if(aqiVal){aqiVal.textContent=Math.round(aqi)+' '+aqiLabel(aqi);aqiVal.style.color=aqiColor(aqi);}
+      if(aqiBadge){aqiBadge.textContent=Math.round(aqi);aqiBadge.style.color=aqiColor(aqi);}
+      if(aqiLbl){aqiLbl.textContent=aqiLabel(aqi);aqiLbl.style.color=aqiColor(aqi);}
+      if(aqiCard) aqiCard.style.display='';
     }
-    const pollens=[
+    const pdata=[
       {name:'Koivu',v:c.birch_pollen,t:[10,80,500]},
       {name:'Heinä',v:c.grass_pollen,t:[5,30,100]},
       {name:'Leppä',v:c.alder_pollen,t:[10,80,500]},
       {name:'Koiruoho',v:c.mugwort_pollen,t:[5,30,100]},
-    ].filter(p=>p.v!=null&&p.v>0);
-    if(pollens.length){
-      const top=pollens.sort((a,b)=>b.v-a.v)[0];
+    ].filter(p=>p.v!=null);
+    const active=pdata.filter(p=>p.v>0);
+    if(active.length&&aqiPol){
+      const top=active.sort((a,b)=>b.v-a.v)[0];
       const lvl=top.v<top.t[0]?'matala':top.v<top.t[1]?'kohtalainen':top.v<top.t[2]?'korkea':'erittäin korkea';
-      const pe=document.getElementById('mk-pollen');
-      if(pe) pe.textContent=`🌸 ${top.name}: ${lvl}`;
+      aqiPol.textContent='🌸 '+top.name+': '+lvl;
     }
-  } catch(e){}
+    if(aqiGrid&&pdata.length){
+      const lc=v=>v===0?'#94a3b8':v<5?'#22c55e':v<30?'#eab308':v<100?'#f97316':'#ef4444';
+      const lt=p=>p.v===0?'–':p.v<p.t[0]?'Matala':p.v<p.t[1]?'Kohtalainen':p.v<p.t[2]?'Korkea':'Erittäin korkea';
+      aqiGrid.innerHTML=pdata.map(p=>`<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:5px 10px;font-size:0.72rem;"><div style="font-weight:700;color:#475569;">${p.name}</div><div style="font-weight:800;color:${lc(p.v)};">${lt(p)}</div></div>`).join('');
+    }
+  } catch(e){ if(aqiVal) aqiVal.textContent='Virhe'; }
 }
 
 async function loadSolar() {
@@ -4010,6 +4043,7 @@ function toggleSectionPanel() {
     overlay.classList.add('active');
   }
 }
+loadAirQuality();
 </script>
 <script src="https://jaaskel.com/hkl-i18n.js" defer></script>
 <div id="mp-guide" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;padding:20px;">
