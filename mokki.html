@@ -691,11 +691,11 @@ body { padding-top: 48px; }
     <div id="hero-photo-msg" style="padding:0 18px 10px;font-size:0.78rem;color:var(--green);min-height:1em;"></div>
   </div>
 
-  <!-- YMPÄRISTÖPALKKI — aina näkyvissä kirjautumisen jälkeen -->
-  <div id="env-bar" style="display:none;margin:0 16px 10px;background:linear-gradient(135deg,#0e5c3a,#0a4a6e);border-radius:12px;padding:10px 14px;display:none;">
+  <!-- YMPÄRISTÖPALKKI -->
+  <div id="env-bar" style="margin:0 16px 10px;background:linear-gradient(135deg,#0e5c3a,#0a4a6e);border-radius:12px;padding:10px 14px;">
     <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
       <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.55);flex-basis:100%;">🌿 Ilmanlaatu &amp; siitepöly</span>
-      <div id="env-aqi" style="font-size:0.82rem;font-weight:700;color:#86efac;">–</div>
+      <div id="env-aqi" style="font-size:0.82rem;font-weight:700;color:#86efac;">Ladataan…</div>
       <div id="env-pollen" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
     </div>
   </div>
@@ -3418,12 +3418,10 @@ async function loadAirQuality() {
       return `<span style="font-size:0.65rem;background:rgba(255,255,255,0.18);color:rgba(255,255,255,0.9);border-radius:6px;padding:1px 6px;">${name}: ${lbl}</span>`;
     });
 
-    // Ympäristöpalkki (aina näkyvissä)
-    const envBar = document.getElementById('env-bar');
+    // Ympäristöpalkki
     const envAqi = document.getElementById('env-aqi');
     const envPollen = document.getElementById('env-pollen');
-    if (envBar) envBar.style.display = 'block';
-    if (envAqi && aqiLbl) { envAqi.textContent = aqi + ' · ' + aqiLbl; envAqi.style.color = aqiColor; }
+    if (envAqi) { envAqi.textContent = aqiLbl ? aqi + ' · ' + aqiLbl : '–'; envAqi.style.color = aqiColor; }
     if (envPollen) envPollen.innerHTML = pollenItems.join('');
 
     // Myös ai-hero jos se on auki
