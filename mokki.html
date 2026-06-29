@@ -735,10 +735,12 @@ body { padding-top: 48px; }
         </div>
         <div class="md-rain-row" id="md-rain-row" style="display:none">
           <span id="md-rain-icon">🌧</span>
-          <span>Sade tänään:</span>
+          <span id="md-rain-now" style="display:none;font-size:0.68rem;font-weight:700;background:rgba(147,197,253,0.25);color:#93c5fd;border-radius:4px;padding:1px 5px;">nyt</span>
+          <span id="md-rain-label">Sade tänään:</span>
           <span id="md-rain">–</span>
           <span style="opacity:0.5;font-size:0.7rem;">·</span>
           <span style="opacity:0.7;font-size:0.75rem;" id="md-rain-dur"></span>
+          <span style="opacity:0.65;font-size:0.72rem;" id="md-rain-end"></span>
         </div>
       </div>
       <div class="md-time" id="mokki-day-time"></div>
@@ -3695,7 +3697,7 @@ async function loadMokkiDay() {
   try {
     const [dayRes, weatherRes, rainRes, laituriRes, sensorsRes] = await Promise.allSettled([
       fetch(API_BASE + '/api/hkl/mokki-day', {headers: {'X-Hkl-Token': _hklToken}}).then(r => r.ok ? r.json() : null),
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=temperature_2m,wind_speed_10m&wind_speed_unit=ms&timezone=Europe/Helsinki`).then(r => r.json()).catch(()=>null),
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=temperature_2m,wind_speed_10m&hourly=precipitation&wind_speed_unit=ms&timezone=Europe/Helsinki&forecast_hours=48`).then(r => r.json()).catch(()=>null),
       fetch(API_BASE + '/api/hkl/weather-stats').then(r => r.json()),
       fetch(API_BASE + '/api/hkl/laituri').then(r => r.json()),
       fetch(API_BASE + '/api/hkl/cottage-sensors', {headers: {'X-Hkl-Token': _hklToken}}).then(r => r.json())
@@ -3739,15 +3741,39 @@ async function loadMokkiDay() {
       const re = document.getElementById('md-rain');
       const ri = document.getElementById('md-rain-icon');
       const rd = document.getElementById('md-rain-dur');
+      const rendEl = document.getElementById('md-rain-end');
+      const rnow = document.getElementById('md-rain-now');
       const hasSade = rain.raining || rain.rain_today_min > 0 || rain.rain_duration_min > 0;
       if (row && hasSade) {
         row.style.display = '';
         if (ri) ri.textContent = rain.raining ? '🌧' : '🌦';
-        if (re) re.textContent = rain.rain_today_min > 0 ? rain.rain_today_min + ' mm' : (rain.raining ? 'Sataa nyt' : '');
+        if (rnow) rnow.style.display = rain.raining ? '' : 'none';
+        if (re) re.textContent = rain.rain_today_min > 0 ? rain.rain_today_min + ' mm' : '';
         if (rd && rain.rain_duration_min > 0) {
           rd.textContent = rain.rain_duration_min >= 60
             ? (rain.rain_duration_min / 60).toFixed(1).replace(/\.0$/, '') + ' h yhteensä'
             : rain.rain_duration_min + ' min yhteensä';
+        }
+        if (rendEl && w && w.hourly && w.hourly.time) {
+          const htimes = w.hourly.time;
+          const hprecip = w.hourly.precipitation || [];
+          const now = new Date();
+          let endTime = null;
+          for (let i = 0; i < htimes.length; i++) {
+            const t = new Date(htimes[i]);
+            if (t <= now) continue;
+            if ((hprecip[i] || 0) < 0.1) { endTime = t; break; }
+          }
+          if (endTime) {
+            const isToday = endTime.toDateString() === now.toDateString();
+            const hhmm = endTime.toLocaleTimeString('fi-FI', {hour:'2-digit', minute:'2-digit'});
+            if (isToday) {
+              rendEl.textContent = '· loppuu ~' + hhmm;
+            } else {
+              const pvm = endTime.toLocaleDateString('fi-FI', {weekday:'short', day:'numeric', month:'numeric'});
+              rendEl.textContent = '· loppuu ~' + pvm + ' ' + hhmm;
+            }
+          }
         }
       }
     }
