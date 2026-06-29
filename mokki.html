@@ -309,6 +309,10 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--sand); 
 .mn-title { font-size: 0.85rem; font-weight: 700; color: #1e293b; margin-left: 4px; }
 body { padding-top: 48px; }
 .skel { display:inline-block;height:1.3rem;border-radius:5px;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite; }
+.glass-pill{background:rgba(255,255,255,0.13);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.22);border-radius:14px;padding:12px 16px;min-width:100px;text-align:center;color:white;}
+.glass-pill-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;opacity:0.7;margin-bottom:4px;}
+.glass-pill-value{font-size:1.3rem;font-weight:800;line-height:1.1;}
+.glass-pill-sub{font-size:0.7rem;opacity:0.65;margin-top:2px;}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 #ai-hero {
   display:none;
@@ -744,8 +748,8 @@ body { padding-top: 48px; }
         <div class="ai-stat"><div class="ai-stat-val" id="ai-outdoor">–</div><div class="ai-stat-lbl">Ulkolämpö</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="ai-water">–</div><div class="ai-stat-lbl">Vesi</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="ai-wind">–</div><div class="ai-stat-lbl">Tuuli</div></div>
+        <div class="ai-stat"><div class="ai-stat-val" style="font-size:0.95rem;" id="mk-aqi-val">–</div><div class="ai-stat-lbl">🌿 Ilmanlaatu</div><div style="font-size:0.6rem;color:rgba(255,255,255,0.5);margin-top:2px;" id="mk-pollen"></div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="ai-rain">–</div><div class="ai-stat-lbl">Sade</div></div>
-        <div class="ai-stat" id="aq-aqi-stat"><div class="ai-stat-val" id="aq-aqi-val">?</div><div class="ai-stat-lbl">Ilmanlaatu</div></div>
       </div>
       <div class="ai-time" id="ai-time"></div>
     </div>
@@ -3389,18 +3393,28 @@ function solarSearch() {
 
 async function loadAirQuality() {
   try {
-    const d = await fetch('https://air-quality-api.open-meteo.com/v1/air-quality?latitude=60.15524&longitude=24.85453&current=european_aqi,birch_pollen,grass_pollen&timezone=Europe/Helsinki').then(r=>r.json());
-    const c = d.current || {};
-    const aqi = c.european_aqi;
-    if (aqi == null) return;
-    const lbl = aqi<=20?'Erinomainen':aqi<=40?'Hyvä':aqi<=60?'Kohtalainen':aqi<=80?'Heikko':'Huono';
-    const color = aqi<=20?'#86efac':aqi<=40?'#d9f99d':aqi<=60?'#fde047':aqi<=80?'#fca5a5':'#f87171';
-    const el = document.getElementById('aq-aqi-val');
-    if (el) { el.textContent = Math.round(aqi) + ' · ' + lbl; el.style.color = color; }
-  } catch(e) {
-    const el = document.getElementById('aq-aqi-val');
-    if (el) el.textContent = 'ERR';
-  }
+    const d=await fetch('https://air-quality-api.open-meteo.com/v1/air-quality?latitude=60.15524&longitude=24.85453&current=european_aqi,birch_pollen,grass_pollen,alder_pollen,mugwort_pollen').then(r=>r.json());
+    const c=d.current||{};
+    const aqi=c.european_aqi;
+    if(aqi!=null){
+      const label=aqi<=20?'Erinomainen':aqi<=40?'Hyvä':aqi<=60?'Kohtalainen':aqi<=80?'Huono':'Erittäin huono';
+      const color=aqi<=20?'#86efac':aqi<=40?'#d9f99d':aqi<=60?'#fde047':aqi<=80?'#fca5a5':'#f87171';
+      const el=document.getElementById('mk-aqi-val');
+      if(el){el.textContent=Math.round(aqi)+' '+label;el.style.color=color;}
+    }
+    const pollens=[
+      {name:'Koivu',v:c.birch_pollen,t:[10,80,500]},
+      {name:'Heinä',v:c.grass_pollen,t:[5,30,100]},
+      {name:'Leppä',v:c.alder_pollen,t:[10,80,500]},
+      {name:'Koiruoho',v:c.mugwort_pollen,t:[5,30,100]},
+    ].filter(p=>p.v!=null&&p.v>0);
+    if(pollens.length){
+      const top=pollens.sort((a,b)=>b.v-a.v)[0];
+      const lvl=top.v<top.t[0]?'matala':top.v<top.t[1]?'kohtalainen':top.v<top.t[2]?'korkea':'erittäin korkea';
+      const pe=document.getElementById('mk-pollen');
+      if(pe) pe.textContent=`🌸 ${top.name}: ${lvl}`;
+    }
+  } catch(e){}
 }
 
 async function loadSolar() {
