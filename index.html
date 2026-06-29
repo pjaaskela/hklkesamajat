@@ -127,6 +127,11 @@ footer a { color: rgba(82,183,136,0.55); }
         <div class="glass-pill-sub" id="h-wind-dir">–</div>
       </div>
       <div class="glass-pill">
+        <div class="glass-pill-label">🌿 Ilmanlaatu</div>
+        <div class="glass-pill-value" style="font-size:1.1rem;" id="h-aqi-val">–</div>
+        <div class="glass-pill-sub" id="h-aqi-label">–</div>
+      </div>
+      <div class="glass-pill">
         <div class="glass-pill-label">☕ Buffetti</div>
         <div class="glass-pill-value" style="font-size:1rem;" id="h-buffetti-status">–</div>
         <div class="glass-pill-sub">pe–su 11–18</div>
@@ -280,6 +285,20 @@ async function loadLocalSensorHero() {
   } catch(e){}
 }
 
+async function loadAirQualityHero() {
+  try {
+    const d=await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${LAT}&longitude=${LON}&current=european_aqi,pm2_5`).then(r=>r.json());
+    const aqi=d.current?.european_aqi;
+    if(aqi==null) return;
+    const label=aqi<=20?'Erinomainen':aqi<=40?'Hyvä':aqi<=60?'Kohtalainen':aqi<=80?'Huono':'Erittäin huono';
+    const color=aqi<=20?'#86efac':aqi<=40?'#d9f99d':aqi<=60?'#fde047':aqi<=80?'#fca5a5':'#f87171';
+    const el=document.getElementById('h-aqi-val');
+    if(el){el.textContent=Math.round(aqi);el.style.color=color;}
+    const lb=document.getElementById('h-aqi-label');
+    if(lb) lb.textContent=label;
+  } catch(e){}
+}
+
 async function loadSunHero() {
   try {
     const today=new Date().toISOString().split('T')[0];
@@ -339,6 +358,7 @@ loadWeatherHero();
 loadWaterHero();
 loadLocalSensorHero();
 loadSunHero();
+loadAirQualityHero();
 
 setTimeout(() => {
   document.querySelectorAll('.glass-pill-value').forEach(el => {
