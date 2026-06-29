@@ -745,7 +745,7 @@ body { padding-top: 48px; }
         <div class="ai-stat"><div class="ai-stat-val" id="ai-water">–</div><div class="ai-stat-lbl">Vesi</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="ai-wind">–</div><div class="ai-stat-lbl">Tuuli</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="ai-rain">–</div><div class="ai-stat-lbl">Sade</div></div>
-        <div class="ai-stat" id="aq-aqi-stat"><div class="ai-stat-val" id="aq-aqi-val">–</div><div class="ai-stat-lbl">Ilmanlaatu</div></div>
+        <div class="ai-stat" id="aq-aqi-stat"><div class="ai-stat-val" id="aq-aqi-val">?</div><div class="ai-stat-lbl">Ilmanlaatu</div></div>
       </div>
       <div class="ai-time" id="ai-time"></div>
     </div>
@@ -3397,7 +3397,10 @@ async function loadAirQuality() {
     const color = aqi<=20?'#86efac':aqi<=40?'#d9f99d':aqi<=60?'#fde047':aqi<=80?'#fca5a5':'#f87171';
     const el = document.getElementById('aq-aqi-val');
     if (el) { el.textContent = Math.round(aqi) + ' · ' + lbl; el.style.color = color; }
-  } catch(e) {}
+  } catch(e) {
+    const el = document.getElementById('aq-aqi-val');
+    if (el) el.textContent = 'ERR';
+  }
 }
 
 async function loadSolar() {
