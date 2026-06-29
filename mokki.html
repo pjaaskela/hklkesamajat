@@ -781,7 +781,7 @@ body { padding-top: 48px; }
       </div>
       <div class="card-body card-collapse-body" style="display:none;padding:0 14px 14px;">
         <div style="position:relative;margin-top:10px;">
-          <div id="aluekartta" style="overflow:auto;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);display:none;-webkit-overflow-scrolling:touch;max-height:70vh;"></div>
+          <div id="aluekartta" style="overflow:auto;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);display:none;-webkit-overflow-scrolling:touch;height:300px;cursor:grab;"></div>
           <div id="aluekartta-zoom" style="display:none;position:absolute;top:8px;right:8px;z-index:20;display:flex;flex-direction:column;gap:2px;">
             <button onclick="_vvZoom(1)" style="width:32px;height:32px;border-radius:6px 6px 0 0;background:rgba(255,255,255,0.92);border:1px solid #d1d5db;font-size:1.1rem;font-weight:700;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2);">+</button>
             <button onclick="_vvZoom(-1)" style="width:32px;height:32px;border-radius:0 0 6px 6px;background:rgba(255,255,255,0.92);border:1px solid #d1d5db;border-top:none;font-size:1.1rem;font-weight:700;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2);">−</button>
@@ -792,14 +792,7 @@ body { padding-top: 48px; }
           <div style="font-weight:600;margin-bottom:4px;">Ladataan karttaa...</div>
         </div>
         <div id="venepaikka-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
-        <!-- Vesiverkkokartta reference -->
-        <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;">
-          <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">🔵 Vesiverkkokartta</div>
-          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px;border:1px solid var(--border);">
-            <img src="vesiverkkokartta.jpg" alt="Vesiverkkokartta" style="display:block;max-width:100%;height:auto;min-width:300px;">
-          </div>
-          <div style="font-size:0.68rem;color:var(--text-muted);margin-top:4px;">Vesijohdot sinisellä · oranssi = linjasulku · sininen ympyrä = aluesulku · ruskea = liinakatto</div>
-        </div>
+        <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;padding:0 2px;">🔵 Vesijohdot · 🟠 Linjasulku · ⭕ Aluesulku · 🟤 Liinakatto — ⚓ klikkaa laiturimerkkiä</div>
       </div>
     </div>
 
@@ -3216,35 +3209,70 @@ function _getVVSheet() {
   document.body.appendChild(_vvSheetEl);
   return _vvSheetEl;
 }
-function _vvZoom(dir) {
-  const steps = [0.5, 0.75, 1, 1.5, 2, 3];
+function _vvInitScale() {
+  const el = document.getElementById('aluekartta');
   const img = document.getElementById('vv-map-img');
-  if (!img) return;
-  let idx = steps.findIndex(s => Math.abs(s - _vvScale) < 0.01);
-  if (idx < 0) idx = 2;
-  idx = Math.max(0, Math.min(steps.length - 1, idx + dir));
-  _vvScale = steps[idx];
-  img.style.width = (img.naturalWidth * _vvScale) + 'px';
+  if (!el || !img || !img.naturalWidth) return;
+  _vvScale = el.clientWidth / img.naturalWidth;
+  img.style.width = el.clientWidth + 'px';
   img.style.height = 'auto';
 }
+function _vvZoom(dir) {
+  const el = document.getElementById('aluekartta');
+  const img = document.getElementById('vv-map-img');
+  if (!el || !img || !img.naturalWidth) return;
+  const oldScale = _vvScale;
+  _vvScale = Math.max(0.1, Math.min(6, dir > 0 ? _vvScale * 1.5 : _vvScale / 1.5));
+  const cx = el.scrollLeft + el.clientWidth / 2;
+  const cy = el.scrollTop + el.clientHeight / 2;
+  img.style.width = (img.naturalWidth * _vvScale) + 'px';
+  img.style.height = 'auto';
+  el.scrollLeft = cx * (_vvScale / oldScale) - el.clientWidth / 2;
+  el.scrollTop  = cy * (_vvScale / oldScale) - el.clientHeight / 2;
+}
 function _initVVPinch(el) {
-  let startDist = null, startScale = 1;
+  let p0 = null, s0 = 1, mx0 = 0, my0 = 0;
   el.addEventListener('touchstart', e => {
     if (e.touches.length === 2) {
-      startDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-      startScale = _vvScale;
+      p0 = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      s0 = _vvScale;
+      const r = el.getBoundingClientRect();
+      mx0 = (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left + el.scrollLeft;
+      my0 = (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top  + el.scrollTop;
     }
   }, {passive: true});
   el.addEventListener('touchmove', e => {
-    if (e.touches.length !== 2 || !startDist) return;
-    const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    if (e.touches.length !== 2 || !p0) return;
     const img = document.getElementById('vv-map-img');
     if (!img) return;
-    _vvScale = Math.max(0.4, Math.min(4, startScale * d / startDist));
+    const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    const newScale = Math.max(0.1, Math.min(6, s0 * d / p0));
+    const ratio = newScale / _vvScale;
+    _vvScale = newScale;
     img.style.width = (img.naturalWidth * _vvScale) + 'px';
     img.style.height = 'auto';
+    const r = el.getBoundingClientRect();
+    const vpx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+    const vpy = (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
+    mx0 *= ratio; my0 *= ratio;
+    el.scrollLeft = mx0 - vpx;
+    el.scrollTop  = my0 - vpy;
   }, {passive: true});
-  el.addEventListener('touchend', () => { startDist = null; }, {passive: true});
+  el.addEventListener('touchend', e => { if (e.touches.length < 2) p0 = null; }, {passive: true});
+  el.addEventListener('wheel', e => {
+    e.preventDefault();
+    const img = document.getElementById('vv-map-img');
+    if (!img) return;
+    const r = el.getBoundingClientRect();
+    const mx = e.clientX - r.left + el.scrollLeft;
+    const my = e.clientY - r.top  + el.scrollTop;
+    const oldScale = _vvScale;
+    _vvScale = Math.max(0.1, Math.min(6, _vvScale * (e.deltaY < 0 ? 1.15 : 0.87)));
+    img.style.width = (img.naturalWidth * _vvScale) + 'px';
+    img.style.height = 'auto';
+    el.scrollLeft = mx * (_vvScale / oldScale) - (e.clientX - r.left);
+    el.scrollTop  = my * (_vvScale / oldScale) - (e.clientY - r.top);
+  }, {passive: false});
 }
 
 async function loadAluekartta() {
@@ -3268,7 +3296,7 @@ async function loadAluekartta() {
 
     // Rakenna kuva + laituriankkurit (ei mökkinumeroita)
     mapEl.innerHTML = `<div style="position:relative;display:inline-block;">
-      <img src="vesiverkkokartta.jpg" id="vv-map-img" style="display:block;max-width:none;height:auto;">
+      <img src="vesiverkkokartta.jpg" id="vv-map-img" style="display:block;height:auto;" onload="_vvInitScale()">
     </div>`;
     const wrap = mapEl.querySelector('div');
 
