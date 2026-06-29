@@ -3360,20 +3360,25 @@ async function loadAirQuality() {
     const c = d.current;
     if (!c) return;
 
+    // Näytä hero aina kun ilmanlaatu- tai muu data saatavilla
+    const hero = document.getElementById('ai-hero');
+    if (hero) hero.style.display = 'block';
+
     const aqi = c.european_aqi;
-    const aqiLbl = aqi <= 20 ? 'Erinomainen' : aqi <= 40 ? 'Hyvä' : aqi <= 60 ? 'Kohtalainen' : aqi <= 80 ? 'Heikko' : 'Huono';
-    const uv = c.uv_index ?? 0;
-    const uvLbl = uv <= 2 ? 'Matala' : uv <= 5 ? 'Kohtalainen' : uv <= 7 ? 'Korkea' : 'Erittäin korkea';
+    if (aqi != null) {
+      const aqiLbl = aqi <= 20 ? 'Erinomainen' : aqi <= 40 ? 'Hyvä' : aqi <= 60 ? 'Kohtalainen' : aqi <= 80 ? 'Heikko' : 'Huono';
+      const aqiEl = document.getElementById('aq-aqi-val');
+      if (aqiEl) aqiEl.textContent = aqi + ' ' + aqiLbl;
+    }
 
-    const aqiEl = document.getElementById('aq-aqi-val');
-    const aqiStat = document.getElementById('aq-aqi-stat');
-    if (aqiEl) { aqiEl.textContent = aqi + ' ' + aqiLbl; }
-    if (aqiStat) aqiStat.style.display = '';
-
-    const uvEl = document.getElementById('aq-uv-val');
-    const uvStat = document.getElementById('aq-uv-stat');
-    if (uvEl) { uvEl.textContent = uv.toFixed(1) + ' ' + uvLbl; }
-    if (uvStat) uvStat.style.display = '';
+    const uv = c.uv_index;
+    if (uv != null) {
+      const uvLbl = uv <= 2 ? 'Matala' : uv <= 5 ? 'Kohtalainen' : uv <= 7 ? 'Korkea' : 'Erittäin korkea';
+      const uvEl = document.getElementById('aq-uv-val');
+      const uvStat = document.getElementById('aq-uv-stat');
+      if (uvEl) uvEl.textContent = uv.toFixed(1) + ' ' + uvLbl;
+      if (uvStat) uvStat.style.display = '';
+    }
 
     const pollenEl = document.getElementById('aq-pollen-hero');
     if (pollenEl) {
