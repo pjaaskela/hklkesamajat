@@ -3399,49 +3399,45 @@ function solarSearch() {
 
 async function loadAirQuality() {
   try {
-    const r = await fetch('https://air-quality-api.open-meteo.com/v1/air-quality?latitude=60.15524&longitude=24.85453&current=european_aqi,pm2_5,uv_index,birch_pollen,grass_pollen,alder_pollen,mugwort_pollen&timezone=Europe/Helsinki');
+    const r = await fetch(API_BASE + '/api/hkl/environment');
     const d = await r.json();
-    const c = d.current;
-    if (!c) return;
 
-    const aqi = c.european_aqi;
+    const aqi = d.aqi;
     const aqiLbl = aqi != null ? (aqi<=20?'Erinomainen':aqi<=40?'Hyvä':aqi<=60?'Kohtalainen':aqi<=80?'Heikko':'Huono') : null;
     const aqiColor = aqi != null ? (aqi<=20?'#86efac':aqi<=40?'#d9f99d':aqi<=60?'#fde047':aqi<=80?'#fca5a5':'#f87171') : '#86efac';
 
-    const pollenItems = [
-      ['Koivu', c.birch_pollen, 10],
-      ['Heinä', c.grass_pollen, 5],
-      ['Leppä', c.alder_pollen, 10],
-      ['Pujo', c.mugwort_pollen, 10]
-    ].filter(([,v]) => v != null).map(([name, v, thr]) => {
-      const lbl = v<=1?'Erittäin matala':v<=thr?'Matala':v<=thr*10?'Kohtalainen':'Korkea';
-      return `<span style="font-size:0.65rem;background:rgba(255,255,255,0.18);color:rgba(255,255,255,0.9);border-radius:6px;padding:1px 6px;">${name}: ${lbl}</span>`;
-    });
+    const pollenLabels = {low:'Matala', moderate:'Kohtalainen', high:'Korkea'};
+    const pollenNimet = {koivu:'Koivu', heinä:'Heinä', leppä:'Leppä', pujo:'Pujo'};
+    const pollenItems = Object.entries(d.pollen || {})
+      .filter(([,p]) => p.value > 0 || p.inSeason)
+      .map(([key, p]) => {
+        const lbl = p.value <= 1 ? 'Erittäin matala' : (pollenLabels[p.category] || p.category);
+        return `<span style="font-size:0.65rem;background:rgba(255,255,255,0.18);color:rgba(255,255,255,0.9);border-radius:6px;padding:1px 6px;">${pollenNimet[key]||key}: ${lbl}</span>`;
+      });
 
     // Ympäristöpalkki
     const envAqi = document.getElementById('env-aqi');
     const envPollen = document.getElementById('env-pollen');
     if (envAqi) { envAqi.textContent = aqiLbl ? aqi + ' · ' + aqiLbl : '–'; envAqi.style.color = aqiColor; }
-    if (envPollen) envPollen.innerHTML = pollenItems.join('');
+    if (envPollen) envPollen.innerHTML = pollenItems.join('') || '<span style="font-size:0.65rem;color:rgba(255,255,255,0.5);">Ei siitepölyä</span>';
 
-    // Myös ai-hero jos se on auki
-    const hero = document.getElementById('ai-hero');
-    if (hero && hero.style.display !== 'none') {
-      const aqiEl = document.getElementById('aq-aqi-val');
-      if (aqiEl && aqiLbl) aqiEl.textContent = aqi + ' ' + aqiLbl;
-      const pollenEl = document.getElementById('aq-pollen-hero');
-      if (pollenEl) pollenEl.innerHTML = pollenItems.join('');
-    }
+    // ai-hero stat
+    const aqiEl = document.getElementById('aq-aqi-val');
+    if (aqiEl && aqiLbl) { aqiEl.textContent = aqi + ' ' + aqiLbl; aqiEl.style.color = aqiColor; }
 
-    const uv = c.uv_index;
-    if (uv != null) {
+    const uv = d.uv;
+    if (uv != null && uv > 0) {
       const uvLbl = uv<=2?'Matala':uv<=5?'Kohtalainen':uv<=7?'Korkea':'Erittäin korkea';
       const uvEl = document.getElementById('aq-uv-val');
       const uvStat = document.getElementById('aq-uv-stat');
       if (uvEl) uvEl.textContent = uv.toFixed(1)+' '+uvLbl;
       if (uvStat) uvStat.style.display = '';
     }
-  } catch(e) { console.warn('loadAirQuality', e); }
+  } catch(e) {
+    console.warn('loadAirQuality virhe:', e);
+    const el = document.getElementById('env-aqi');
+    if (el && el.textContent.includes('Ladataan')) el.textContent = '–';
+  }
 }
 
 async function loadSolar() {
