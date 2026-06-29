@@ -317,7 +317,10 @@ body { padding-top: 48px; }
 #ai-hero {
   display:none;
   background: linear-gradient(145deg, rgba(8,61,42,0.82) 0%, rgba(14,92,70,0.78) 50%, rgba(10,74,110,0.80) 100%), url('hkl-laituri.jpg') center/cover no-repeat;
-  border-radius:16px; margin:0 16px 16px; padding:28px 24px 20px; position:relative; overflow:hidden;
+  border-radius:16px; margin:0 16px 16px; padding:28px 24px 20px; position:relative;
+}
+#ai-hero .ai-orbs {
+  position:absolute; inset:0; overflow:hidden; border-radius:16px; pointer-events:none;
 }
 #ai-hero .ai-orb {
   position:absolute; border-radius:50%; filter:blur(60px); opacity:0.15;
@@ -738,8 +741,7 @@ body { padding-top: 48px; }
 
   <!-- AI PÄIVÄNKUVAUS + LIVE SNAPSHOT -->
   <div id="ai-hero">
-    <div class="ai-orb ai-orb-1"></div>
-    <div class="ai-orb ai-orb-2"></div>
+    <div class="ai-orbs"><div class="ai-orb ai-orb-1"></div><div class="ai-orb ai-orb-2"></div></div>
     <div class="ai-inner">
       <div class="ai-label">✨ Päivän kuvaus · <span id="ai-date"></span></div>
       <div class="ai-text" id="ai-text"></div>

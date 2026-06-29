@@ -31,7 +31,12 @@ Yhteisöllinen kesämaja-alueen verkkopalvelu Lauttasaaren Länsiulapanniemellä
 ```
 Selain
   ↓ HTTPS
-Cloudflare (jaaskel.com / hklkesamajat.fi)
+Cloudflare (hklkesamajat.fi)
+  ↓
+cPanel (ulkoinen hosting) — staattiset tiedostot
+  └── GitHub webhook → auto-deploy git push:sta
+
+Cloudflare (jaaskel.com)
   ↓
 Compute5 (.36) — nginx
   ├── Staattiset tiedostot: ~/web/
