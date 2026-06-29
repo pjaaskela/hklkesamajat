@@ -3697,7 +3697,7 @@ async function loadMokkiDay() {
   try {
     const [dayRes, weatherRes, rainRes, laituriRes, sensorsRes] = await Promise.allSettled([
       fetch(API_BASE + '/api/hkl/mokki-day', {headers: {'X-Hkl-Token': _hklToken}}).then(r => r.ok ? r.json() : null),
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=temperature_2m,wind_speed_10m&hourly=precipitation&wind_speed_unit=ms&timezone=Europe/Helsinki&forecast_hours=48`).then(r => r.json()).catch(()=>null),
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=temperature_2m,wind_speed_10m&wind_speed_unit=ms&timezone=Europe/Helsinki`).then(r => r.json()).catch(()=>null),
       fetch(API_BASE + '/api/hkl/weather-stats').then(r => r.json()),
       fetch(API_BASE + '/api/hkl/laituri').then(r => r.json()),
       fetch(API_BASE + '/api/hkl/cottage-sensors', {headers: {'X-Hkl-Token': _hklToken}}).then(r => r.json())
@@ -3754,25 +3754,16 @@ async function loadMokkiDay() {
             ? (rain.rain_duration_min / 60).toFixed(1).replace(/\.0$/, '') + ' h yhteensä'
             : rain.rain_duration_min + ' min yhteensä';
         }
-        if (rendEl && w && w.hourly && w.hourly.time) {
-          const htimes = w.hourly.time;
-          const hprecip = w.hourly.precipitation || [];
+        if (rendEl && rain.rain_last_changed && !rain.raining) {
+          const endTime = new Date(rain.rain_last_changed);
           const now = new Date();
-          let endTime = null;
-          for (let i = 0; i < htimes.length; i++) {
-            const t = new Date(htimes[i]);
-            if (t <= now) continue;
-            if ((hprecip[i] || 0) < 0.1) { endTime = t; break; }
-          }
-          if (endTime) {
-            const isToday = endTime.toDateString() === now.toDateString();
-            const hhmm = endTime.toLocaleTimeString('fi-FI', {hour:'2-digit', minute:'2-digit'});
-            if (isToday) {
-              rendEl.textContent = '· loppuu ~' + hhmm;
-            } else {
-              const pvm = endTime.toLocaleDateString('fi-FI', {weekday:'short', day:'numeric', month:'numeric'});
-              rendEl.textContent = '· loppuu ~' + pvm + ' ' + hhmm;
-            }
+          const isToday = endTime.toDateString() === now.toDateString();
+          const hhmm = endTime.toLocaleTimeString('fi-FI', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/Helsinki'});
+          if (isToday) {
+            rendEl.textContent = '· loppui klo ' + hhmm;
+          } else {
+            const pvm = endTime.toLocaleDateString('fi-FI', {weekday:'short', day:'numeric', month:'numeric', timeZone:'Europe/Helsinki'});
+            rendEl.textContent = '· loppui ' + pvm + ' ' + hhmm;
           }
         }
       }
