@@ -691,6 +691,15 @@ body { padding-top: 48px; }
     <div id="hero-photo-msg" style="padding:0 18px 10px;font-size:0.78rem;color:var(--green);min-height:1em;"></div>
   </div>
 
+  <!-- YMPÄRISTÖPALKKI — aina näkyvissä kirjautumisen jälkeen -->
+  <div id="env-bar" style="display:none;margin:0 16px 10px;background:linear-gradient(135deg,#0e5c3a,#0a4a6e);border-radius:12px;padding:10px 14px;display:none;">
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+      <span style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.55);flex-basis:100%;">🌿 Ilmanlaatu &amp; siitepöly</span>
+      <div id="env-aqi" style="font-size:0.82rem;font-weight:700;color:#86efac;">–</div>
+      <div id="env-pollen" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
+    </div>
+  </div>
+
   <!-- MÖKKIPÄIVÄ AI-KUVAUS -->
   <div class="mokki-day-card" id="mokki-day-card" style="margin:0 16px 14px;display:none;">
     <div class="md-orb md-orb-1"></div>
@@ -3367,38 +3376,44 @@ async function loadAirQuality() {
     const c = d.current;
     if (!c) return;
 
-    // Näytä hero aina kun ilmanlaatu- tai muu data saatavilla
-    const hero = document.getElementById('ai-hero');
-    if (hero) hero.style.display = 'block';
-
     const aqi = c.european_aqi;
-    if (aqi != null) {
-      const aqiLbl = aqi <= 20 ? 'Erinomainen' : aqi <= 40 ? 'Hyvä' : aqi <= 60 ? 'Kohtalainen' : aqi <= 80 ? 'Heikko' : 'Huono';
+    const aqiLbl = aqi != null ? (aqi<=20?'Erinomainen':aqi<=40?'Hyvä':aqi<=60?'Kohtalainen':aqi<=80?'Heikko':'Huono') : null;
+    const aqiColor = aqi != null ? (aqi<=20?'#86efac':aqi<=40?'#d9f99d':aqi<=60?'#fde047':aqi<=80?'#fca5a5':'#f87171') : '#86efac';
+
+    const pollenItems = [
+      ['Koivu', c.birch_pollen, 10],
+      ['Heinä', c.grass_pollen, 5],
+      ['Leppä', c.alder_pollen, 10],
+      ['Pujo', c.mugwort_pollen, 10]
+    ].filter(([,v]) => v != null).map(([name, v, thr]) => {
+      const lbl = v<=1?'Erittäin matala':v<=thr?'Matala':v<=thr*10?'Kohtalainen':'Korkea';
+      return `<span style="font-size:0.65rem;background:rgba(255,255,255,0.18);color:rgba(255,255,255,0.9);border-radius:6px;padding:1px 6px;">${name}: ${lbl}</span>`;
+    });
+
+    // Ympäristöpalkki (aina näkyvissä)
+    const envBar = document.getElementById('env-bar');
+    const envAqi = document.getElementById('env-aqi');
+    const envPollen = document.getElementById('env-pollen');
+    if (envBar) envBar.style.display = 'block';
+    if (envAqi && aqiLbl) { envAqi.textContent = aqi + ' · ' + aqiLbl; envAqi.style.color = aqiColor; }
+    if (envPollen) envPollen.innerHTML = pollenItems.join('');
+
+    // Myös ai-hero jos se on auki
+    const hero = document.getElementById('ai-hero');
+    if (hero && hero.style.display !== 'none') {
       const aqiEl = document.getElementById('aq-aqi-val');
-      if (aqiEl) aqiEl.textContent = aqi + ' ' + aqiLbl;
+      if (aqiEl && aqiLbl) aqiEl.textContent = aqi + ' ' + aqiLbl;
+      const pollenEl = document.getElementById('aq-pollen-hero');
+      if (pollenEl) pollenEl.innerHTML = pollenItems.join('');
     }
 
     const uv = c.uv_index;
     if (uv != null) {
-      const uvLbl = uv <= 2 ? 'Matala' : uv <= 5 ? 'Kohtalainen' : uv <= 7 ? 'Korkea' : 'Erittäin korkea';
+      const uvLbl = uv<=2?'Matala':uv<=5?'Kohtalainen':uv<=7?'Korkea':'Erittäin korkea';
       const uvEl = document.getElementById('aq-uv-val');
       const uvStat = document.getElementById('aq-uv-stat');
-      if (uvEl) uvEl.textContent = uv.toFixed(1) + ' ' + uvLbl;
+      if (uvEl) uvEl.textContent = uv.toFixed(1)+' '+uvLbl;
       if (uvStat) uvStat.style.display = '';
-    }
-
-    const pollenEl = document.getElementById('aq-pollen-hero');
-    if (pollenEl) {
-      const items = [
-        ['Koivu', c.birch_pollen, 10],
-        ['Heinä', c.grass_pollen, 5],
-        ['Leppä', c.alder_pollen, 10],
-        ['Pujo', c.mugwort_pollen, 10]
-      ].filter(([,v]) => v != null).map(([name, v, thr]) => {
-        const lbl = v <= 1 ? 'Erittäin matala' : v <= thr ? 'Matala' : v <= thr*10 ? 'Kohtalainen' : 'Korkea';
-        return `<span style="font-size:0.65rem;background:rgba(255,255,255,0.18);color:rgba(255,255,255,0.9);border-radius:6px;padding:1px 6px;">${name}: ${lbl}</span>`;
-      });
-      pollenEl.innerHTML = items.join('');
     }
   } catch(e) { console.warn('loadAirQuality', e); }
 }
