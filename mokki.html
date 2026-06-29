@@ -746,9 +746,7 @@ body { padding-top: 48px; }
         <div class="ai-stat"><div class="ai-stat-val" id="ai-wind">–</div><div class="ai-stat-lbl">Tuuli</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="ai-rain">–</div><div class="ai-stat-lbl">Sade</div></div>
         <div class="ai-stat" id="aq-aqi-stat"><div class="ai-stat-val" id="aq-aqi-val">–</div><div class="ai-stat-lbl">Ilmanlaatu</div></div>
-        <div class="ai-stat" id="aq-uv-stat" style="display:none"><div class="ai-stat-val" id="aq-uv-val">–</div><div class="ai-stat-lbl">UV-indeksi</div></div>
       </div>
-      <div id="aq-pollen-hero" style="margin-top:6px;flex-wrap:wrap;gap:5px;display:flex;"></div>
       <div class="ai-time" id="ai-time"></div>
     </div>
   </div>
@@ -3391,45 +3389,15 @@ function solarSearch() {
 
 async function loadAirQuality() {
   try {
-    const r = await fetch(API_BASE + '/api/hkl/environment');
-    const d = await r.json();
-
-    const aqi = d.aqi;
-    const aqiLbl = aqi != null ? (aqi<=20?'Erinomainen':aqi<=40?'Hyvä':aqi<=60?'Kohtalainen':aqi<=80?'Heikko':'Huono') : null;
-    const aqiColor = aqi != null ? (aqi<=20?'#86efac':aqi<=40?'#d9f99d':aqi<=60?'#fde047':aqi<=80?'#fca5a5':'#f87171') : '#86efac';
-
-    const pollenLabels = {low:'Matala', moderate:'Kohtalainen', high:'Korkea'};
-    const pollenNimet = {koivu:'Koivu', heinä:'Heinä', leppä:'Leppä', pujo:'Pujo'};
-    const pollenItems = Object.entries(d.pollen || {})
-      .filter(([,p]) => p.value > 0 || p.inSeason)
-      .map(([key, p]) => {
-        const lbl = p.value <= 1 ? 'Erittäin matala' : (pollenLabels[p.category] || p.category);
-        return `<span style="font-size:0.65rem;background:rgba(255,255,255,0.18);color:rgba(255,255,255,0.9);border-radius:6px;padding:1px 6px;">${pollenNimet[key]||key}: ${lbl}</span>`;
-      });
-
-    // Ympäristöpalkki
-    const envAqi = document.getElementById('env-aqi');
-    const envPollen = document.getElementById('env-pollen');
-    if (envAqi) { envAqi.textContent = aqiLbl ? aqi + ' · ' + aqiLbl : '–'; envAqi.style.color = aqiColor; }
-    if (envPollen) envPollen.innerHTML = pollenItems.join('') || '<span style="font-size:0.65rem;color:rgba(255,255,255,0.5);">Ei siitepölyä</span>';
-
-    // ai-hero stat
-    const aqiEl = document.getElementById('aq-aqi-val');
-    if (aqiEl && aqiLbl) { aqiEl.textContent = aqi + ' ' + aqiLbl; aqiEl.style.color = aqiColor; }
-
-    const uv = d.uv;
-    if (uv != null && uv > 0) {
-      const uvLbl = uv<=2?'Matala':uv<=5?'Kohtalainen':uv<=7?'Korkea':'Erittäin korkea';
-      const uvEl = document.getElementById('aq-uv-val');
-      const uvStat = document.getElementById('aq-uv-stat');
-      if (uvEl) uvEl.textContent = uv.toFixed(1)+' '+uvLbl;
-      if (uvStat) uvStat.style.display = '';
-    }
-  } catch(e) {
-    console.warn('loadAirQuality virhe:', e);
-    const el = document.getElementById('env-aqi');
-    if (el && el.textContent.includes('Ladataan')) el.textContent = '–';
-  }
+    const d = await fetch('https://air-quality-api.open-meteo.com/v1/air-quality?latitude=60.15524&longitude=24.85453&current=european_aqi,birch_pollen,grass_pollen&timezone=Europe/Helsinki').then(r=>r.json());
+    const c = d.current || {};
+    const aqi = c.european_aqi;
+    if (aqi == null) return;
+    const lbl = aqi<=20?'Erinomainen':aqi<=40?'Hyvä':aqi<=60?'Kohtalainen':aqi<=80?'Heikko':'Huono';
+    const color = aqi<=20?'#86efac':aqi<=40?'#d9f99d':aqi<=60?'#fde047':aqi<=80?'#fca5a5':'#f87171';
+    const el = document.getElementById('aq-aqi-val');
+    if (el) { el.textContent = Math.round(aqi) + ' · ' + lbl; el.style.color = color; }
+  } catch(e) {}
 }
 
 async function loadSolar() {
