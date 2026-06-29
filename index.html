@@ -240,7 +240,7 @@ const API_BASE = 'https://jaaskel.com';
 const WMO_ICONS = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',99:'⛈️'};
 
 function fmt1(v) { return v != null ? v.toFixed(1) : '–'; }
-function windDir(deg) { const d=['P','KP','K','EK','E','EL','L','KL']; return d[Math.round(deg/45)%8]; }
+function windDir(deg) { const d=['Pohjoinen','Koillinen','Itä','Kaakko','Etelä','Lounas','Länsi','Luode']; return d[Math.round(deg/45)%8]; }
 function dist(la1,lo1,la2,lo2) { const R=6371,dLa=Math.PI/180*(la2-la1),dLo=Math.PI/180*(lo2-lo1); const a=Math.sin(dLa/2)**2+Math.cos(Math.PI/180*la1)*Math.cos(Math.PI/180*la2)*Math.sin(dLo/2)**2; return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
 
 function isBuffettiOpen() {

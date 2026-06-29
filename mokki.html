@@ -744,10 +744,10 @@ body { padding-top: 48px; }
         <div class="ai-stat"><div class="ai-stat-val" id="ai-water">–</div><div class="ai-stat-lbl">Vesi</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="ai-wind">–</div><div class="ai-stat-lbl">Tuuli</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="ai-rain">–</div><div class="ai-stat-lbl">Sade</div></div>
-        <div class="ai-stat" id="aq-aqi-stat" style="display:none"><div class="ai-stat-val" id="aq-aqi-val">–</div><div class="ai-stat-lbl">Ilmanlaatu</div></div>
+        <div class="ai-stat" id="aq-aqi-stat"><div class="ai-stat-val" id="aq-aqi-val">–</div><div class="ai-stat-lbl">Ilmanlaatu</div></div>
         <div class="ai-stat" id="aq-uv-stat" style="display:none"><div class="ai-stat-val" id="aq-uv-val">–</div><div class="ai-stat-lbl">UV-indeksi</div></div>
       </div>
-      <div id="aq-pollen-hero" style="display:none;margin-top:6px;flex-wrap:wrap;gap:5px;"></div>
+      <div id="aq-pollen-hero" style="margin-top:6px;flex-wrap:wrap;gap:5px;display:flex;"></div>
       <div class="ai-time" id="ai-time"></div>
     </div>
   </div>
@@ -3382,11 +3382,11 @@ async function loadAirQuality() {
         ['Heinä', c.grass_pollen, 5],
         ['Leppä', c.alder_pollen, 10],
         ['Pujo', c.mugwort_pollen, 10]
-      ].filter(([,v]) => v > 0).map(([name, v, thr]) => {
-        const lbl = v <= thr ? 'Vähäinen' : v <= thr*10 ? 'Kohtalainen' : 'Korkea';
+      ].filter(([,v]) => v != null).map(([name, v, thr]) => {
+        const lbl = v <= 1 ? 'Erittäin matala' : v <= thr ? 'Matala' : v <= thr*10 ? 'Kohtalainen' : 'Korkea';
         return `<span style="font-size:0.65rem;background:rgba(255,255,255,0.18);color:rgba(255,255,255,0.9);border-radius:6px;padding:1px 6px;">${name}: ${lbl}</span>`;
       });
-      if (items.length) { pollenEl.innerHTML = items.join(''); pollenEl.style.display = 'flex'; }
+      pollenEl.innerHTML = items.join('');
     }
   } catch(e) { console.warn('loadAirQuality', e); }
 }
@@ -3415,7 +3415,7 @@ async function loadAISummary() {
     const [aiData, sensorData, weatherData, rainData] = await Promise.allSettled([
       fetch(API_BASE + '/api/hkl/day-summary').then(r => r.json()),
       fetch(API_BASE + '/api/hkl/local-sensor').then(r => r.json()),
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=temperature_2m,wind_speed_10m&wind_speed_unit=ms&timezone=Europe/Helsinki`).then(r => r.json()),
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=temperature_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=ms&timezone=Europe/Helsinki`).then(r => r.json()),
       fetch(API_BASE + '/api/hkl/weather-stats').then(r => r.json())
     ]);
     const ai = aiData.status === 'fulfilled' ? aiData.value : null;
@@ -3450,7 +3450,11 @@ async function loadAISummary() {
       const oe = document.getElementById('ai-outdoor');
       const we = document.getElementById('ai-wind');
       if (oe) oe.textContent = weather.current.temperature_2m.toFixed(1) + '°';
-      if (we) we.textContent = weather.current.wind_speed_10m.toFixed(0) + ' m/s';
+      if (we) {
+        const dirs=['Pohjoinen','Koillinen','Itä','Kaakko','Etelä','Lounas','Länsi','Luode'];
+        const dir=dirs[Math.round((weather.current.wind_direction_10m??0)/45)%8];
+        we.innerHTML = weather.current.wind_speed_10m.toFixed(0)+' m/s<span style="display:block;font-size:0.62rem;font-weight:600;opacity:0.75;margin-top:1px;">'+dir+'</span>';
+      }
     }
     if (rain) {
       const re = document.getElementById('ai-rain');
