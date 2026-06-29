@@ -1521,11 +1521,11 @@ function renderVeneBerths(data){
 }
 
 async function addVenepaikka(){
-  const body={numero:v('vp-num'),nimi:v('vp-name'),tila:v('vp-tila'),lat:parseFloat(v('vp-lat')),lon:parseFloat(v('vp-lon')),kuvaus:v('vp-kuvaus')};
-  if(isNaN(body.lat)||isNaN(body.lon)){showMsg('vp-msg','❌ Anna koordinaatit tai klikkaa karttaa',false);return;}
+  const body={numero:v('vp-num'),nimi:v('vp-name'),tila:v('vp-tila'),lat:0,lon:0,kuvaus:v('vp-kuvaus')};
+  if(!body.numero){const m=document.getElementById('vp-msg');m.style.display='';m.style.color='var(--red)';m.textContent='❌ Anna vähintään numero';return;}
   const r=await fetch(API_BASE+'/api/hkl/berth',{method:'POST',headers:ah(),body:JSON.stringify(body)});
-  if(r.ok){['vp-num','vp-name','vp-kuvaus','vp-lat','vp-lon'].forEach(id=>document.getElementById(id).value='');showMsg('vp-msg','✅ Lisätty!',true);loadVeneBerths();}
-  else showMsg('vp-msg','❌ Virhe '+r.status,false);
+  if(r.ok){['vp-num','vp-name','vp-kuvaus'].forEach(id=>document.getElementById(id).value='');const m=document.getElementById('vp-msg');m.style.display='';m.style.color='var(--green)';m.textContent='✅ Lisätty! Aseta sijainti Kartta-sivulla.';setTimeout(()=>{m.style.display='none';},4000);loadVeneBerths();}
+  else{const m=document.getElementById('vp-msg');m.style.display='';m.style.color='var(--red)';m.textContent='❌ Virhe '+r.status;}
 }
 
 async function updateVeneTila(id,tila){
