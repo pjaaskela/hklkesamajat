@@ -750,7 +750,11 @@ body { padding-top: 48px; }
         <div class="ai-stat"><div class="ai-stat-val" id="ai-outdoor">–</div><div class="ai-stat-lbl">Ulkolämpö</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="ai-water">–</div><div class="ai-stat-lbl">Vesi</div></div>
         <div class="ai-stat"><div class="ai-stat-val" id="ai-wind">–</div><div class="ai-stat-lbl">Tuuli</div></div>
-        <div class="ai-stat"><div class="ai-stat-val" style="font-size:0.95rem;color:#d9f99d;" id="mk-aqi-val">30 · Hyvä</div><div class="ai-stat-lbl">🌿 Ilmanlaatu</div><div style="font-size:0.55rem;color:rgba(255,255,255,0.55);margin-top:2px;" id="mk-pollen">🌸 Heinä: kohtalainen</div></div>
+      </div>
+      <div id="mk-aqi-row" style="margin-top:10px;padding:8px 12px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <span style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:rgba(255,255,255,0.6);">🌿 Ilmanlaatu</span>
+        <span style="font-size:1rem;font-weight:800;color:#d9f99d;" id="mk-aqi-val">30 · Hyvä</span>
+        <span style="font-size:0.7rem;color:rgba(255,255,255,0.65);" id="mk-pollen">🌸 Heinä: kohtalainen</span>
       </div>
       <div class="ai-time" id="ai-time"></div>
     </div>
@@ -3440,7 +3444,7 @@ async function loadAISummary() {
     const weather = weatherData.status === 'fulfilled' ? weatherData.value : null;
     const rain = rainData.status === 'fulfilled' ? rainData.value : null;
 
-    if (getSectionPrefs()['ai'] !== false) hero.style.display = 'block';
+    hero.style.display = 'block';
 
     if (ai && ai.summary) {
       document.getElementById('ai-text').textContent = ai.summary;
