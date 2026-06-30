@@ -3297,46 +3297,43 @@ async function loadAluekartta() {
     </div>`;
     const wrap = mapEl.querySelector('div');
 
-    function openPierSheet(pier, pierSlots) {
+    function openFreeSpots() {
       const sheet = _getVVSheet();
-      const TILA_C2 = {vapaa:'#22c55e',varattu:'#ef4444',vieraspaikka:'#f59e0b'};
-      const TILA_L2 = {vapaa:'Vapaa',varattu:'Varattu',vieraspaikka:'Vieraspaikka'};
-      const vapaat = pierSlots.filter(s => s.tila === 'vapaa').length;
-      sheet.querySelector('#vv-sheet-title').innerHTML = `⚓ Laituri ${_e(pier.numero)}`;
+      const vapaat = berths.filter(b => b.tila === 'vapaa');
+      const vieraat = berths.filter(b => b.tila === 'vieraspaikka');
+      sheet.querySelector('#vv-sheet-title').innerHTML = `⚓ Vapaat venepaikat`;
       sheet.querySelector('#vv-sheet-photo').style.display = 'none';
-      sheet.querySelector('#vv-sheet-body').innerHTML =
-        `<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;">${vapaat} vapaa / ${pierSlots.length} paikkaa</div>` +
-        pierSlots.map(s => {
-          const sc = TILA_C2[s.tila] || '#6b7280';
-          return `<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:#f8fafc;border-radius:6px;margin-bottom:3px;">
-            <span style="width:8px;height:8px;border-radius:50%;background:${sc};flex-shrink:0;display:inline-block;"></span>
-            <span style="font-size:0.82rem;font-weight:600;min-width:52px;">${_e(s.numero)}</span>
-            <span style="font-size:0.75rem;color:${sc};font-weight:600;">${TILA_L2[s.tila]||s.tila}</span>
-          </div>`;
-        }).join('');
+      const mkRow = (s, color, label) =>
+        `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#f8fafc;border-radius:6px;margin-bottom:4px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;display:inline-block;"></span>
+          <span style="font-size:0.9rem;font-weight:700;min-width:40px;">${_e(s.numero)}</span>
+          <span style="font-size:0.75rem;color:${color};font-weight:600;">${label}</span>
+        </div>`;
+      if (!vapaat.length && !vieraat.length) {
+        sheet.querySelector('#vv-sheet-body').innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;">Ei vapaita paikkoja tällä hetkellä.</div>' +
+          '<div style="margin-top:10px;font-size:0.82rem;">Tiedustelut: <a href="tel:+358440748796" style="color:var(--green);font-weight:600;">0440 74 87 96</a></div>';
+      } else {
+        sheet.querySelector('#vv-sheet-body').innerHTML =
+          (vapaat.length ? `<div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px;">Vapaat paikat</div>` + vapaat.map(s => mkRow(s,'#22c55e','Vapaa')).join('') : '') +
+          (vieraat.length ? `<div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin:8px 0 6px;">Vieraspaikat</div>` + vieraat.map(s => mkRow(s,'#f59e0b','Vieraspaikka')).join('') : '') +
+          `<div style="margin-top:10px;font-size:0.78rem;color:var(--text-muted);">Tiedustelut: <a href="tel:+358440748796" style="color:var(--green);font-weight:600;">0440 74 87 96</a></div>`;
+      }
       sheet.style.display = '';
     }
 
     // Laituriankkurit — kolme pötköä kuvan ylälaidassa vasemmalta oikealle
     const PIER_POS = [
-      {px: 0.24, py: 0.09},
-      {px: 0.45, py: 0.06},
-      {px: 0.67, py: 0.09},
+      {px: 0.24, py: 0.09, label:'L1'},
+      {px: 0.45, py: 0.06, label:'L2'},
+      {px: 0.67, py: 0.09, label:'L3'},
     ];
-    const TILA_C3 = {vapaa:'#22c55e',varattu:'#ef4444',vieraspaikka:'#f59e0b'};
-    const pierList = berths.filter(b => !b.laituri).sort((a,b2) => (a.numero||'').localeCompare(b2.numero||''));
-    const slotsByPier2 = {};
-    berths.filter(b => b.laituri).forEach(s => { (slotsByPier2[s.laituri] = slotsByPier2[s.laituri] || []).push(s); });
+    const vapaat_yht = berths.filter(b => b.tila === 'vapaa').length;
+    const hasVapaa = vapaat_yht > 0;
 
-    pierList.forEach((pier, i) => {
-      const pos = PIER_POS[i];
-      if (!pos) return;
-      const pierSlots = slotsByPier2[pier.id] || [];
-      const vapaat = pierSlots.filter(s => s.tila === 'vapaa').length;
-      const hasVapaa = vapaat > 0;
+    PIER_POS.forEach((pos) => {
       const btn = document.createElement('button');
-      btn.innerHTML = `⚓<span style="display:block;font-size:8px;font-weight:700;margin-top:1px;">${vapaat}/${pierSlots.length}</span>`;
-      btn.title = `${pier.nimi||pier.numero} — ${vapaat} vapaa`;
+      btn.innerHTML = `⚓<span style="display:block;font-size:8px;font-weight:700;margin-top:1px;">${pos.label}</span>`;
+      btn.title = `${pos.label} — ${vapaat_yht} vapaa`;
       btn.style.cssText = [
         'position:absolute',
         `left:${(pos.px*100).toFixed(1)}%`,
@@ -3348,7 +3345,7 @@ async function loadAluekartta() {
         'z-index:10','line-height:1.2','pointer-events:auto',
         'box-shadow:0 2px 6px rgba(0,0,0,0.3)',
       ].join(';');
-      btn.addEventListener('click', e => { e.stopPropagation(); openPierSheet(pier, pierSlots); });
+      btn.addEventListener('click', e => { e.stopPropagation(); openFreeSpots(); });
       wrap.appendChild(btn);
     });
 
