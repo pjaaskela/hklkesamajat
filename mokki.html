@@ -3291,62 +3291,54 @@ async function loadAluekartta() {
     if (zoomEl) zoomEl.style.display = 'flex';
     _initVVPinch(mapEl);
 
-    // Rakenna kuva + laituriankkurit (ei mökkinumeroita)
+    // Rakenna kartta mokkikartta.jpg + venepaikkojen sijainnit map_px/map_py
     mapEl.innerHTML = `<div style="position:relative;display:inline-block;">
-      <img src="vesiverkkokartta.jpg" id="vv-map-img" style="display:block;height:auto;" onload="_vvInitScale()">
+      <img src="mokkikartta.jpg" id="vv-map-img" style="display:block;height:auto;" onload="_vvInitScale()">
     </div>`;
     const wrap = mapEl.querySelector('div');
 
-    function openFreeSpots() {
+    const TILA_C2 = {vapaa:'#22c55e', varattu:'#ef4444', vieraspaikka:'#f59e0b'};
+    const TILA_L2 = {vapaa:'Vapaa', varattu:'Varattu', vieraspaikka:'Vieraspaikka'};
+
+    function openBerthSheet(b) {
       const sheet = _getVVSheet();
-      const vapaat = berths.filter(b => b.tila === 'vapaa');
-      const vieraat = berths.filter(b => b.tila === 'vieraspaikka');
-      sheet.querySelector('#vv-sheet-title').innerHTML = `⚓ Vapaat venepaikat`;
+      const col = TILA_C2[b.tila] || '#6b7280';
+      const label = TILA_L2[b.tila] || b.tila;
+      sheet.querySelector('#vv-sheet-title').innerHTML = `⛵ Paikka ${_e(b.numero)}`;
       sheet.querySelector('#vv-sheet-photo').style.display = 'none';
-      const mkRow = (s, color, label) =>
-        `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#f8fafc;border-radius:6px;margin-bottom:4px;">
-          <span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;display:inline-block;"></span>
-          <span style="font-size:0.9rem;font-weight:700;min-width:40px;">${_e(s.numero)}</span>
-          <span style="font-size:0.75rem;color:${color};font-weight:600;">${label}</span>
-        </div>`;
-      if (!vapaat.length && !vieraat.length) {
-        sheet.querySelector('#vv-sheet-body').innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;">Ei vapaita paikkoja tällä hetkellä.</div>' +
-          '<div style="margin-top:10px;font-size:0.82rem;">Tiedustelut: <a href="tel:+358440748796" style="color:var(--green);font-weight:600;">0440 74 87 96</a></div>';
-      } else {
-        sheet.querySelector('#vv-sheet-body').innerHTML =
-          (vapaat.length ? `<div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px;">Vapaat paikat</div>` + vapaat.map(s => mkRow(s,'#22c55e','Vapaa')).join('') : '') +
-          (vieraat.length ? `<div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin:8px 0 6px;">Vieraspaikat</div>` + vieraat.map(s => mkRow(s,'#f59e0b','Vieraspaikka')).join('') : '') +
-          `<div style="margin-top:10px;font-size:0.78rem;color:var(--text-muted);">Tiedustelut: <a href="tel:+358440748796" style="color:var(--green);font-weight:600;">0440 74 87 96</a></div>`;
-      }
+      sheet.querySelector('#vv-sheet-body').innerHTML =
+        `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;">
+          <span style="width:14px;height:14px;border-radius:50%;background:${col};flex-shrink:0;display:inline-block;"></span>
+          <span style="font-size:1rem;font-weight:700;color:${col};">${label}</span>
+        </div>` +
+        (b.kuvaus ? `<div style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">${_e(b.kuvaus)}</div>` : '') +
+        `<div style="margin-top:12px;font-size:0.78rem;color:var(--text-muted);">Tiedustelut: <a href="tel:+358440748796" style="color:var(--green);font-weight:600;">0440 74 87 96</a></div>`;
       sheet.style.display = '';
     }
 
-    // Laituriankkurit — kolme pötköä kuvan ylälaidassa vasemmalta oikealle
-    const PIER_POS = [
-      {px: 0.24, py: 0.09, label:'L1'},
-      {px: 0.45, py: 0.06, label:'L2'},
-      {px: 0.67, py: 0.09, label:'L3'},
-    ];
-    const vapaat_yht = berths.filter(b => b.tila === 'vapaa').length;
-    const hasVapaa = vapaat_yht > 0;
-
-    PIER_POS.forEach((pos) => {
-      const btn = document.createElement('button');
-      btn.innerHTML = `⚓<span style="display:block;font-size:8px;font-weight:700;margin-top:1px;">${pos.label}</span>`;
-      btn.title = `${pos.label} — ${vapaat_yht} vapaa`;
-      btn.style.cssText = [
+    // Piirretään venepaikat map_px/map_py koordinaateilla
+    berths.forEach(b => {
+      if (b.map_px == null || b.map_py == null) return;
+      const col = TILA_C2[b.tila] || '#6b7280';
+      const dot = document.createElement('button');
+      dot.title = `${b.numero} — ${TILA_L2[b.tila]||b.tila}`;
+      dot.innerHTML = `<span style="font-size:10px;font-weight:800;color:#fff;line-height:1;">${_e(b.numero)}</span>`;
+      dot.style.cssText = [
         'position:absolute',
-        `left:${(pos.px*100).toFixed(1)}%`,
-        `top:${(pos.py*100).toFixed(1)}%`,
+        `left:${(parseFloat(b.map_px)*100).toFixed(3)}%`,
+        `top:${(parseFloat(b.map_py)*100).toFixed(3)}%`,
         'transform:translate(-50%,-50%)',
-        `background:${hasVapaa ? 'rgba(34,197,94,0.9)' : 'rgba(239,68,68,0.9)'}`,
-        'color:#fff','border:none','border-radius:8px',
-        'padding:4px 7px','font-size:14px','cursor:pointer',
-        'z-index:10','line-height:1.2','pointer-events:auto',
-        'box-shadow:0 2px 6px rgba(0,0,0,0.3)',
+        `background:${col}`,
+        'border:2px solid #fff',
+        'border-radius:50%',
+        'width:28px','height:28px',
+        'display:flex','align-items:center','justify-content:center',
+        'cursor:pointer','z-index:10','pointer-events:auto',
+        'box-shadow:0 2px 6px rgba(0,0,0,0.4)',
+        'padding:0',
       ].join(';');
-      btn.addEventListener('click', e => { e.stopPropagation(); openFreeSpots(); });
-      wrap.appendChild(btn);
+      dot.addEventListener('click', e => { e.stopPropagation(); openBerthSheet(b); });
+      wrap.appendChild(dot);
     });
 
     // Venepaikka-yhteenveto
