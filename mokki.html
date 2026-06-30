@@ -3287,15 +3287,9 @@ async function loadAluekartta() {
     const berths = rberths.ok ? await rberths.json() : [];
     const cottages = rcottages.ok ? await rcottages.json() : [];
     if (emptyEl) emptyEl.style.display = 'none';
-    mapEl.style.display = '';
-    if (zoomEl) zoomEl.style.display = 'flex';
-    _initVVPinch(mapEl);
-
-    // Rakenna kartta mokkikartta.jpg + venepaikkojen sijainnit map_px/map_py
-    mapEl.innerHTML = `<div style="position:relative;display:inline-block;">
-      <img src="mokkikartta.jpg" id="vv-map-img" style="display:block;height:auto;" onload="_vvInitScale()">
-    </div>`;
-    const wrap = mapEl.querySelector('div');
+    if (zoomEl) zoomEl.style.display = 'none';
+    mapEl.style.cssText = 'display:block;border-radius:10px;border:1px solid var(--border);height:360px;';
+    mapEl.innerHTML = '';
 
     const TILA_C2 = {vapaa:'#22c55e', varattu:'#ef4444', vieraspaikka:'#f59e0b'};
     const TILA_L2 = {vapaa:'Vapaa', varattu:'Varattu', vieraspaikka:'Vieraspaikka'};
@@ -3316,30 +3310,28 @@ async function loadAluekartta() {
       sheet.style.display = '';
     }
 
-    // Piirretään venepaikat map_px/map_py koordinaateilla
-    berths.forEach(b => {
-      if (b.map_px == null || b.map_py == null) return;
+    await _loadLeaflet();
+    if (_aluekarttaMap) { _aluekarttaMap.remove(); _aluekarttaMap = null; }
+    _aluekarttaMap = L.map(mapEl, {zoomControl:true}).setView([60.1552, 24.8545], 17);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution:'© ESRI', maxZoom:20
+    }).addTo(_aluekarttaMap);
+
+    const placed = berths.filter(b => b.lat && b.lon);
+    placed.forEach(b => {
       const col = TILA_C2[b.tila] || '#6b7280';
-      const dot = document.createElement('button');
-      dot.title = `${b.numero} — ${TILA_L2[b.tila]||b.tila}`;
-      dot.innerHTML = `<span style="font-size:10px;font-weight:800;color:#fff;line-height:1;">${_e(b.numero)}</span>`;
-      dot.style.cssText = [
-        'position:absolute',
-        `left:${(parseFloat(b.map_px)*100).toFixed(3)}%`,
-        `top:${(parseFloat(b.map_py)*100).toFixed(3)}%`,
-        'transform:translate(-50%,-50%)',
-        `background:${col}`,
-        'border:2px solid #fff',
-        'border-radius:50%',
-        'width:28px','height:28px',
-        'display:flex','align-items:center','justify-content:center',
-        'cursor:pointer','z-index:10','pointer-events:auto',
-        'box-shadow:0 2px 6px rgba(0,0,0,0.4)',
-        'padding:0',
-      ].join(';');
-      dot.addEventListener('click', e => { e.stopPropagation(); openBerthSheet(b); });
-      wrap.appendChild(dot);
+      const ic = L.divIcon({
+        html: `<div style="background:${col};color:#fff;border:2px solid #fff;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,.4);">${_e(b.numero)}</div>`,
+        className:'', iconSize:[30,30], iconAnchor:[15,15]
+      });
+      L.marker([b.lat, b.lon], {icon:ic})
+        .on('click', () => openBerthSheet(b))
+        .addTo(_aluekarttaMap);
     });
+    if (placed.length) {
+      const bounds = placed.map(b => [b.lat, b.lon]);
+      _aluekarttaMap.fitBounds(bounds, {padding:[30,30], maxZoom:19});
+    }
 
     // Venepaikka-yhteenveto
     const vapaat = berths.filter(b => b.tila === 'vapaa').length;
