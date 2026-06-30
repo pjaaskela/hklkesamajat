@@ -3284,8 +3284,11 @@ async function loadAluekartta() {
       fetch(API_BASE + '/api/hkl/berths'),
       fetch(API_BASE + '/api/hkl/cottages/locations', {headers: {'X-Hkl-Token': _hklToken}})
     ]);
-    const berths = rberths.ok ? await rberths.json() : [];
+    const allBerths = rberths.ok ? await rberths.json() : [];
     const cottages = rcottages.ok ? await rcottages.json() : [];
+    const LAITURIT = new Set(['L1','L2','L3']);
+    const berths = allBerths.filter(b => !LAITURIT.has(b.numero));
+    const laiturit = allBerths.filter(b => LAITURIT.has(b.numero));
     if (emptyEl) emptyEl.style.display = 'none';
     if (zoomEl) zoomEl.style.display = 'none';
     mapEl.style.cssText = 'display:block;border-radius:10px;border:1px solid var(--border);height:360px;';
@@ -3328,9 +3331,18 @@ async function loadAluekartta() {
         .on('click', () => openBerthSheet(b))
         .addTo(_aluekarttaMap);
     });
+    // Laiturit kartalla ankkurimerkkeinä
+    laiturit.filter(l => l.lat && l.lon).forEach(l => {
+      const ic = L.divIcon({
+        html: `<div style="background:rgba(15,92,58,0.9);color:#fff;border:2px solid #fff;border-radius:8px;padding:2px 7px;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.5);">⚓ ${_e(l.numero)}</div>`,
+        className:'', iconAnchor:[0,0]
+      });
+      L.marker([l.lat, l.lon], {icon:ic, interactive:false}).addTo(_aluekarttaMap);
+    });
+
     if (placed.length) {
-      const bounds = placed.map(b => [b.lat, b.lon]);
-      _aluekarttaMap.fitBounds(bounds, {padding:[30,30], maxZoom:19});
+      const allLat = [...placed, ...laiturit.filter(l => l.lat && l.lon)];
+      _aluekarttaMap.fitBounds(allLat.map(b => [b.lat, b.lon]), {padding:[30,30], maxZoom:19});
     }
 
     // Venepaikka-yhteenveto
