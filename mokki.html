@@ -3280,12 +3280,14 @@ async function loadAluekartta() {
   if (!mapEl) return;
   const _e = s => (s||'').replace(/</g,'&lt;');
   try {
-    const [rberths, rcottages] = await Promise.all([
+    const [rberths, rcottages, rvesi] = await Promise.all([
       fetch(API_BASE + '/api/hkl/berths'),
-      fetch(API_BASE + '/api/hkl/cottages/locations', {headers: {'X-Hkl-Token': _hklToken}})
+      fetch(API_BASE + '/api/hkl/cottages/locations', {headers: {'X-Hkl-Token': _hklToken}}),
+      fetch(API_BASE + '/api/hkl/vesipisteet')
     ]);
     const allBerths = rberths.ok ? await rberths.json() : [];
     const cottages = rcottages.ok ? await rcottages.json() : [];
+    const vesipisteet = rvesi.ok ? await rvesi.json() : [];
     const LAITURIT = new Set(['L1','L2','L3']);
     const berths = allBerths.filter(b => !LAITURIT.has(b.numero));
     const laiturit = allBerths.filter(b => LAITURIT.has(b.numero));
@@ -3296,6 +3298,8 @@ async function loadAluekartta() {
 
     const TILA_C2 = {vapaa:'#22c55e', varattu:'#ef4444', vieraspaikka:'#f59e0b'};
     const TILA_L2 = {vapaa:'Vapaa', varattu:'Varattu', vieraspaikka:'Vieraspaikka'};
+    const VP_ICONS = {vesipiste:'💧',sulkuventtiili:'🔴',wc:'🚽',suihku:'🚿',sahko:'⚡',jate:'♻️'};
+    const VP_COLORS = {vesipiste:'#38bdf8',sulkuventtiili:'#ef4444',wc:'#a78bfa',suihku:'#34d399',sahko:'#fbbf24',jate:'#6b7280'};
 
     function openBerthSheet(b) {
       const sheet = _getVVSheet();
@@ -3320,6 +3324,8 @@ async function loadAluekartta() {
       attribution:'© ESRI', maxZoom:20
     }).addTo(_aluekarttaMap);
 
+    // Layer: Venepaikat
+    const veneLayer = L.layerGroup().addTo(_aluekarttaMap);
     const placed = berths.filter(b => b.lat && b.lon);
     placed.forEach(b => {
       const col = TILA_C2[b.tila] || '#6b7280';
@@ -3327,18 +3333,43 @@ async function loadAluekartta() {
         html: `<div style="background:${col};color:#fff;border:2px solid #fff;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,.4);">${_e(b.numero)}</div>`,
         className:'', iconSize:[30,30], iconAnchor:[15,15]
       });
-      L.marker([b.lat, b.lon], {icon:ic})
-        .on('click', () => openBerthSheet(b))
-        .addTo(_aluekarttaMap);
+      L.marker([b.lat, b.lon], {icon:ic}).on('click', () => openBerthSheet(b)).addTo(veneLayer);
     });
-    // Laiturit kartalla ankkurimerkkeinä
     laiturit.filter(l => l.lat && l.lon).forEach(l => {
       const ic = L.divIcon({
         html: `<div style="background:rgba(15,92,58,0.9);color:#fff;border:2px solid #fff;border-radius:8px;padding:2px 7px;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.5);">⚓ ${_e(l.numero)}</div>`,
         className:'', iconAnchor:[0,0]
       });
-      L.marker([l.lat, l.lon], {icon:ic, interactive:false}).addTo(_aluekarttaMap);
+      L.marker([l.lat, l.lon], {icon:ic, interactive:false}).addTo(veneLayer);
     });
+
+    // Layer: Mökit
+    const mokkiLayer = L.layerGroup();
+    cottages.filter(c => c.lat && c.lon && (c.lat !== 0 || c.lon !== 0)).forEach(c => {
+      const ic = L.divIcon({
+        html: `<div style="background:#0e5c3a;color:#fff;border:2px solid #fff;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.5);">${_e(c.number)}</div>`,
+        className:'', iconAnchor:[0,0]
+      });
+      L.marker([c.lat, c.lon], {icon:ic}).addTo(mokkiLayer);
+    });
+
+    // Layer: Vesipisteet
+    const vesiLayer = L.layerGroup();
+    vesipisteet.filter(vp => vp.lat && vp.lon).forEach(vp => {
+      const ic = L.divIcon({
+        html: `<div style="background:${VP_COLORS[vp.tyyppi]||'#52b788'};border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);">${VP_ICONS[vp.tyyppi]||'📍'}</div>`,
+        className:'', iconSize:[28,28], iconAnchor:[14,14]
+      });
+      L.marker([vp.lat, vp.lon], {icon:ic})
+        .bindPopup(`<strong>${VP_ICONS[vp.tyyppi]||''} ${_e(vp.nimi)}</strong>${vp.kuvaus?'<br><small>'+_e(vp.kuvaus)+'</small>':''}`)
+        .addTo(vesiLayer);
+    });
+
+    L.control.layers({}, {
+      '⛵ Venepaikat': veneLayer,
+      '🏠 Mökit': mokkiLayer,
+      '💧 Palvelupisteet': vesiLayer
+    }, {collapsed:false, position:'topright'}).addTo(_aluekarttaMap);
 
     if (placed.length) {
       const allLat = [...placed, ...laiturit.filter(l => l.lat && l.lon)];
