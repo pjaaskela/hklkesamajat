@@ -3331,7 +3331,7 @@ async function loadAluekartta() {
     if (_aluekarttaMap) { _aluekarttaMap.remove(); _aluekarttaMap = null; }
     _aluekarttaMap = L.map(mapEl, {zoomControl:true}).setView([60.1552, 24.8555], 17);
     const vvkBounds = [[60.154559, 24.853111], [60.156115, 24.857923]];
-    L.imageOverlay(API_BASE + '/hklkesamajat-fi/vesiverkkokartta.jpg', vvkBounds, {opacity:1, interactive:false}).addTo(_aluekarttaMap);
+    L.imageOverlay('vesiverkkokartta.jpg', vvkBounds, {opacity:1, interactive:false}).addTo(_aluekarttaMap);
 
     // Layer: Venepaikat
     const veneLayer = L.layerGroup().addTo(_aluekarttaMap);
