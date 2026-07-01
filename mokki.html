@@ -4122,7 +4122,7 @@ async function checkWhatsNew() {
   try {
     const d = await fetch(API_BASE + '/api/hkl/whats-new').then(r => r.json());
     if (!d.version || !d.content) return;
-    if (sessionStorage.getItem('hkl_wn_seen') === d.version) return;
+    if (localStorage.getItem('hkl_wn_seen') === d.version) return;
     const banner = document.getElementById('wn-banner');
     document.getElementById('wn-banner-title').textContent = d.title || 'Mitä uutta';
     document.getElementById('wn-banner-body').innerHTML = _wnToHtml(d.content);
@@ -4138,13 +4138,13 @@ async function checkWhatsNew() {
 function closeWnBanner() {
   const b = document.getElementById('wn-banner');
   const v = b.dataset.version;
-  if (v) sessionStorage.setItem('hkl_wn_seen', v);
+  if (v) localStorage.setItem('hkl_wn_seen', v);
   b.style.display = 'none';
 }
 function closeWnModal() {
   const m = document.getElementById('wn-modal');
   const v = m.dataset.version;
-  if (v) sessionStorage.setItem('hkl_wn_seen', v);
+  if (v) localStorage.setItem('hkl_wn_seen', v);
   m.style.display = 'none';
   closeWnBanner();
 }
