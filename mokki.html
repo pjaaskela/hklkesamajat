@@ -787,7 +787,7 @@ body { padding-top: 48px; }
     <!-- ALUEKARTTA -->
     <div class="card" id="aluekartta-card" data-collapse="true">
       <div class="card-header" onclick="toggleCardCollapse('aluekartta-card')" style="cursor:pointer;">
-        <div class="card-title">🗺️ Aluekartta <span style="font-size:0.62rem;font-weight:600;background:#fef9c3;color:#854d0e;border-radius:4px;padding:1px 6px;margin-left:4px;vertical-align:middle;">kehityksessä</span></div>
+        <div class="card-title">🗺️ Aluekartta</div>
         <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
       </div>
       <div class="card-body card-collapse-body" style="display:none;padding:0 14px 14px;">
@@ -3352,9 +3352,10 @@ async function loadAluekartta() {
       L.marker([l.lat, l.lon], {icon:ic, interactive:false}).addTo(veneLayer);
     });
 
-    // Layer: Mökit
-    const mokkiLayer = L.layerGroup();
-    cottages.filter(c => c.lat && c.lon && (c.lat !== 0 || c.lon !== 0)).forEach(c => {
+    // Layer: Mökit (näkyvissä oletuksena)
+    const mokkiCottages = cottages.filter(c => c.lat && c.lon && c.lat !== 0 && c.lon !== 0);
+    const mokkiLayer = L.layerGroup().addTo(_aluekarttaMap);
+    mokkiCottages.forEach(c => {
       const ic = L.divIcon({
         html: `<div style="background:#0e5c3a;color:#fff;border:2px solid #fff;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.5);">${_e(c.number)}</div>`,
         className:'', iconAnchor:[0,0]
@@ -3380,11 +3381,11 @@ async function loadAluekartta() {
       '💧 Palvelupisteet': vesiLayer
     }, {collapsed:false, position:'topright'}).addTo(_aluekarttaMap);
 
+    // fitBounds: venepaikat > mökit > laiturit
     const laituuriCoords = laiturit.filter(l => l.lat && l.lon);
-    if (placed.length) {
-      _aluekarttaMap.fitBounds([...placed, ...laituuriCoords].map(b => [b.lat, b.lon]), {padding:[30,30], maxZoom:19});
-    } else if (laituuriCoords.length) {
-      _aluekarttaMap.fitBounds(laituuriCoords.map(l => [l.lat, l.lon]), {padding:[60,60], maxZoom:18});
+    const allMapPoints = [...placed, ...mokkiCottages, ...laituuriCoords];
+    if (allMapPoints.length) {
+      _aluekarttaMap.fitBounds(allMapPoints.map(b => [b.lat, b.lon]), {padding:[30,30], maxZoom:19});
     }
 
     // Venepaikka-yhteenveto
