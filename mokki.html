@@ -3380,27 +3380,27 @@ async function loadAluekartta() {
       '💧 Palvelupisteet': vesiLayer
     }, {collapsed:false, position:'topright'}).addTo(_aluekarttaMap);
 
+    const laituuriCoords = laiturit.filter(l => l.lat && l.lon);
     if (placed.length) {
-      const allLat = [...placed, ...laiturit.filter(l => l.lat && l.lon)];
-      _aluekarttaMap.fitBounds(allLat.map(b => [b.lat, b.lon]), {padding:[30,30], maxZoom:19});
+      _aluekarttaMap.fitBounds([...placed, ...laituuriCoords].map(b => [b.lat, b.lon]), {padding:[30,30], maxZoom:19});
+    } else if (laituuriCoords.length) {
+      _aluekarttaMap.fitBounds(laituuriCoords.map(l => [l.lat, l.lon]), {padding:[60,60], maxZoom:18});
     }
 
     // Venepaikka-yhteenveto
-    const vapaat = berths.filter(b => b.tila === 'vapaa').length;
-    const vieraspaikat = berths.filter(b => b.tila === 'vieraspaikka').length;
+    const vapaat = berths.filter(b => b.tila === 'vapaa');
+    const vieraspaikat = berths.filter(b => b.tila === 'vieraspaikka');
     if (listEl) {
-      if (vapaat > 0 || vieraspaikat > 0) {
+      if (vapaat.length > 0 || vieraspaikat.length > 0) {
+        const vapaatNrot = vapaat.map(b => `<span style="display:inline-block;background:#dcfce7;color:#166534;border-radius:5px;padding:1px 7px;font-size:0.78rem;font-weight:700;margin:2px 2px;">#${_e(b.numero)}</span>`).join('');
+        const vieras = vieraspaikat.length > 0 ? `<div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;">
+            <span style="font-size:0.82rem;font-weight:700;color:#92400e;">🟡 ${vieraspaikat.length} vieraspaikka${vieraspaikat.length>1?'a':''}</span>
+          </div>` : '';
         listEl.innerHTML = `<div style="background:var(--sand);border-radius:10px;padding:12px 14px;">
           <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">⛵ Venepaikat</div>
-          ${vapaat > 0 ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;flex-shrink:0;display:inline-block;"></span>
-            <span style="font-size:0.88rem;font-weight:700;color:#166534;">${vapaat} vapaata paikkaa</span>
-          </div>` : ''}
-          ${vieraspaikat > 0 ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0;display:inline-block;"></span>
-            <span style="font-size:0.88rem;font-weight:700;color:#92400e;">${vieraspaikat} vieraspaikkaa</span>
-          </div>` : ''}
-          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">Tiedustelut: <a href="tel:+358440748796" style="color:var(--green);font-weight:600;">0440 74 87 96</a></div>
+          ${vapaat.length > 0 ? `<div style="margin-bottom:4px;"><span style="font-size:0.82rem;font-weight:700;color:#166534;">🟢 ${vapaat.length} vapaa${vapaat.length>1?'ta':''} paikkaa: </span><span style="line-height:2;">${vapaatNrot}</span></div>` : ''}
+          ${vieras}
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;">Tiedustelut: <a href="tel:+358440748796" style="color:var(--green);font-weight:600;">0440 74 87 96</a></div>
         </div>`;
       } else {
         listEl.innerHTML = `<div style="background:var(--sand);border-radius:10px;padding:12px 14px;">
