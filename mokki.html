@@ -3370,19 +3370,14 @@ async function loadAluekartta() {
     const mokkiCottages = cottages.filter(c => c.map_px != null && c.map_py != null);
     const mokkiLayer = L.layerGroup().addTo(_aluekarttaMap);
 
-    // Tallennetaan markerit uudelleenskaalausta varten
     const _mokkiMarkerData = [];
 
-    function _mokkiIcon(isOwn, num, scale) {
-      const fs = Math.round(15 * scale);
-      const pv = Math.round(4 * scale);
-      const ph = Math.round(10 * scale);
-      const br = Math.round(6 * scale);
+    function _mokkiIcon(isOwn, num) {
       const bg = isOwn ? '#f59e0b' : '#0e5c3a';
-      const bw = isOwn ? Math.round(3 * scale) : Math.round(2 * scale);
-      const shadow = isOwn ? `0 0 0 ${Math.round(2*scale)}px #f59e0b,0 2px 8px rgba(0,0,0,.6)` : '0 1px 4px rgba(0,0,0,.5)';
+      const shadow = isOwn ? '0 0 0 2px #f59e0b,0 2px 8px rgba(0,0,0,.6)' : '0 1px 4px rgba(0,0,0,.5)';
+      const bw = isOwn ? 3 : 2;
       return L.divIcon({
-        html: `<div style="background:${bg};color:#fff;border:${bw}px solid #fff;border-radius:${br}px;padding:${pv}px ${ph}px;font-size:${fs}px;font-weight:700;white-space:nowrap;box-shadow:${shadow};cursor:${isOwn?'default':'pointer'}">${_e(num)}</div>`,
+        html: `<div style="background:${bg};color:#fff;border:${bw}px solid #fff;border-radius:6px;padding:5px 11px;font-size:15px;font-weight:700;white-space:nowrap;box-shadow:${shadow};cursor:${isOwn?'default':'pointer'}">${_e(num)}</div>`,
         className:'', iconAnchor:[0,0]
       });
     }
@@ -3390,7 +3385,7 @@ async function loadAluekartta() {
     mokkiCottages.forEach(c => {
       const ll = _vvkToLL(c.map_px, c.map_py);
       const isOwn = String(c.number) === String(_currentMokki);
-      const m = L.marker(ll, {icon: _mokkiIcon(isOwn, c.number, 1), zIndexOffset: isOwn ? 1000 : 0});
+      const m = L.marker(ll, {icon: _mokkiIcon(isOwn, c.number), zIndexOffset: isOwn ? 1000 : 0});
       _mokkiMarkerData.push({m, isOwn, num: c.number});
       if (!isOwn) {
         m.on('click', () => {
@@ -3414,34 +3409,13 @@ async function loadAluekartta() {
       m.addTo(mokkiLayer);
     });
 
-    // Laiturit skaalautuvat myös
-    const _laitiriMarkerData = [];
     laiturit.filter(l => l.lat && l.lon).forEach(l => {
       const ll = _geoToVVK(l.lat, l.lon);
-      const m = L.marker(ll, {interactive:false});
-      _laitiriMarkerData.push({m, num: l.numero});
-      m.addTo(veneLayer);
-    });
-
-    function _laitiriIcon(num, scale) {
-      const fs = Math.round(13 * scale);
-      const pv = Math.round(3 * scale);
-      const ph = Math.round(9 * scale);
-      const br = Math.round(8 * scale);
-      return L.divIcon({
-        html: `<div style="background:rgba(15,92,58,0.92);color:#fff;border:${Math.round(2*scale)}px solid #fff;border-radius:${br}px;padding:${pv}px ${ph}px;font-size:${fs}px;font-weight:800;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.5);">⚓ ${_e(num)}</div>`,
+      const icon = L.divIcon({
+        html: `<div style="background:rgba(15,92,58,0.92);color:#fff;border:2px solid #fff;border-radius:8px;padding:4px 10px;font-size:14px;font-weight:800;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.5);">⚓ ${_e(l.numero)}</div>`,
         className:'', iconAnchor:[0,0]
       });
-    }
-    _laitiriMarkerData.forEach(({m, num}) => m.setIcon(_laitiriIcon(num, 1)));
-
-    // Skaalaa kaikki markerit zoomin mukaan
-    const _baseZoom = _aluekarttaMap.getZoom();
-    _aluekarttaMap.on('zoomend', () => {
-      const scale = Math.pow(1.35, _aluekarttaMap.getZoom() - _baseZoom);
-      const s = Math.max(0.75, Math.min(2.0, scale));
-      _mokkiMarkerData.forEach(({m, isOwn, num}) => m.setIcon(_mokkiIcon(isOwn, num, s)));
-      _laitiriMarkerData.forEach(({m, num}) => m.setIcon(_laitiriIcon(num, s)));
+      L.marker(ll, {icon, interactive:false}).addTo(veneLayer);
     });
 
     L.control.layers(
