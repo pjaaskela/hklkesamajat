@@ -696,6 +696,16 @@ textarea.inp{resize:vertical;min-height:72px}
           <div style="font-size:0.85rem;line-height:1.7;" id="wn-preview-body"></div>
         </div>
       </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-head">📸 Aluekuva-galleria</div>
+        <p style="font-size:12px;color:var(--muted);margin:8px 0 12px;">Mökkiläisten lähettämät kuvat. Voit muokata kuvausta tai poistaa kuvan. Kuvat näkyvät vierailija-sivun galleriassa.</p>
+        <div id="gallery-admin-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;"></div>
+        <div id="gallery-admin-empty" style="display:none;font-size:13px;color:var(--muted);text-align:center;padding:24px 0;">Ei kuvia vielä.</div>
+        <div style="margin-top:12px;">
+          <button class="btn" onclick="loadGalleryAdmin()" style="font-size:12px;">↻ Päivitä lista</button>
+        </div>
+      </div>
     </div>
 
     <!-- DOKUMENTAATIO -->
@@ -2216,11 +2226,67 @@ async function publishWhatsNew(){
   } catch(e){ msg.style.color='#ef4444'; msg.textContent='❌ Verkkovirhe'; }
 }
 
+async function loadGalleryAdmin() {
+  const grid = document.getElementById('gallery-admin-grid');
+  const empty = document.getElementById('gallery-admin-empty');
+  if (!grid) return;
+  grid.innerHTML = '<div style="font-size:12px;color:var(--muted);grid-column:1/-1;">Ladataan...</div>';
+  try {
+    const photos = await fetch(API_BASE+'/api/hkl/area-photos', {headers: ah()}).then(r=>r.json());
+    grid.innerHTML = '';
+    if (!photos.length) { empty.style.display=''; return; }
+    empty.style.display = 'none';
+    photos.forEach(p => {
+      const card = document.createElement('div');
+      card.id = 'gcard-'+p.id;
+      card.style.cssText = 'background:var(--bg2);border-radius:10px;overflow:hidden;border:1px solid var(--border);';
+      card.innerHTML = `
+        <img src="${API_BASE}/api/hkl/area-photo/${p.id}/thumb" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block;" loading="lazy">
+        <div style="padding:8px;">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">Mökki ${p.cottage_number||'?'} · ${p.uploaded_at?.slice(0,10)||''}</div>
+          <textarea id="gcap-${p.id}" rows="2" style="width:100%;box-sizing:border-box;font-size:11px;border:1px solid var(--border);border-radius:6px;padding:4px 6px;background:var(--bg);color:var(--text);resize:vertical;">${_esc(p.caption||'')}</textarea>
+          <div style="display:flex;gap:6px;margin-top:6px;">
+            <button onclick="saveGalleryCaption('${p.id}')" class="btn btn-primary" style="font-size:11px;padding:4px 10px;flex:1;">Tallenna</button>
+            <button onclick="deleteGalleryPhoto('${p.id}')" class="btn" style="font-size:11px;padding:4px 10px;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;">🗑</button>
+          </div>
+          <div id="gmsg-${p.id}" style="font-size:10px;margin-top:4px;min-height:14px;"></div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  } catch(e) {
+    grid.innerHTML = '<div style="color:#ef4444;font-size:12px;grid-column:1/-1;">Lataus epäonnistui</div>';
+  }
+}
+
+async function saveGalleryCaption(id) {
+  const caption = document.getElementById('gcap-'+id)?.value || '';
+  const msg = document.getElementById('gmsg-'+id);
+  try {
+    const r = await fetch(API_BASE+'/api/hkl/area-photo/'+id, {
+      method:'PATCH', headers:{...ah(),'Content-Type':'application/json'},
+      body: JSON.stringify({caption})
+    });
+    if (msg) { msg.style.color = r.ok ? '#16a34a' : '#dc2626'; msg.textContent = r.ok ? '✓ Tallennettu' : '❌ Virhe'; }
+  } catch(e) { if (msg) { msg.style.color='#dc2626'; msg.textContent='❌ Virhe'; } }
+}
+
+async function deleteGalleryPhoto(id) {
+  if (!confirm('Poistetaanko kuva pysyvästi?')) return;
+  try {
+    const r = await fetch(API_BASE+'/api/hkl/area-photo/'+id, {method:'DELETE', headers: ah()});
+    if (r.ok) { document.getElementById('gcard-'+id)?.remove(); }
+    else alert('Poisto epäonnistui');
+  } catch(e) { alert('Verkkovirhe'); }
+}
+
+function _esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
 async function loadSiteSettings() {
   try {
     _siteSettings = await fetch(API_BASE+'/api/hkl/site-settings').then(r=>r.json());
   } catch(e) { _siteSettings = {}; }
   loadWhatsNew();
+  loadGalleryAdmin();
   document.getElementById('set-hinta-asukas').value = _siteSettings.venepaikka_asukas ?? 300;
   document.getElementById('set-hinta-ulkopuolinen').value = _siteSettings.venepaikka_ulkopuolinen ?? 330;
   document.getElementById('set-saunamaksu').value = _siteSettings.saunamaksu ?? 3;
