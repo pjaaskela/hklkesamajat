@@ -767,7 +767,10 @@ footer strong { color: white; }
   <div class="card reveal" style="margin-top:28px;background:linear-gradient(135deg,#0a4a6e 0%,#1e6b8a 50%,#0e5c3a 100%);color:#fff;padding:0;overflow:hidden;">
     <div style="display:flex;align-items:stretch;">
       <div style="flex:1;padding:28px 24px;">
-        <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:8px;">⚓ Venepaikat</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);">⚓ Venepaikat</div>
+          <div id="vp-vis-badge" style="display:none;background:#22c55e;color:#fff;font-size:0.68rem;font-weight:800;border-radius:20px;padding:2px 10px;letter-spacing:0.04em;"></div>
+        </div>
         <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:8px;color:#fff;" data-i18n="vis_boats">Vuokraa venepaikka Lauttasaaresta</h3>
         <p style="font-size:0.85rem;color:rgba(255,255,255,0.75);line-height:1.6;margin-bottom:14px;">HKL-Kesämajat ry:n venelaiturit sijaitsevat suojaisassa sijainnissa Länsiulapanniemessä. Merellinen sijainti, helppo pääsy vesille ja turvallinen säilytys.</p>
         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
@@ -1656,5 +1659,24 @@ setInterval(loadVessels, 180_000);
 <script src="https://jaaskel.com/hkl-i18n.js" defer></script>
 <script src="https://jaaskel.com/hkl-search.js" defer></script>
 <script src="https://jaaskel.com/hkl-analytics.js" defer></script>
+<script>
+(async function() {
+  try {
+    const API_BASE = 'https://jaaskel.com';
+    const data = await fetch(API_BASE + '/api/hkl/berths').then(r => r.json());
+    const LAITURIT = new Set(['L1','L2','L3']);
+    const vapaat = data.filter(b => !LAITURIT.has(b.numero) && b.tila === 'vapaa').length;
+    const vieraat = data.filter(b => !LAITURIT.has(b.numero) && b.tila === 'vieraspaikka').length;
+    const badge = document.getElementById('vp-vis-badge');
+    if (badge && (vapaat > 0 || vieraat > 0)) {
+      const parts = [];
+      if (vapaat > 0) parts.push(vapaat + ' vapaata');
+      if (vieraat > 0) parts.push(vieraat + ' vieraspaikka');
+      badge.textContent = parts.join(' · ');
+      badge.style.display = '';
+    }
+  } catch(e) {}
+})();
+</script>
 </body>
 </html>

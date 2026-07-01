@@ -770,6 +770,20 @@ body { padding-top: 48px; }
 
   <div class="dash-main">
 
+    <!-- VENEPAIKKA BANNERI -->
+    <div id="vp-banner" style="display:none;background:linear-gradient(135deg,#0a4a6e,#0e5c3a);border-radius:14px;padding:16px 18px;margin-bottom:8px;color:#fff;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:1.8rem;">⛵</span>
+          <div>
+            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.55);margin-bottom:2px;">Venepaikat</div>
+            <div id="vp-banner-text" style="font-size:0.95rem;font-weight:700;color:#fff;"></div>
+          </div>
+        </div>
+        <a href="tel:+358440748796" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 16px;color:#fff;text-decoration:none;font-size:0.82rem;font-weight:700;white-space:nowrap;">📞 Tiedustele</a>
+      </div>
+    </div>
+
     <!-- ALUEKARTTA -->
     <div class="card" id="aluekartta-card" data-collapse="true">
       <div class="card-header" onclick="toggleCardCollapse('aluekartta-card')" style="cursor:pointer;">
@@ -2376,6 +2390,7 @@ function showDashboard(num) {
   // Load profile from API
   loadProfile();
   loadProfileHero();
+  loadVenepaikkaStatus();
   loadMokkiDay();
   loadMokkiDocs();
   loadListings();
@@ -3270,6 +3285,25 @@ function _initVVPinch(el) {
     el.scrollLeft = mx * (_vvScale / oldScale) - (e.clientX - r.left);
     el.scrollTop  = my * (_vvScale / oldScale) - (e.clientY - r.top);
   }, {passive: false});
+}
+
+async function loadVenepaikkaStatus() {
+  try {
+    const data = await fetch(API_BASE + '/api/hkl/berths').then(r => r.json());
+    const LAITURIT = new Set(['L1','L2','L3']);
+    const vapaat = data.filter(b => !LAITURIT.has(b.numero) && b.tila === 'vapaa').length;
+    const vieraat = data.filter(b => !LAITURIT.has(b.numero) && b.tila === 'vieraspaikka').length;
+    const banner = document.getElementById('vp-banner');
+    const text = document.getElementById('vp-banner-text');
+    if (!banner || !text) return;
+    if (vapaat > 0 || vieraat > 0) {
+      const parts = [];
+      if (vapaat > 0) parts.push(`${vapaat} vapaata venepaikkaa`);
+      if (vieraat > 0) parts.push(`${vieraat} vieraspaikkaa`);
+      text.textContent = parts.join(' · ') + ' · 230 €/kausi';
+      banner.style.display = '';
+    }
+  } catch(e) {}
 }
 
 async function loadAluekartta() {
