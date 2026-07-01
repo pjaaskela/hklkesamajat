@@ -3378,7 +3378,7 @@ async function loadAluekartta() {
       const bw = isOwn ? 3 : 2;
       return L.divIcon({
         html: `<div style="background:${bg};color:#fff;border:${bw}px solid #fff;border-radius:6px;padding:5px 11px;font-size:15px;font-weight:700;white-space:nowrap;box-shadow:${shadow};cursor:${isOwn?'default':'pointer'}">${_e(num)}</div>`,
-        className:'', iconAnchor:[0,0]
+        className:'', iconAnchor:[0,0], iconSize: null
       });
     }
 
@@ -3413,7 +3413,7 @@ async function loadAluekartta() {
       const ll = _geoToVVK(l.lat, l.lon);
       const icon = L.divIcon({
         html: `<div style="background:rgba(15,92,58,0.92);color:#fff;border:2px solid #fff;border-radius:8px;padding:4px 10px;font-size:14px;font-weight:800;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.5);">⚓ ${_e(l.numero)}</div>`,
-        className:'', iconAnchor:[0,0]
+        className:'', iconAnchor:[0,0], iconSize: null
       });
       L.marker(ll, {icon, interactive:false}).addTo(veneLayer);
     });
