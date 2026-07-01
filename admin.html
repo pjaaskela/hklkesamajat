@@ -1245,13 +1245,13 @@ async function initKartMap(){
     });
   }
   const img=new Image();
-  img.src='mokkikartta.jpg';
+  img.src='vesiverkkokartta.jpg';
   await new Promise(r=>{img.onload=r;img.onerror=r;});
-  _kartImgW=img.naturalWidth||3000; _kartImgH=img.naturalHeight||2000;
+  _kartImgW=img.naturalWidth||2040; _kartImgH=img.naturalHeight||1319;
   const bounds=[[0,0],[_kartImgH,_kartImgW]];
   _kartMap=L.map('kart-map',{crs:L.CRS.Simple,minZoom:-3,maxZoom:3,maxBoundsViscosity:0.9});
   _kartMap.setMaxBounds([[- _kartImgH*0.2,-_kartImgW*0.2],[_kartImgH*1.2,_kartImgW*1.2]]);
-  L.imageOverlay('mokkikartta.jpg',bounds).addTo(_kartMap);
+  L.imageOverlay('vesiverkkokartta.jpg',bounds).addTo(_kartMap);
   _kartMap.fitBounds(bounds,{padding:[10,10]});
   _kartCottageLayer=L.layerGroup().addTo(_kartMap);
   _kartVesiLayer=L.layerGroup().addTo(_kartMap);

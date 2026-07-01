@@ -934,7 +934,7 @@ footer strong { color: white; }
 <script>
 // Gallery carousel with side previews
 (function() {
-  const slides = [
+  const STATIC_SLIDES = [
     { src: 'hkl-hero.jpg', alt: 'Auringonlasku rannalla' },
     { src: 'hkl-ranta.jpg', alt: 'Rantanäkymä kesällä' },
     { src: 'hkl-laituri.jpg', alt: 'Laituri auringossa' },
@@ -944,12 +944,22 @@ footer strong { color: white; }
     { src: 'hkl-myrsky.jpg', alt: 'Myrskypilvet rannalla' },
     { src: 'hkl-lumi.jpg', alt: 'Luminen polku' },
   ];
-  const n = slides.length;
+  let slides = [...STATIC_SLIDES];
   const track = document.getElementById('gallery-track');
   const dotsC = document.getElementById('gallery-dots');
   let cur = 0, timer;
 
-  function mod(i) { return ((i % n) + n) % n; }
+  function mod(i) { return ((i % slides.length) + slides.length) % slides.length; }
+
+  function rebuildDots() {
+    dotsC.innerHTML = '';
+    slides.forEach((_, i) => {
+      const d = document.createElement('button');
+      d.className = 'gallery-dot';
+      d.onclick = () => { cur = i; render(); resetTimer(); };
+      dotsC.appendChild(d);
+    });
+  }
 
   function render() {
     const prev = mod(cur - 1), next = mod(cur + 1);
@@ -971,16 +981,23 @@ footer strong { color: white; }
     dotsC.querySelectorAll('.gallery-dot').forEach((d, i) => d.classList.toggle('active', i === cur));
   }
 
-  slides.forEach((_, i) => {
-    const d = document.createElement('button');
-    d.className = 'gallery-dot';
-    d.onclick = () => { cur = i; render(); resetTimer(); };
-    dotsC.appendChild(d);
-  });
-
   function go(dir) { cur = mod(cur + dir); render(); resetTimer(); }
   function resetTimer() { clearInterval(timer); timer = setInterval(() => go(1), 5000); }
   window.galleryGo = go;
+
+  // Load area photos from mökkiläiset, prepend to carousel
+  fetch('https://jaaskel.com/api/hkl/area-photos').then(r => r.json()).then(photos => {
+    if (!photos.length) return;
+    const dynamic = photos.map(p => ({
+      src: `https://jaaskel.com/api/hkl/area-photo/${p.id}`,
+      alt: p.caption || 'Mökkiläisen kuva'
+    }));
+    slides = [...dynamic, ...STATIC_SLIDES];
+    rebuildDots();
+    render();
+  }).catch(() => {});
+
+  rebuildDots();
   render();
   resetTimer();
 })();
