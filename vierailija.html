@@ -1672,7 +1672,7 @@ setInterval(loadVessels, 180_000);
       const parts = [];
       if (vapaat > 0) parts.push(vapaat + ' vapaata');
       if (vieraat > 0) parts.push(vieraat + ' vieraspaikka');
-      badge.textContent = parts.join(' · ');
+      badge.textContent = parts.join(' · ') + ' · 330 €/kausi';
       badge.style.display = '';
     }
   } catch(e) {}
