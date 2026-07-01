@@ -103,6 +103,7 @@ textarea.inp{resize:vertical;min-height:72px}
   .menu-btn{display:block}
   .main{padding:18px 16px}.form-row{grid-template-columns:1fr}.topbar{padding:0 16px}
 }
+.leaflet-container { background: #f5f0e8; }
 </style>
 </head>
 <body>
@@ -1438,13 +1439,13 @@ async function aluekSave(){
   }catch(e){}
 }
 
+const VVK_BOUNDS=[[60.154559,24.853111],[60.156115,24.857923]];
+function _addVvk(map){L.imageOverlay('/vesiverkkokartta.jpg',VVK_BOUNDS,{opacity:1,interactive:false}).addTo(map);}
+
 function initVesiMap(){
   if(_vesiMap)return;
   _vesiMap=L.map('vesi-map').setView([60.1552,24.8545],18);
-  const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:20});
-  const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© ESRI',maxZoom:20});
-  sat.addTo(_vesiMap);
-  L.control.layers({'🗺️ OSM':osm,'🛰️ Satelliitti':sat},{},{position:'topright'}).addTo(_vesiMap);
+  _addVvk(_vesiMap);
   _vesiMap.on('click',e=>{
     document.getElementById('vp-lat').value=e.latlng.lat.toFixed(6);
     document.getElementById('vp-lon').value=e.latlng.lng.toFixed(6);
@@ -1477,7 +1478,7 @@ async function initVeneMap(){
     });
   }
   _veneMap=L.map('vene-map').setView([60.1552,24.8545],17);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(_veneMap);
+  _addVvk(_veneMap);
   _veneMap.on('click',e=>{
     document.getElementById('vp-lat').value=e.latlng.lat.toFixed(6);
     document.getElementById('vp-lon').value=e.latlng.lng.toFixed(6);
@@ -2027,14 +2028,13 @@ function initWnMap(){
   _wnMap.createPane('vesipistePane');
   _wnMap.getPane('vesipistePane').style.zIndex=640;
 
-  const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(_wnMap);
-  const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19});
+  _addVvk(_wnMap);
 
   _wnCabinLayer=L.layerGroup().addTo(_wnMap);
   _wnVesipisteLayer=L.layerGroup().addTo(_wnMap);
 
   L.control.layers(
-    {'OSM':osm,'Satelliitti':sat},
+    {},
     {'🏠 Mökkien numerot':_wnCabinLayer,'💧 Vesipisteet & jakelu':_wnVesipisteLayer}
   ).addTo(_wnMap);
 
