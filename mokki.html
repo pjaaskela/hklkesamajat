@@ -3384,7 +3384,7 @@ async function loadAluekartta() {
       const border = isOwn ? '#fff 3px solid' : '#fff 2px solid';
       const shadow = isOwn ? '0 0 0 2px #f59e0b,0 2px 8px rgba(0,0,0,.6)' : '0 1px 4px rgba(0,0,0,.5)';
       const ic = L.divIcon({
-        html: `<div style="background:${bg};color:#fff;border:${border};border-radius:5px;padding:2px 7px;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:${shadow};cursor:${isOwn?'default':'pointer'}">${_e(c.number)}</div>`,
+        html: `<div style="background:${bg};color:#fff;border:${border};border-radius:5px;padding:3px 9px;font-size:13px;font-weight:700;white-space:nowrap;box-shadow:${shadow};cursor:${isOwn?'default':'pointer'}">${_e(c.number)}</div>`,
         className:'', iconAnchor:[0,0]
       });
       const m = L.marker(ll, {icon:ic, zIndexOffset: isOwn ? 1000 : 0});
@@ -4145,15 +4145,13 @@ function closeWnModal() {
 
 // ========== AREA PHOTO UPLOAD ==========
 function openAreaPhotoModal() {
-  const m = document.getElementById('area-photo-modal');
-  m.style.display = 'flex';
   document.getElementById('area-photo-input').value = '';
   document.getElementById('area-photo-caption').value = '';
   document.getElementById('area-photo-msg').textContent = '';
   document.getElementById('area-photo-preview-wrap').style.display = 'none';
   document.getElementById('area-photo-placeholder').style.display = '';
   document.getElementById('area-photo-btn').disabled = false;
-  document.getElementById('area-photo-drop').onclick = () => document.getElementById('area-photo-input').click();
+  document.getElementById('area-photo-modal').style.display = 'flex';
 }
 function closeAreaPhotoModal() {
   document.getElementById('area-photo-modal').style.display = 'none';
@@ -4225,27 +4223,31 @@ async function submitAreaPhoto() {
 </div>
 
 <!-- Area photo upload modal -->
-<div id="area-photo-modal" onclick="if(event.target===this)closeAreaPhotoModal()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:flex-end;justify-content:center;">
-  <div style="background:var(--card-bg);border-radius:18px 18px 0 0;padding:24px 20px 32px;width:100%;max-width:520px;box-shadow:0 -4px 24px rgba(0,0,0,.2);">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div style="font-weight:800;font-size:1rem;">📸 Jaa kuva alueesta</div>
-      <button onclick="closeAreaPhotoModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-muted);">✕</button>
+<div id="area-photo-modal" onclick="if(event.target===this)closeAreaPhotoModal()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);align-items:flex-end;justify-content:center;">
+  <div style="background:#ffffff;border-radius:20px 20px 0 0;padding:22px 20px 36px;width:100%;max-width:520px;box-shadow:0 -8px 32px rgba(0,0,0,.25);">
+    <div style="width:40px;height:4px;background:#d1d5db;border-radius:2px;margin:0 auto 18px;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-weight:800;font-size:1.05rem;color:#1a1a1a;">📸 Jaa kuva alueesta</div>
+      <button onclick="closeAreaPhotoModal()" style="background:#f3f4f6;border:none;border-radius:8px;width:32px;height:32px;font-size:1.1rem;cursor:pointer;color:#6b7280;display:flex;align-items:center;justify-content:center;">✕</button>
     </div>
-    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">Kuvasi ilmestyy vierailija-osion galleriaan. Jaa esim. rannan, metsän tai oman mökkipiirin kuvia!</p>
-    <label id="area-photo-drop" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:2px dashed var(--border);border-radius:12px;padding:28px 16px;cursor:pointer;background:var(--bg3);margin-bottom:12px;min-height:120px;">
-      <span id="area-photo-preview-wrap" style="display:none;width:100%;text-align:center;">
-        <img id="area-photo-preview" style="max-height:160px;border-radius:8px;object-fit:contain;" src="">
-      </span>
-      <span id="area-photo-placeholder" style="text-align:center;">
-        <div style="font-size:2rem;">🖼️</div>
-        <div style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">Kosketa tai valitse kuva</div>
-        <div style="font-size:0.72rem;color:var(--text-muted);">Max 20 Mt · JPG / PNG / WEBP</div>
-      </span>
-      <input type="file" id="area-photo-input" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="previewAreaPhoto(this)">
-    </label>
-    <input type="text" id="area-photo-caption" placeholder="Kuvateksti (vapaaehtoinen)" maxlength="200" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:0.85rem;background:var(--bg3);color:var(--text);box-sizing:border-box;margin-bottom:12px;">
-    <div id="area-photo-msg" style="font-size:0.78rem;min-height:1.2em;margin-bottom:8px;text-align:center;"></div>
-    <button onclick="submitAreaPhoto()" id="area-photo-btn" style="width:100%;padding:12px;border:none;border-radius:10px;background:var(--green);color:#fff;font-weight:700;font-size:0.88rem;cursor:pointer;">Lähetä kuva</button>
+    <p style="font-size:0.82rem;color:#6b7280;margin:0 0 14px;line-height:1.5;">Kuvasi ilmestyy vierailija-osion galleriaan. Jaa kuvia rannalta, metsästä tai mökkipiiristä!</p>
+
+    <input type="file" id="area-photo-input" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="previewAreaPhoto(this)">
+
+    <div id="area-photo-drop" onclick="document.getElementById('area-photo-input').click()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:2px dashed #9ca3af;border-radius:14px;padding:28px 16px;cursor:pointer;background:#f9fafb;margin-bottom:14px;min-height:130px;">
+      <div id="area-photo-preview-wrap" style="display:none;width:100%;text-align:center;">
+        <img id="area-photo-preview" style="max-height:180px;border-radius:10px;object-fit:contain;max-width:100%;" src="">
+      </div>
+      <div id="area-photo-placeholder">
+        <div style="font-size:2.4rem;text-align:center;">🖼️</div>
+        <div style="font-size:0.88rem;color:#374151;font-weight:600;text-align:center;margin-top:6px;">Kosketa lisätäksesi kuva</div>
+        <div style="font-size:0.75rem;color:#9ca3af;text-align:center;margin-top:3px;">JPG · PNG · WEBP · max 20 Mt</div>
+      </div>
+    </div>
+
+    <input type="text" id="area-photo-caption" placeholder="Kuvateksti (vapaaehtoinen)" maxlength="200" style="width:100%;padding:11px 14px;border:1.5px solid #d1d5db;border-radius:10px;font-size:0.88rem;background:#fff;color:#1a1a1a;box-sizing:border-box;margin-bottom:14px;outline:none;">
+    <div id="area-photo-msg" style="font-size:0.82rem;min-height:1.4em;margin-bottom:10px;text-align:center;color:#374151;"></div>
+    <button onclick="submitAreaPhoto()" id="area-photo-btn" style="width:100%;padding:14px;border:none;border-radius:12px;background:#0e5c3a;color:#fff;font-weight:700;font-size:0.92rem;cursor:pointer;letter-spacing:0.01em;">Lähetä kuva galleriaan</button>
   </div>
 </div>
 
