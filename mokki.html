@@ -3675,24 +3675,17 @@ async function loadProfileHero() {
     document.getElementById('hero-email').textContent = p.email ? '📧 ' + p.email : '';
     document.getElementById('hero-puh').textContent = '';
 
-    const ownerWrap = document.getElementById('owner-photo-wrap');
     const cacheBust = window._photoCacheBust ? '?t=' + window._photoCacheBust : '';
     window._photoCacheBust = null;
+
+    const ownerWrap = document.getElementById('owner-photo-wrap');
     const ownerUrl = API_BASE + '/api/hkl/cottage-owner-photo/' + p.number + cacheBust;
-    const img = new Image();
-    img.onload = () => {
-      ownerWrap.innerHTML = `<img src="${ownerUrl}" style="width:100%;height:100%;object-fit:cover;">`;
-    };
-    img.src = ownerUrl;
+    ownerWrap.innerHTML = `<img src="${ownerUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">`;
 
     const cabinWrap = document.getElementById('cabin-photo-wrap');
     const cabinUrl = API_BASE + '/api/hkl/cottage-photo/' + p.number + cacheBust;
-    const cabImg = new Image();
-    cabImg.onload = () => {
-      cabinWrap.innerHTML = `<img src="${cabinUrl}" style="width:100%;height:100%;object-fit:cover;">` +
-        (p.kuvaus ? `<div class="cabin-caption">${p.kuvaus.replace(/</g,'&lt;')}</div>` : '');
-    };
-    cabImg.src = cabinUrl;
+    const caption = p.kuvaus ? `<div class="cabin-caption">${p.kuvaus.replace(/</g,'&lt;')}</div>` : '';
+    cabinWrap.innerHTML = `<img src="${cabinUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">${caption}`;
 
     loadInterestStates(p.interests || {});
 
