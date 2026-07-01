@@ -3328,10 +3328,9 @@ async function loadAluekartta() {
 
     await _loadLeaflet();
     if (_aluekarttaMap) { _aluekarttaMap.remove(); _aluekarttaMap = null; }
-    _aluekarttaMap = L.map(mapEl, {zoomControl:true}).setView([60.1552, 24.8545], 17);
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution:'© ESRI', maxZoom:20
-    }).addTo(_aluekarttaMap);
+    _aluekarttaMap = L.map(mapEl, {zoomControl:true}).setView([60.1552, 24.8555], 17);
+    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OSM', maxZoom:19}).addTo(_aluekarttaMap);
+    const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution:'© Esri', maxZoom:19});
 
     // Layer: Venepaikat
     const veneLayer = L.layerGroup().addTo(_aluekarttaMap);
@@ -3375,11 +3374,11 @@ async function loadAluekartta() {
         .addTo(vesiLayer);
     });
 
-    L.control.layers({}, {
-      '⛵ Venepaikat': veneLayer,
-      '🏠 Mökit': mokkiLayer,
-      '💧 Palvelupisteet': vesiLayer
-    }, {collapsed:false, position:'topright'}).addTo(_aluekarttaMap);
+    L.control.layers(
+      {'OSM': osmLayer, 'Satelliitti': satLayer},
+      {'⛵ Venepaikat': veneLayer, '🏠 Mökit': mokkiLayer, '💧 Palvelupisteet': vesiLayer},
+      {collapsed:false, position:'topright'}
+    ).addTo(_aluekarttaMap);
 
     // fitBounds: venepaikat > mökit > laiturit
     const laituuriCoords = laiturit.filter(l => l.lat && l.lon);
