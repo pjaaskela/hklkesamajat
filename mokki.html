@@ -3195,27 +3195,27 @@ function _loadLeaflet() {
 
 let _vvScale = 1;
 let _vvSheetEl = null;
-function _getVVSheet() {
+function _getMokkiModal() {
   if (_vvSheetEl) return _vvSheetEl;
   _vvSheetEl = document.createElement('div');
-  _vvSheetEl.id = 'aluekartta-sheet';
-  _vvSheetEl.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);';
+  _vvSheetEl.id = 'mokki-modal';
+  _vvSheetEl.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
   _vvSheetEl.innerHTML = `
-    <style>@keyframes _vv-slide-up{from{transform:translateY(100%)}to{transform:translateY(0)}}</style>
-    <div id="vv-sheet-inner" style="position:absolute;bottom:0;left:0;right:0;background:var(--card-bg,#fff);border-radius:18px 18px 0 0;max-height:88vh;overflow-y:auto;padding:0 0 env(safe-area-inset-bottom,20px);animation:_vv-slide-up 0.25s cubic-bezier(.32,.72,0,1);">
-      <div style="width:40px;height:4px;background:#d1d5db;border-radius:2px;margin:10px auto 0;"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px 10px;">
-        <div id="vv-sheet-title" style="font-size:1.1rem;font-weight:800;color:var(--text,#1e293b);"></div>
-        <button id="vv-sheet-close" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#94a3b8;padding:0 4px;">✕</button>
+    <style>@keyframes _vv-pop-in{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}</style>
+    <div id="vv-sheet-inner" style="background:#ffffff;border-radius:18px;max-width:420px;width:100%;max-height:82vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.45);animation:_vv-pop-in 0.2s cubic-bezier(.32,.72,0,1);">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 16px 12px;">
+        <div id="vv-sheet-title" style="font-size:1.1rem;font-weight:800;color:#1e293b;"></div>
+        <button id="vv-sheet-close" style="background:#f1f5f9;border:none;border-radius:50%;width:30px;height:30px;font-size:1.1rem;cursor:pointer;color:#64748b;display:flex;align-items:center;justify-content:center;">✕</button>
       </div>
-      <div id="vv-sheet-photo" style="margin:0 16px 12px;border-radius:10px;overflow:hidden;"></div>
-      <div id="vv-sheet-body" style="padding:0 16px 20px;font-size:0.85rem;color:var(--text,#475569);line-height:1.65;"></div>
+      <div id="vv-sheet-photo" style="margin:0 16px 14px;border-radius:12px;overflow:hidden;"></div>
+      <div id="vv-sheet-body" style="padding:0 16px 20px;font-size:0.88rem;color:#475569;line-height:1.65;"></div>
     </div>`;
-  _vvSheetEl.addEventListener('click', e => { if (e.target === _vvSheetEl) _vvSheetEl.style.display = 'none'; });
+  _vvSheetEl.addEventListener('click', e => { if (e.target === _vvSheetEl) { _vvSheetEl.style.display = 'none'; } });
   _vvSheetEl.querySelector('#vv-sheet-close').addEventListener('click', () => { _vvSheetEl.style.display = 'none'; });
   document.body.appendChild(_vvSheetEl);
   return _vvSheetEl;
 }
+function _getVVSheet() { return _getMokkiModal(); }
 function _vvInitScale() {
   const el = document.getElementById('aluekartta');
   const img = document.getElementById('vv-map-img');
@@ -3343,7 +3343,7 @@ async function loadAluekartta() {
         </div>` +
         (b.kuvaus ? `<div style="font-size:0.82rem;color:var(--text-muted);margin-top:4px;">${_e(b.kuvaus)}</div>` : '') +
         `<div style="margin-top:12px;font-size:0.78rem;color:var(--text-muted);">Tiedustelut: <a href="tel:+358440748796" style="color:var(--green);font-weight:600;">0440 74 87 96</a></div>`;
-      sheet.style.display = '';
+      sheet.style.display = 'flex';
     }
 
     await _loadLeaflet();
@@ -3394,17 +3394,21 @@ async function loadAluekartta() {
       _mokkiMarkerData.push({m, isOwn, num: c.number});
       if (!isOwn) {
         m.on('click', () => {
-          const sheet = _getVVSheet();
+          const sheet = _getMokkiModal();
           sheet.querySelector('#vv-sheet-title').innerHTML = `🏡 Mökki ${_e(c.number)}`;
-          const photoHtml = c.has_cabin_photo
-            ? `<img src="${API_BASE}/api/hkl/cottage-photo/${encodeURIComponent(c.number)}" style="width:100%;height:auto;border-radius:10px;margin-bottom:10px;display:block;" onerror="this.style.display='none'">`
-            : '';
-          sheet.querySelector('#vv-sheet-photo').style.display = 'none';
-          sheet.querySelector('#vv-sheet-body').innerHTML = photoHtml +
-            (c.kuvaus ? `<div style="font-size:0.88rem;color:var(--text);line-height:1.5;">${_e(c.kuvaus)}</div>` : `<div style="font-size:0.82rem;color:var(--text-muted);text-align:center;padding:16px 0;">Ei kuvausta</div>`);
+          const photoDiv = sheet.querySelector('#vv-sheet-photo');
+          if (c.has_cabin_photo) {
+            photoDiv.style.display = 'block';
+            photoDiv.innerHTML = `<img src="${API_BASE}/api/hkl/cottage-photo/${encodeURIComponent(c.number)}" style="width:100%;height:auto;display:block;" onerror="this.parentElement.style.display='none'">`;
+          } else {
+            photoDiv.style.display = 'none';
+            photoDiv.innerHTML = '';
+          }
+          sheet.querySelector('#vv-sheet-body').innerHTML =
+            c.kuvaus ? `<p style="margin:0;">${_e(c.kuvaus)}</p>` : `<p style="margin:0;color:#94a3b8;text-align:center;">Ei kuvausta</p>`;
           const inner = sheet.querySelector('#vv-sheet-inner');
           if (inner) { inner.style.animation = 'none'; inner.offsetHeight; inner.style.animation = ''; }
-          sheet.style.display = '';
+          sheet.style.display = 'flex';
         });
       }
       m.addTo(mokkiLayer);
