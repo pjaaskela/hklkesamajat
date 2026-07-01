@@ -2354,6 +2354,7 @@ async function checkSession() {
         _currentMokki = s.number;
         _hklToken = '';
         showDashboard(s.number);
+        setTimeout(checkWhatsNew, 800);
         return;
       }
       if (s.token) {
@@ -4133,7 +4134,7 @@ async function checkWhatsNew() {
     const mb = document.getElementById('wn-modal-body');
     if (mt) mt.textContent = d.title || 'Mitä uutta';
     if (mb) mb.innerHTML = _wnToHtml(d.content);
-  } catch(e) {}
+  } catch(e) { console.warn('checkWhatsNew:', e); }
 }
 function closeWnBanner() {
   const b = document.getElementById('wn-banner');
