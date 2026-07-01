@@ -3374,10 +3374,10 @@ async function loadAluekartta() {
     const _mokkiMarkerData = [];
 
     function _mokkiIcon(isOwn, num, scale) {
-      const fs = Math.round(13 * scale);
-      const pv = Math.round(3 * scale);
-      const ph = Math.round(9 * scale);
-      const br = Math.round(5 * scale);
+      const fs = Math.round(15 * scale);
+      const pv = Math.round(4 * scale);
+      const ph = Math.round(10 * scale);
+      const br = Math.round(6 * scale);
       const bg = isOwn ? '#f59e0b' : '#0e5c3a';
       const bw = isOwn ? Math.round(3 * scale) : Math.round(2 * scale);
       const shadow = isOwn ? `0 0 0 ${Math.round(2*scale)}px #f59e0b,0 2px 8px rgba(0,0,0,.6)` : '0 1px 4px rgba(0,0,0,.5)';
@@ -3438,8 +3438,8 @@ async function loadAluekartta() {
     // Skaalaa kaikki markerit zoomin mukaan
     const _baseZoom = _aluekarttaMap.getZoom();
     _aluekarttaMap.on('zoomend', () => {
-      const scale = Math.pow(2, _aluekarttaMap.getZoom() - _baseZoom);
-      const s = Math.max(0.6, Math.min(4, scale));
+      const scale = Math.pow(1.35, _aluekarttaMap.getZoom() - _baseZoom);
+      const s = Math.max(0.75, Math.min(2.0, scale));
       _mokkiMarkerData.forEach(({m, isOwn, num}) => m.setIcon(_mokkiIcon(isOwn, num, s)));
       _laitiriMarkerData.forEach(({m, num}) => m.setIcon(_laitiriIcon(num, s)));
     });
