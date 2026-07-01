@@ -3363,31 +3363,35 @@ async function loadAluekartta() {
     L.imageOverlay('vesiverkkokartta.jpg', vvkBounds, {opacity:1, interactive:false}).addTo(_aluekarttaMap);
     _aluekarttaMap.fitBounds(vvkBounds, {padding:[5,5]});
 
-    // Layer: Laiturit (L1-L3 vain, ei yksittäisiä paikkoja)
+    // Layer: Laiturit (L1-L3) — markerit lisätään myöhemmin skaalauksen kanssa
     const veneLayer = L.layerGroup().addTo(_aluekarttaMap);
-    laiturit.filter(l => l.lat && l.lon).forEach(l => {
-      const ll = _geoToVVK(l.lat, l.lon);
-      const ic = L.divIcon({
-        html: `<div style="background:rgba(15,92,58,0.92);color:#fff;border:2px solid #fff;border-radius:8px;padding:3px 9px;font-size:13px;font-weight:800;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.5);">⚓ ${_e(l.numero)}</div>`,
-        className:'', iconAnchor:[0,0]
-      });
-      L.marker(ll, {icon:ic, interactive:false}).addTo(veneLayer);
-    });
 
-    // Layer: Mökit — oma korostettu, muut klikattavia
+    // Layer: Mökit — oma korostettu, muut klikattavia, koko skaalautuu zoomin mukaan
     const mokkiCottages = cottages.filter(c => c.map_px != null && c.map_py != null);
     const mokkiLayer = L.layerGroup().addTo(_aluekarttaMap);
+
+    // Tallennetaan markerit uudelleenskaalausta varten
+    const _mokkiMarkerData = [];
+
+    function _mokkiIcon(isOwn, num, scale) {
+      const fs = Math.round(13 * scale);
+      const pv = Math.round(3 * scale);
+      const ph = Math.round(9 * scale);
+      const br = Math.round(5 * scale);
+      const bg = isOwn ? '#f59e0b' : '#0e5c3a';
+      const bw = isOwn ? Math.round(3 * scale) : Math.round(2 * scale);
+      const shadow = isOwn ? `0 0 0 ${Math.round(2*scale)}px #f59e0b,0 2px 8px rgba(0,0,0,.6)` : '0 1px 4px rgba(0,0,0,.5)';
+      return L.divIcon({
+        html: `<div style="background:${bg};color:#fff;border:${bw}px solid #fff;border-radius:${br}px;padding:${pv}px ${ph}px;font-size:${fs}px;font-weight:700;white-space:nowrap;box-shadow:${shadow};cursor:${isOwn?'default':'pointer'}">${_e(num)}</div>`,
+        className:'', iconAnchor:[0,0]
+      });
+    }
+
     mokkiCottages.forEach(c => {
       const ll = _vvkToLL(c.map_px, c.map_py);
       const isOwn = String(c.number) === String(_currentMokki);
-      const bg = isOwn ? '#f59e0b' : '#0e5c3a';
-      const border = isOwn ? '#fff 3px solid' : '#fff 2px solid';
-      const shadow = isOwn ? '0 0 0 2px #f59e0b,0 2px 8px rgba(0,0,0,.6)' : '0 1px 4px rgba(0,0,0,.5)';
-      const ic = L.divIcon({
-        html: `<div style="background:${bg};color:#fff;border:${border};border-radius:5px;padding:3px 9px;font-size:13px;font-weight:700;white-space:nowrap;box-shadow:${shadow};cursor:${isOwn?'default':'pointer'}">${_e(c.number)}</div>`,
-        className:'', iconAnchor:[0,0]
-      });
-      const m = L.marker(ll, {icon:ic, zIndexOffset: isOwn ? 1000 : 0});
+      const m = L.marker(ll, {icon: _mokkiIcon(isOwn, c.number, 1), zIndexOffset: isOwn ? 1000 : 0});
+      _mokkiMarkerData.push({m, isOwn, num: c.number});
       if (!isOwn) {
         m.on('click', () => {
           const sheet = _getVVSheet();
@@ -3404,6 +3408,36 @@ async function loadAluekartta() {
         });
       }
       m.addTo(mokkiLayer);
+    });
+
+    // Laiturit skaalautuvat myös
+    const _laitiriMarkerData = [];
+    laiturit.filter(l => l.lat && l.lon).forEach(l => {
+      const ll = _geoToVVK(l.lat, l.lon);
+      const m = L.marker(ll, {interactive:false});
+      _laitiriMarkerData.push({m, num: l.numero});
+      m.addTo(veneLayer);
+    });
+
+    function _laitiriIcon(num, scale) {
+      const fs = Math.round(13 * scale);
+      const pv = Math.round(3 * scale);
+      const ph = Math.round(9 * scale);
+      const br = Math.round(8 * scale);
+      return L.divIcon({
+        html: `<div style="background:rgba(15,92,58,0.92);color:#fff;border:${Math.round(2*scale)}px solid #fff;border-radius:${br}px;padding:${pv}px ${ph}px;font-size:${fs}px;font-weight:800;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.5);">⚓ ${_e(num)}</div>`,
+        className:'', iconAnchor:[0,0]
+      });
+    }
+    _laitiriMarkerData.forEach(({m, num}) => m.setIcon(_laitiriIcon(num, 1)));
+
+    // Skaalaa kaikki markerit zoomin mukaan
+    const _baseZoom = _aluekarttaMap.getZoom();
+    _aluekarttaMap.on('zoomend', () => {
+      const scale = Math.pow(2, _aluekarttaMap.getZoom() - _baseZoom);
+      const s = Math.max(0.6, Math.min(4, scale));
+      _mokkiMarkerData.forEach(({m, isOwn, num}) => m.setIcon(_mokkiIcon(isOwn, num, s)));
+      _laitiriMarkerData.forEach(({m, num}) => m.setIcon(_laitiriIcon(num, s)));
     });
 
     L.control.layers(
