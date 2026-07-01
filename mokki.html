@@ -2314,6 +2314,7 @@ async function doLogin(autoNum, autoPass) {
     _invitePassword = pass;
     showDashboard(d.number);
     if (_isFirstLogin) setTimeout(showWelcomeModal, 600);
+    else setTimeout(checkWhatsNew, 800);
   } catch(e) { err.textContent = e.name === 'TimeoutError' ? 'Palvelin ei vastaa — yritä myöhemmin' : 'Verkkovirhe – yritä uudelleen'; }
 }
 
@@ -2348,6 +2349,7 @@ async function checkSession() {
           _hklToken = s.token;
           _mokkiRooli = sess.rooli || s.rooli || 'asukas';
           showDashboard(s.number);
+          setTimeout(checkWhatsNew, 800);
           return;
         }
       }
@@ -3386,22 +3388,9 @@ async function loadAluekartta() {
       m.addTo(mokkiLayer);
     });
 
-    // Layer: Vesipisteet (lat/lon tai map_px/map_py)
-    const vesiLayer = L.layerGroup();
-    vesipisteet.filter(vp => (vp.map_px != null && vp.map_py != null) || (vp.lat && vp.lon)).forEach(vp => {
-      const ll = (vp.map_px != null && vp.map_py != null) ? _vvkToLL(vp.map_px, vp.map_py) : _geoToVVK(vp.lat, vp.lon);
-      const ic = L.divIcon({
-        html: `<div style="background:${VP_COLORS[vp.tyyppi]||'#52b788'};border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);">${VP_ICONS[vp.tyyppi]||'📍'}</div>`,
-        className:'', iconSize:[28,28], iconAnchor:[14,14]
-      });
-      L.marker(ll, {icon:ic})
-        .bindPopup(`<strong>${VP_ICONS[vp.tyyppi]||''} ${_e(vp.nimi)}</strong>${vp.kuvaus?'<br><small>'+_e(vp.kuvaus)+'</small>':''}`)
-        .addTo(vesiLayer);
-    });
-
     L.control.layers(
       {},
-      {'⛵ Venepaikat': veneLayer, '🏠 Mökit': mokkiLayer, '💧 Palvelupisteet': vesiLayer},
+      {'⚓ Laiturit': veneLayer, '🏠 Mökit': mokkiLayer},
       {collapsed:false, position:'topright'}
     ).addTo(_aluekarttaMap);
 
@@ -4095,6 +4084,32 @@ function toggleSectionPanel() {
 }
 loadAirQuality();
 
+// ========== WHAT'S NEW POPUP ==========
+async function checkWhatsNew() {
+  try {
+    const d = await fetch(API_BASE + '/api/hkl/whats-new').then(r => r.json());
+    if (!d.version || !d.content) return;
+    const seen = localStorage.getItem('hkl_wn_seen');
+    if (seen === d.version) return;
+    document.getElementById('wn-modal-title').textContent = d.title || 'Mitä uutta';
+    document.getElementById('wn-modal-body').innerHTML = d.content.split('\n').map(line => {
+      const t = line.trim();
+      if (!t) return '';
+      const html = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      if (t.startsWith('- ')) return `<div style="display:flex;gap:8px;margin-bottom:5px;"><span style="color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px;">•</span><span>${html.slice(2)}</span></div>`;
+      return `<div style="margin-bottom:5px;">${html}</div>`;
+    }).join('');
+    document.getElementById('wn-modal').style.display = 'flex';
+    document.getElementById('wn-modal').dataset.version = d.version;
+  } catch(e) {}
+}
+function closeWnModal() {
+  const m = document.getElementById('wn-modal');
+  const v = m.dataset.version;
+  if (v) localStorage.setItem('hkl_wn_seen', v);
+  m.style.display = 'none';
+}
+
 // ========== AREA PHOTO UPLOAD ==========
 function openAreaPhotoModal() {
   const m = document.getElementById('area-photo-modal');
@@ -4163,6 +4178,19 @@ async function submitAreaPhoto() {
     <button onclick="document.getElementById('mp-guide').style.display='none'" style="margin-top:20px;padding:12px 32px;border:none;background:#5a31f4;color:#fff;border-radius:10px;font-weight:700;font-size:0.9rem;cursor:pointer;">Selvä!</button>
   </div>
 </div>
+<!-- What's new modal -->
+<div id="wn-modal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--card-bg);border-radius:18px;padding:24px 22px 22px;width:100%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);max-height:85vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <span style="font-size:1.5rem;">✨</span>
+      <div style="font-weight:800;font-size:1.05rem;flex:1;" id="wn-modal-title">Mitä uutta</div>
+      <button onclick="closeWnModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-muted);">✕</button>
+    </div>
+    <div id="wn-modal-body" style="font-size:0.87rem;line-height:1.7;margin-bottom:20px;color:var(--text);"></div>
+    <button onclick="closeWnModal()" style="width:100%;padding:12px;border:none;border-radius:10px;background:var(--green);color:#fff;font-weight:700;font-size:0.88rem;cursor:pointer;">Selvä!</button>
+  </div>
+</div>
+
 <!-- Area photo upload modal -->
 <div id="area-photo-modal" onclick="if(event.target===this)closeAreaPhotoModal()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:flex-end;justify-content:center;">
   <div style="background:var(--card-bg);border-radius:18px 18px 0 0;padding:24px 20px 32px;width:100%;max-width:520px;box-shadow:0 -4px 24px rgba(0,0,0,.2);">

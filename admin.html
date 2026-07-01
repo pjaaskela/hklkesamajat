@@ -676,6 +676,26 @@ textarea.inp{resize:vertical;min-height:72px}
 
       <button class="btn btn-primary" onclick="saveSiteSettings()">Tallenna asetukset</button>
       <span id="set-msg" style="margin-left:10px;font-size:12px;"></span>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-head">✨ Mitä uutta — mökkiläisten popup</div>
+        <p style="font-size:12px;color:var(--muted);margin:8px 0 10px;">Täytä ja julkaise, niin jokainen mökkiläinen näkee popupin seuraavalla kirjautumisella. Tyhjä sisältö poistaa popupin käytöstä.</p>
+        <div id="wn-published" style="font-size:11px;color:var(--muted);margin-bottom:8px;"></div>
+        <label style="font-size:11px;color:var(--muted);">Otsikko</label>
+        <input class="inp" id="wn-title" placeholder="esim. Uudet ominaisuudet – kesäkuu 2026" style="margin:4px 0 10px;">
+        <label style="font-size:11px;color:var(--muted);">Sisältö (1 rivi = 1 kohta, - = bulletpiste)</label>
+        <textarea class="inp" id="wn-content" rows="8" placeholder="- Aluekartta näyttää nyt palvelupisteet&#10;- Voit jakaa kuvia galleriaan&#10;- Mökin kuva ja kuvaus näkyvät naapureille" style="margin:4px 0 10px;resize:vertical;font-family:var(--mono);font-size:12px;"></textarea>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button class="btn btn-primary" onclick="publishWhatsNew()">✨ Julkaise kaikille</button>
+          <button class="btn" onclick="previewWhatsNew()" style="border:1px solid var(--border);">👁 Esikatselu</button>
+          <span id="wn-msg" style="font-size:12px;"></span>
+        </div>
+        <!-- Preview -->
+        <div id="wn-preview" style="display:none;margin-top:14px;border:1px solid var(--border);border-radius:10px;padding:16px;background:var(--bg2);">
+          <div style="font-weight:800;font-size:1rem;margin-bottom:10px;" id="wn-preview-title"></div>
+          <div style="font-size:0.85rem;line-height:1.7;" id="wn-preview-body"></div>
+        </div>
+      </div>
     </div>
 
     <!-- DOKUMENTAATIO -->
@@ -2153,10 +2173,54 @@ const MOKKI_SECTIONS = [
 ];
 let _siteSettings = {};
 
+async function loadWhatsNew(){
+  try {
+    const d = await fetch(API_BASE+'/api/hkl/whats-new').then(r=>r.json());
+    document.getElementById('wn-title').value = d.title || '';
+    document.getElementById('wn-content').value = d.content || '';
+    const pub = document.getElementById('wn-published');
+    pub.textContent = d.published_at ? 'Viimeksi julkaistu: ' + d.published_at.replace('T',' ').slice(0,16) + ' UTC' : 'Ei julkaistu';
+  } catch(e) {}
+}
+
+function _wnContentToHtml(text){
+  return text.split('\n').map(line=>{
+    const t = line.trim();
+    if(!t) return '';
+    const html = t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    if(t.startsWith('- ')) return `<div style="display:flex;gap:8px;margin-bottom:4px;"><span style="color:var(--green);font-weight:700;flex-shrink:0;">•</span><span>${html.slice(2)}</span></div>`;
+    return `<div style="margin-bottom:4px;">${html}</div>`;
+  }).join('');
+}
+
+function previewWhatsNew(){
+  const title = document.getElementById('wn-title').value.trim();
+  const content = document.getElementById('wn-content').value.trim();
+  const prev = document.getElementById('wn-preview');
+  document.getElementById('wn-preview-title').textContent = title || '(ei otsikkoa)';
+  document.getElementById('wn-preview-body').innerHTML = _wnContentToHtml(content);
+  prev.style.display = prev.style.display === 'none' ? '' : 'none';
+}
+
+async function publishWhatsNew(){
+  const title = document.getElementById('wn-title').value.trim();
+  const content = document.getElementById('wn-content').value.trim();
+  const msg = document.getElementById('wn-msg');
+  msg.textContent = 'Julkaistaan...';
+  try {
+    const r = await fetch(API_BASE+'/api/hkl/whats-new',{method:'PUT',headers:{...ah(),'Content-Type':'application/json'},body:JSON.stringify({title,content})});
+    if(r.ok){
+      msg.style.color='var(--green)'; msg.textContent='✅ Julkaistu!';
+      await loadWhatsNew();
+    } else { msg.style.color='#ef4444'; msg.textContent='❌ Virhe '+r.status; }
+  } catch(e){ msg.style.color='#ef4444'; msg.textContent='❌ Verkkovirhe'; }
+}
+
 async function loadSiteSettings() {
   try {
     _siteSettings = await fetch(API_BASE+'/api/hkl/site-settings').then(r=>r.json());
   } catch(e) { _siteSettings = {}; }
+  loadWhatsNew();
   document.getElementById('set-hinta-asukas').value = _siteSettings.venepaikka_asukas ?? 300;
   document.getElementById('set-hinta-ulkopuolinen').value = _siteSettings.venepaikka_ulkopuolinen ?? 330;
   document.getElementById('set-saunamaksu').value = _siteSettings.saunamaksu ?? 3;
