@@ -511,6 +511,10 @@ textarea.inp{resize:vertical;min-height:72px}
           <div style="font-family:var(--mono);font-size:11px;color:var(--muted)" id="wn-stats">—</div>
         </div>
         <div id="wn-map" style="height:400px;border-radius:10px;border:1px solid var(--border);background:var(--bg3)"></div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:0.72rem;color:var(--muted);white-space:nowrap;">🔴 SW · 🔵 NE — vedä kulmia:</span>
+          <input id="vvk-bounds-out" readonly onclick="this.select()" style="font-family:var(--mono);font-size:0.7rem;flex:1;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);color:var(--text);">
+        </div>
       </div>
       <div class="search-row"><input class="inp" id="wn-search" placeholder="Hae mökin numerolla..." oninput="renderWaterNetwork()"></div>
       <div id="wn-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px"></div>
@@ -1439,8 +1443,32 @@ async function aluekSave(){
   }catch(e){}
 }
 
-const VVK_BOUNDS=[[60.154559,24.853111],[60.156115,24.857923]];
+let VVK_BOUNDS=[[60.154559,24.853111],[60.156115,24.857923]];
 function _addVvk(map){L.imageOverlay('/vesiverkkokartta.jpg',VVK_BOUNDS,{opacity:1,interactive:false}).addTo(map);}
+
+// Kalibrointityökalu wn-mapille
+let _vvkOverlay=null;
+function _initVvkCalibration(map){
+  _vvkOverlay=L.imageOverlay('/vesiverkkokartta.jpg',VVK_BOUNDS,{opacity:0.8,interactive:false}).addTo(map);
+  const sw=L.marker([VVK_BOUNDS[0][0],VVK_BOUNDS[0][1]],{
+    draggable:true,
+    icon:L.divIcon({html:'<div style="background:#e53e3e;color:#fff;border-radius:4px;padding:2px 6px;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.5);">↙ SW</div>',className:'',iconAnchor:[0,20]})
+  }).addTo(map);
+  const ne=L.marker([VVK_BOUNDS[1][0],VVK_BOUNDS[1][1]],{
+    draggable:true,
+    icon:L.divIcon({html:'<div style="background:#2563eb;color:#fff;border-radius:4px;padding:2px 6px;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.5);">↗ NE</div>',className:'',iconAnchor:[0,0]})
+  }).addTo(map);
+  const out=document.getElementById('vvk-bounds-out');
+  function update(){
+    const b=[[sw.getLatLng().lat,sw.getLatLng().lng],[ne.getLatLng().lat,ne.getLatLng().lng]];
+    if(_vvkOverlay)map.removeLayer(_vvkOverlay);
+    _vvkOverlay=L.imageOverlay('/vesiverkkokartta.jpg',b,{opacity:0.8,interactive:false}).addTo(map);
+    _vvkOverlay.bringToBack();
+    if(out)out.value=JSON.stringify(b);
+  }
+  sw.on('drag',update);ne.on('drag',update);
+  if(out)out.value=JSON.stringify(VVK_BOUNDS);
+}
 
 function initVesiMap(){
   if(_vesiMap)return;
@@ -2028,7 +2056,7 @@ function initWnMap(){
   _wnMap.createPane('vesipistePane');
   _wnMap.getPane('vesipistePane').style.zIndex=640;
 
-  _addVvk(_wnMap);
+  _initVvkCalibration(_wnMap);
 
   _wnCabinLayer=L.layerGroup().addTo(_wnMap);
   _wnVesipisteLayer=L.layerGroup().addTo(_wnMap);
