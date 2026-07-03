@@ -986,10 +986,10 @@ footer strong { color: white; }
   window.galleryGo = go;
 
   // Load area photos from mökkiläiset, prepend to carousel
-  fetch('https://jaaskel.com/api/hkl/area-photos').then(r => r.json()).then(photos => {
+  fetch('https://api.hklkesamajat.fi/api/hkl/area-photos').then(r => r.json()).then(photos => {
     if (!photos.length) return;
     const dynamic = photos.map(p => ({
-      src: `https://jaaskel.com/api/hkl/area-photo/${p.id}`,
+      src: `https://api.hklkesamajat.fi/api/hkl/area-photo/${p.id}`,
       alt: p.caption || 'Mökkiläisen kuva'
     }));
     slides = [...dynamic, ...STATIC_SLIDES];
@@ -1004,7 +1004,7 @@ footer strong { color: white; }
 
 const LAT = 60.15524, LON = 24.85453;
 const dayState = { localTemp:null, modelTemp:null, wind:null, windDir:null, weatherCode:null, waterTemp:null, waterSrc:'', algaeLabel:null, aqiLabel:null, pollen:[] };
-const API_BASE = 'https://jaaskel.com';
+const API_BASE = 'https://api.hklkesamajat.fi';
 
 let _bufSettings = {
   buf_kausi_alku:5, buf_kausi_loppu:8,
@@ -1679,7 +1679,7 @@ setInterval(loadVessels, 180_000);
 <script>
 (async function() {
   try {
-    const API_BASE = 'https://jaaskel.com';
+    const API_BASE = 'https://api.hklkesamajat.fi';
     const data = await fetch(API_BASE + '/api/hkl/berths').then(r => r.json());
     const LAITURIT = new Set(['L1','L2','L3']);
     const vapaat = data.filter(b => !LAITURIT.has(b.numero) && b.tila === 'vapaa').length;
