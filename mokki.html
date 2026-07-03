@@ -2407,6 +2407,7 @@ function showDashboard(num) {
   document.getElementById('status-mokki-num').textContent = num;
   var adminLink = document.getElementById('admin-link');
   if (adminLink) adminLink.style.display = _mokkiRooli === 'hallitus' ? '' : 'none';
+  pwaPing();
 
   // Apply cottage background if available
   const bgData = localStorage.getItem('hkl_mokki_bg_' + num);
@@ -4153,6 +4154,23 @@ async function checkWhatsNew() {
   } catch(e) { console.warn('checkWhatsNew:', e); }
 }
 
+// Report to backend when the app runs as an installed PWA (home screen),
+// so admin can see which cottages use the app. Only pings in standalone mode.
+function isStandalone() {
+  try {
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+    if (window.navigator.standalone === true) return true; // iOS Safari
+  } catch(e) {}
+  return false;
+}
+function pwaPing() {
+  if (!isStandalone() || !_hklToken) return;
+  fetch(API_BASE + '/api/hkl/pwa-ping', {
+    method: 'POST',
+    headers: { 'X-Hkl-Token': _hklToken },
+  }).catch(() => {});
+}
+
 // Ask for notification permission after login (better UX than on page load)
 async function ensureNotifyPermission() {
   if (!('Notification' in window)) return false;
@@ -4309,6 +4327,6 @@ async function submitAreaPhoto() {
 <script>function showMpGuide(){document.getElementById('mp-guide').style.display='flex';}</script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
 <script src="https://jaaskel.com/hkl-search.js" defer></script>
-<script src="https://jaaskel.com/hkl-analytics.js?v=20260627" defer></script>
+<script src="https://jaaskel.com/hkl-analytics.js?v=20260703" defer></script>
 </body>
 </html>

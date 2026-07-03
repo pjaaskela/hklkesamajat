@@ -542,6 +542,11 @@ textarea.inp{resize:vertical;min-height:72px}
         </div>
       </div>
 
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-head">📲 Sovelluksen (PWA) käyttö</div>
+        <div id="ana-pwa" style="padding:10px 0;"></div>
+      </div>
+
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
         <div class="card">
           <div class="card-head">📄 Suosituimmat sivut (viikko)</div>
@@ -2483,6 +2488,25 @@ async function sendAdminReset(username,name){
   }catch(e){msg.textContent='❌ Virhe';msg.style.color='var(--red)';}
 }
 
+function renderPwa(p){
+  const el=document.getElementById('ana-pwa');
+  if(!el)return;
+  const views=p.views||0, visitors=p.visitors||0, cott=p.cottages||0, tot=p.total_cottages||0;
+  const pct=tot?Math.round(cott/tot*100):0;
+  const list=(p.cottage_list||[]).map(c=>{
+    let when='';
+    if(c.last_pwa_seen){const dt=new Date(c.last_pwa_seen);if(!isNaN(dt))when=dt.toLocaleDateString('fi-FI',{day:'numeric',month:'numeric'});}
+    return `<span style="display:inline-block;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:3px 10px;margin:0 4px 6px 0;font-size:12px;">🏠 ${c.number}${c.name?' · '+c.name.replace(/</g,'&lt;'):''}${when?' <span style="color:var(--muted)">'+when+'</span>':''}</span>`;
+  }).join('');
+  el.innerHTML=`
+    <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:14px;">
+      <div><div style="font-size:1.6rem;font-weight:800;color:var(--green);">${cott}/${tot}</div><div style="font-size:11px;color:var(--muted);">mökkiä käyttää sovellusta (${pct}%)</div></div>
+      <div><div style="font-size:1.6rem;font-weight:800;">${visitors}</div><div style="font-size:11px;color:var(--muted);">PWA-kävijää (viikko)</div></div>
+      <div><div style="font-size:1.6rem;font-weight:800;">${views}</div><div style="font-size:11px;color:var(--muted);">PWA-sivunäyttöä (viikko)</div></div>
+    </div>
+    ${list?`<div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Sovellusta kotinäytöltä käyttävät mökit:</div><div>${list}</div>`:'<div style="color:var(--muted);font-size:12px;">Yksikään mökki ei ole vielä avannut asennettua sovellusta.</div>'}`;
+}
+
 async function loadAnalytics(){
   try{
     const d=await fetch(API_BASE+'/api/hkl/stats',{headers:{'X-Api-Key':_token}}).then(r=>r.json());
@@ -2527,6 +2551,8 @@ async function loadAnalytics(){
         <div style="font-family:var(--mono);font-size:12px;color:var(--muted);">${pct}%</div>
       </div>`;
     }).join('')||'<div style="color:var(--muted);font-size:12px;">Ei dataa</div>';
+
+    renderPwa(d.pwa || {});
 
     document.getElementById('ana-pages').innerHTML=(d.pages||[]).map((r,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;">
       <span style="color:var(--muted);width:18px;text-align:right;font-family:var(--mono);">${i+1}.</span>
