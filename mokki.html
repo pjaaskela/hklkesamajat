@@ -2328,8 +2328,20 @@ async function doLogin(autoNum, autoPass) {
     _isFirstLogin = d.first_login === true;
     _invitePassword = pass;
     showDashboard(d.number);
-    if (_isFirstLogin) setTimeout(showWelcomeModal, 600);
-    else setTimeout(checkWhatsNew, 800);
+    if (_isFirstLogin) {
+      setTimeout(showWelcomeModal, 600);
+      // Brand-new accounts: don't nag with "what's new", they see everything
+      // fresh. Mark current version seen so the next update notifies them.
+      try {
+        const wn = await fetch(API_BASE + '/api/hkl/whats-new').then(r => r.json());
+        if (wn.version) {
+          localStorage.setItem('hkl_wn_seen', wn.version);
+          localStorage.setItem('hkl_wn_notified', wn.version);
+        }
+      } catch(e) {}
+    } else {
+      setTimeout(checkWhatsNew, 800);
+    }
   } catch(e) { err.textContent = e.name === 'TimeoutError' ? 'Palvelin ei vastaa — yritä myöhemmin' : 'Verkkovirhe – yritä uudelleen'; }
 }
 
@@ -4134,7 +4146,43 @@ async function checkWhatsNew() {
     const mb = document.getElementById('wn-modal-body');
     if (mt) mt.textContent = d.title || 'Mitä uutta';
     if (mb) mb.innerHTML = _wnToHtml(d.content);
+    // Fire a system notification so users notice new features even if they
+    // don't scroll to the banner. Only once per version (banner + notif share
+    // the same hkl_wn_seen key, set when dismissed).
+    notifyWhatsNew(d);
   } catch(e) { console.warn('checkWhatsNew:', e); }
+}
+
+// Ask for notification permission after login (better UX than on page load)
+async function ensureNotifyPermission() {
+  if (!('Notification' in window)) return false;
+  if (Notification.permission === 'granted') return true;
+  if (Notification.permission === 'denied') return false;
+  try {
+    const p = await Notification.requestPermission();
+    return p === 'granted';
+  } catch(e) { return false; }
+}
+
+// Send a local system notification about new features via the service worker.
+async function notifyWhatsNew(d) {
+  try {
+    if (localStorage.getItem('hkl_wn_notified') === d.version) return;
+    const ok = await ensureNotifyPermission();
+    if (!ok) return;
+    const reg = await navigator.serviceWorker.ready;
+    // Plain-text summary from the markdown-ish content (strip ** and -)
+    const summary = String(d.content).replace(/\*\*/g, '').replace(/^- /gm, '• ')
+      .split('\n').filter(Boolean).slice(0, 4).join('\n');
+    reg.active && reg.active.postMessage({
+      type: 'SHOW_NOTIFICATION',
+      title: d.title || '✨ Mitä uutta HKL-Kesämajat-palvelussa',
+      body: summary,
+      tag: 'hkl-wn-' + d.version,
+      url: '/mokki.html',
+    });
+    localStorage.setItem('hkl_wn_notified', d.version);
+  } catch(e) { console.warn('notifyWhatsNew:', e); }
 }
 function closeWnBanner() {
   const b = document.getElementById('wn-banner');
