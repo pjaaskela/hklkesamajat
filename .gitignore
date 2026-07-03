@@ -1,0 +1,25 @@
+# Tietokannat — EIVÄT KOSKAAN gitiin (asukasrekisteri, PII)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Salaisuudet
+.env
+.env.*
+*token*
+*secret*
+*credentials*
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.pyc
+
+# Työtiedostot
+*.log
+*.bak
+*.tmp
+.DS_Store
