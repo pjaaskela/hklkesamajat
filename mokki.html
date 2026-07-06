@@ -2404,7 +2404,7 @@ async function checkSession() {
 
 async function loadMokkiAnnouncements() {
   try {
-    const items = await fetch(API_BASE + '/api/hkl/announcements').then(r => r.json());
+    const items = await fetch(API_BASE + '/api/hkl/announcements?scope=mokki').then(r => r.json());
     const banner = document.getElementById('ann-mokki');
     const list = document.getElementById('ann-mokki-items');
     if (!items || !items.length) { if(banner) banner.style.display='none'; return; }

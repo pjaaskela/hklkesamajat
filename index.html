@@ -337,7 +337,7 @@ async function loadSunHero() {
 
 async function loadAnnouncementsBanner() {
   try {
-    const items=await fetch(API_BASE+'/api/hkl/announcements').then(r=>r.json());
+    const items=await fetch(API_BASE+'/api/hkl/announcements?scope=etusivu').then(r=>r.json());
     if(!items||!items.length) return;
     document.getElementById('ann-banner-items').innerHTML=items.map(a=>`<div class="ann-banner-item"><div class="ann-banner-title">${a.title.replace(/</g,'&lt;')}</div><div class="ann-banner-text">${a.body.replace(/</g,'&lt;')}</div></div>`).join('');
     document.getElementById('ann-section').style.display='block';

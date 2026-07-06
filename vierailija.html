@@ -1407,7 +1407,7 @@ async function loadSunData() {
 // Tiedotteet — näytä jos on aktiivisia
 async function loadAnnouncementsBanner() {
   try {
-    const items = await fetch(API_BASE + '/api/hkl/announcements').then(r => r.json());
+    const items = await fetch(API_BASE + '/api/hkl/announcements?scope=etusivu').then(r => r.json());
     if (!items || !items.length) return;
     const list = document.getElementById('ann-banner-items');
     const banner = document.getElementById('ann-banner');
