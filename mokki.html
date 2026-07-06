@@ -2096,16 +2096,31 @@ async function nextWelcomeStep() {
     }
     const cottageFile = document.getElementById('wlc-cottage-photo').files[0];
     const ownerFile = document.getElementById('wlc-owner-photo').files[0];
-    const uploadPhoto = (file, endpoint) => new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        try { await fetch(API_BASE + endpoint, {method:'POST', headers:{'Content-Type':'application/json','X-Hkl-Token':_hklToken}, body:JSON.stringify({photo:reader.result})}); } catch(e) {}
-        resolve();
-      };
-      reader.readAsDataURL(file);
-    });
+    let photoUploadFailed = false;
+    const uploadPhoto = (file, endpoint) => {
+      const p = new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          try {
+            const r = await fetch(API_BASE + endpoint, {method:'POST', headers:{'Content-Type':'application/json','X-Hkl-Token':_hklToken}, body:JSON.stringify({photo:reader.result})});
+            if (!r.ok) { console.warn('Kuvan lähetys epäonnistui', endpoint, r.status); photoUploadFailed = true; }
+          } catch(e) { console.warn('Kuvan lähetys epäonnistui', endpoint, e); photoUploadFailed = true; }
+          resolve();
+        };
+        // Ilman tätä käsittelijää lupaus ei koskaan täyty jos tiedoston luku epäonnistuu
+        // (esim. lataamaton iCloud-kuva tai tuntematon muoto) — "Seuraava"-nappi jää jumiin.
+        reader.onerror = () => { console.warn('Tiedoston luku epäonnistui', endpoint); photoUploadFailed = true; resolve(); };
+        reader.readAsDataURL(file);
+      });
+      // Varmuuden vuoksi kova aikakatkaisu, ettei ohjattu toiminto voi koskaan jumiutua pysyvästi.
+      return Promise.race([p, new Promise((resolve) => setTimeout(resolve, 15000))]);
+    };
     if (cottageFile) await uploadPhoto(cottageFile, '/api/hkl/my-cottage/photo');
     if (ownerFile) await uploadPhoto(ownerFile, '/api/hkl/my-cottage/owner-photo');
+    if (photoUploadFailed) {
+      document.getElementById('wlc-photo-msg').innerHTML =
+        '⚠️ Yhden kuvan lähetys ei onnistunut (kuva saattaa olla HEIC-muodossa tai liian suuri). Jatka silti — voit lisätä kuvan myöhemmin Asetukset-sivulta.';
+    }
   }
   if (_welcomeStep === 3) {
     const ints = {};
@@ -3027,6 +3042,12 @@ function renderPhotos() {
 
 function resizeImage(file, maxDim, quality) {
   return new Promise((resolve, reject) => {
+    const nameLower = (file.name || '').toLowerCase();
+    const isHeic = /image\/hei[cf]/.test(file.type) || nameLower.endsWith('.heic') || nameLower.endsWith('.heif');
+    if (isHeic) {
+      reject(new Error('Kuva on HEIC-muodossa, jota tämä selain ei tue. Vaihda puhelimen kamera-asetuksista "Yhteensopivin" (Asetukset → Kamera → Muodot → Yhteensopivin), tai valitse toinen, jo aiemmin otettu kuva.'));
+      return;
+    }
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
