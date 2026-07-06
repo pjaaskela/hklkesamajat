@@ -2404,8 +2404,22 @@ async function checkSession() {
 
 async function loadMokkiAnnouncements() {
   const list = document.getElementById('ann-mokki-items');
+  // TILAPÄINEN DIAGNOOSI 2026-07-07: näytä oikea virhe/tila laatikossa itsessään,
+  // koska palvelinpuoli on todistettu oikeaksi mutta selaimessa mitään ei näy —
+  // tarvitaan asiakaspään todellinen virheviesti ilman devtoolseja. Poista kun
+  // syy on löytynyt ja korjattu.
+  if (list) list.textContent = 'DEBUG1: funktio käynnistyi ' + new Date().toLocaleTimeString('fi-FI');
+  let settled = false;
+  const timeoutId = setTimeout(() => {
+    if (!settled && list) list.textContent = 'DEBUG2: haku ei vastannut 5s kuluessa (jumissa)';
+  }, 5000);
   try {
-    const items = await fetch(API_BASE + '/api/hkl/announcements?scope=mokki').then(r => r.json());
+    const url = API_BASE + '/api/hkl/announcements?scope=mokki';
+    const r = await fetch(url);
+    settled = true;
+    clearTimeout(timeoutId);
+    if (!r.ok) throw new Error('HTTP ' + r.status + ' osoitteesta ' + url);
+    const items = await r.json();
     if (!list) return;
     if (!items || !items.length) { list.textContent = 'Ei tiedotteita juuri nyt.'; return; }
     const esc = s => (s || '').replace(/</g, '&lt;');
@@ -2414,8 +2428,10 @@ async function loadMokkiAnnouncements() {
     list.style.fontSize = '';
     list.innerHTML = items.map(a => `<div class="ann-item"><div class="ann-title">${esc(a.title)}</div><div class="ann-body">${esc(a.body)}</div>${a.created ? `<div class="ann-date">${fmtDate(a.created)}</div>` : ''}</div>`).join('');
   } catch (e) {
+    settled = true;
+    clearTimeout(timeoutId);
     console.warn('loadMokkiAnnouncements epäonnistui:', e);
-    if (list) list.textContent = 'Ei tiedotteita juuri nyt.';
+    if (list) list.textContent = 'DEBUG3: VIRHE: ' + (e && e.message ? e.message : String(e));
   }
 }
 
