@@ -1,3 +1,10 @@
+// HUOM 2026-07-07: Cloudflare cachettaa /sw.js:n reunalla max-age=14400 (4h)
+// RIIPPUMATTA origin-päivityksistä tai selaimen omasta välimuistista/yksityistilasta
+// — havaittu kun sw.js jäi jumiin v3:een vaikka mokki.html päivittyi normaalisti.
+// Siksi mokki.html rekisteröi tämän AINA versioidulla URL:lla (sw.js?v=N) — kun
+// CACHE_NAME vaihtuu tässä, muista päivittää SAMA numero mokki.html:n
+// `serviceWorker.register('sw.js?v=N')`-riville, muuten Cloudflaren reunavälimuisti
+// voi jälleen tarjoilla vanhaa versiota tuntikausia eteenpäin.
 const CACHE_NAME = 'hkl-v4';
 const PRECACHE = ['/mokki.html', '/manifest.json', '/icon-192.png'];
 
