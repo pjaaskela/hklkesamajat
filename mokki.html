@@ -2402,17 +2402,26 @@ async function checkSession() {
   }
 }
 
-async function loadMokkiAnnouncements() {
+async function loadMokkiAnnouncements(retry) {
+  const banner = document.getElementById('ann-mokki');
+  const list = document.getElementById('ann-mokki-items');
   try {
-    const items = await fetch(API_BASE + '/api/hkl/announcements?scope=mokki').then(r => r.json());
-    const banner = document.getElementById('ann-mokki');
-    const list = document.getElementById('ann-mokki-items');
-    if (!items || !items.length) { if(banner) banner.style.display='none'; return; }
-    const esc = s => (s||'').replace(/</g,'&lt;');
-    const fmtDate = s => s ? new Date(s).toLocaleDateString('fi-FI',{day:'numeric',month:'short',year:'numeric'}) : '';
-    list.innerHTML = items.map(a => `<div class="ann-item"><div class="ann-title">${esc(a.title)}</div><div class="ann-body">${esc(a.body)}</div>${a.created?`<div class="ann-date">${fmtDate(a.created)}</div>`:''}</div>`).join('');
-    if(banner) banner.style.display = 'block';
-  } catch(e) {}
+    const url = API_BASE + '/api/hkl/announcements?scope=mokki&_=' + Date.now();
+    const r = await fetch(url, {cache: 'no-store'});
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const items = await r.json();
+    if (!items || !items.length) { if (banner) banner.style.display = 'none'; return; }
+    const esc = s => (s || '').replace(/</g, '&lt;');
+    const fmtDate = s => s ? new Date(s).toLocaleDateString('fi-FI', {day:'numeric', month:'short', year:'numeric'}) : '';
+    if (list) list.innerHTML = items.map(a => `<div class="ann-item"><div class="ann-title">${esc(a.title)}</div><div class="ann-body">${esc(a.body)}</div>${a.created ? `<div class="ann-date">${fmtDate(a.created)}</div>` : ''}</div>`).join('');
+    if (banner) banner.style.display = 'block';
+  } catch (e) {
+    console.warn('loadMokkiAnnouncements epäonnistui' + (retry ? ' (uusintayritys)' : '') + ':', e);
+    // Selaimen/service workerin hetkellinen verkkokatko ei saa jättää bannerointia
+    // pysyvästi piiloon — yritetään kerran uudelleen 3s kuluttua (havaittu 2026-07-07,
+    // sama bugiluokka kuin aiemmin checkWhatsNew:ssä — virheet nielty hiljaa catch(e){}).
+    if (!retry) setTimeout(() => loadMokkiAnnouncements(true), 3000);
+  }
 }
 
 function showDashboard(num) {

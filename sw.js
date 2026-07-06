@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hkl-v3';
+const CACHE_NAME = 'hkl-v4';
 const PRECACHE = ['/mokki.html', '/manifest.json', '/icon-192.png'];
 
 self.addEventListener('install', e => {
@@ -13,9 +13,15 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  // Älä sekaannu cross-origin API-kutsuihin (esim. api.hklkesamajat.fi) —
+  // niitä ei koskaan precachettu, joten hetkellinen verkkokatko sai
+  // caches.match():n palauttamaan undefined ja respondWith():n hajoamaan
+  // pysyvästi ilman uudelleenyritystä (havaittu 2026-07-07, tiedotteet-banneri
+  // ei näkynyt osalle käyttäjistä). Anna selaimen hoitaa nämä normaalisti.
+  if (!e.request.url.startsWith(self.location.origin)) return;
   e.respondWith(
     fetch(e.request).then(r => {
-      if (r.ok && e.request.url.includes(self.location.origin)) {
+      if (r.ok) {
         const clone = r.clone();
         caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
       }
