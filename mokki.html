@@ -2402,35 +2402,20 @@ async function checkSession() {
   }
 }
 
-async function loadMokkiAnnouncements(retry) {
-  const banner = document.getElementById('ann-mokki');
+async function loadMokkiAnnouncements() {
   const list = document.getElementById('ann-mokki-items');
   try {
-    const url = API_BASE + '/api/hkl/announcements?scope=mokki&_=' + Date.now();
-    // Pakotettu aikakatkaisu — jos pyyntö jää jumiin (esim. vanha service worker
-    // ei koskaan settle:aa fetchiä), laatikko EI SAA jäädä ikuisesti "Ladataan…"-
-    // tekstiin (havaittu 2026-07-07, kesti useita kierroksia löytää).
-    const ctrl = new AbortController();
-    const timeoutId = setTimeout(() => ctrl.abort(), 8000);
-    let r;
-    try {
-      r = await fetch(url, {cache: 'no-store', signal: ctrl.signal});
-    } finally {
-      clearTimeout(timeoutId);
-    }
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const items = await r.json();
-    if (!items || !items.length) { if (list) list.textContent = 'Ei tiedotteita juuri nyt.'; return; }
+    const items = await fetch(API_BASE + '/api/hkl/announcements?scope=mokki').then(r => r.json());
+    if (!list) return;
+    if (!items || !items.length) { list.textContent = 'Ei tiedotteita juuri nyt.'; return; }
     const esc = s => (s || '').replace(/</g, '&lt;');
     const fmtDate = s => s ? new Date(s).toLocaleDateString('fi-FI', {day:'numeric', month:'short', year:'numeric'}) : '';
-    if (list) { list.style.color = ''; list.style.fontSize = ''; list.innerHTML = items.map(a => `<div class="ann-item"><div class="ann-title">${esc(a.title)}</div><div class="ann-body">${esc(a.body)}</div>${a.created ? `<div class="ann-date">${fmtDate(a.created)}</div>` : ''}</div>`).join(''); }
+    list.style.color = '';
+    list.style.fontSize = '';
+    list.innerHTML = items.map(a => `<div class="ann-item"><div class="ann-title">${esc(a.title)}</div><div class="ann-body">${esc(a.body)}</div>${a.created ? `<div class="ann-date">${fmtDate(a.created)}</div>` : ''}</div>`).join('');
   } catch (e) {
-    console.warn('loadMokkiAnnouncements epäonnistui' + (retry ? ' (uusintayritys)' : '') + ':', e);
-    if (list) list.textContent = 'Tiedotteiden haku epäonnistui (' + e.message + ')';
-    // Selaimen/service workerin hetkellinen verkkokatko ei saa jättää bannerointia
-    // pysyvästi piiloon — yritetään kerran uudelleen 3s kuluttua (havaittu 2026-07-07,
-    // sama bugiluokka kuin aiemmin checkWhatsNew:ssä — virheet nielty hiljaa catch(e){}).
-    if (!retry) setTimeout(() => loadMokkiAnnouncements(true), 3000);
+    console.warn('loadMokkiAnnouncements epäonnistui:', e);
+    if (list) list.textContent = 'Ei tiedotteita juuri nyt.';
   }
 }
 
@@ -4373,14 +4358,14 @@ if ('serviceWorker' in navigator) {
   // ja saattoi jättää ne pysyvästi jumiin — pelkkä uusi rekisteröinti ei riitä
   // jos vanha on jo aktiivinen tämän sivun ohjaajana (havaittu 2026-07-07).
   navigator.serviceWorker.getRegistrations().then(regs => {
-    const stale = regs.find(r => r.active && r.active.scriptURL && !r.active.scriptURL.includes('v=4'));
+    const stale = regs.find(r => r.active && r.active.scriptURL && !r.active.scriptURL.includes('v=5'));
     if (stale && !sessionStorage.getItem('hkl_sw_reloaded')) {
       sessionStorage.setItem('hkl_sw_reloaded', '1');
       stale.unregister().then(() => location.reload());
     } else {
-      navigator.serviceWorker.register('sw.js?v=4').catch(()=>{});
+      navigator.serviceWorker.register('sw.js?v=5').catch(()=>{});
     }
-  }).catch(() => { navigator.serviceWorker.register('sw.js?v=4').catch(()=>{}); });
+  }).catch(() => { navigator.serviceWorker.register('sw.js?v=5').catch(()=>{}); });
 }
 </script>
 <script src="https://jaaskel.com/hkl-search.js" defer></script>

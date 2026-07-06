@@ -5,8 +5,16 @@
 // CACHE_NAME vaihtuu tässä, muista päivittää SAMA numero mokki.html:n
 // `serviceWorker.register('sw.js?v=N')`-riville, muuten Cloudflaren reunavälimuisti
 // voi jälleen tarjoilla vanhaa versiota tuntikausia eteenpäin.
-const CACHE_NAME = 'hkl-v4';
-const PRECACHE = ['/mokki.html', '/manifest.json', '/icon-192.png'];
+//
+// v5 (2026-07-07): /mokki.html POISTETTU precachesta. Se sisälsi koko sivun
+// inline-JS:n (mm. tiedotteet-bannerin logiikan) — jos verkko hetkeksi pätkii
+// navigoinnin aikana, fetch-käsittelijä palautti tämän VANHAN, asennushetkellä
+// precacheen jääneen HTML:n `caches.match()`-fallbackilla, mikä sai mokki.html:n
+// näyttämään pysyvästi vanhaa koodia riippumatta origin-päivityksistä. Itse
+// dokumenttia EI PIDÄ ikinä precachetä — vain aidosti staattiset resurssit
+// (manifest, ikoni) ovat turvallisia tässä listassa.
+const CACHE_NAME = 'hkl-v5';
+const PRECACHE = ['/manifest.json', '/icon-192.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(PRECACHE)));
