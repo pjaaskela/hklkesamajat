@@ -763,10 +763,10 @@ body { padding-top: 48px; }
     </div>
   </div>
 
-  <!-- TIEDOTTEET BANNER (aina näkyvissä, ei riipu JS:stä/fetchistä — 2026-07-07) -->
-  <div id="ann-mokki" style="display:block;background:#1a3522;border-bottom:2px solid #52b788;border-radius:10px;margin:0 16px 12px;padding:12px 16px;">
+  <!-- TIEDOTTEET BANNER (piilossa oletuksena, näytetään vain jos tiedotteita löytyy — 2026-07-07) -->
+  <div id="ann-mokki" style="display:none;background:#1a3522;border-bottom:2px solid #52b788;border-radius:10px;margin:0 16px 12px;padding:12px 16px;">
     <div style="font-size:0.7rem;font-weight:700;color:#52b788;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">📢 Tiedotteet</div>
-    <div id="ann-mokki-items" style="display:flex;flex-direction:column;gap:6px;color:rgba(255,255,255,0.5);font-size:0.8rem;">Ladataan…</div>
+    <div id="ann-mokki-items" style="display:flex;flex-direction:column;gap:6px;color:rgba(255,255,255,0.5);font-size:0.8rem;"></div>
   </div>
 
   <div class="dash-main">
@@ -2403,19 +2403,18 @@ async function checkSession() {
 }
 
 async function loadMokkiAnnouncements() {
+  const banner = document.getElementById('ann-mokki');
   const list = document.getElementById('ann-mokki-items');
   try {
     const items = await fetch(API_BASE + '/api/hkl/announcements?scope=mokki').then(r => r.json());
-    if (!list) return;
-    if (!items || !items.length) { list.textContent = 'Ei tiedotteita juuri nyt.'; return; }
+    if (!items || !items.length) { if (banner) banner.style.display = 'none'; return; }
     const esc = s => (s || '').replace(/</g, '&lt;');
     const fmtDate = s => s ? new Date(s).toLocaleDateString('fi-FI', {day:'numeric', month:'short', year:'numeric'}) : '';
-    list.style.color = '';
-    list.style.fontSize = '';
-    list.innerHTML = items.map(a => `<div class="ann-item"><div class="ann-title">${esc(a.title)}</div><div class="ann-body">${esc(a.body)}</div>${a.created ? `<div class="ann-date">${fmtDate(a.created)}</div>` : ''}</div>`).join('');
+    if (list) list.innerHTML = items.map(a => `<div class="ann-item"><div class="ann-title">${esc(a.title)}</div><div class="ann-body">${esc(a.body)}</div>${a.created ? `<div class="ann-date">${fmtDate(a.created)}</div>` : ''}</div>`).join('');
+    if (banner) banner.style.display = 'block';
   } catch (e) {
     console.warn('loadMokkiAnnouncements epäonnistui:', e);
-    if (list) list.textContent = 'Ei tiedotteita juuri nyt.';
+    if (banner) banner.style.display = 'none';
   }
 }
 
