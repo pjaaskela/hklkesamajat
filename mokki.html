@@ -763,10 +763,10 @@ body { padding-top: 48px; }
     </div>
   </div>
 
-  <!-- TIEDOTTEET BANNER -->
-  <div id="ann-mokki" style="display:none;background:#1a3522;border-bottom:2px solid #52b788;border-radius:10px;margin:0 16px 12px;padding:12px 16px;">
+  <!-- TIEDOTTEET BANNER (aina näkyvissä, ei riipu JS:stä/fetchistä — 2026-07-07) -->
+  <div id="ann-mokki" style="display:block;background:#1a3522;border-bottom:2px solid #52b788;border-radius:10px;margin:0 16px 12px;padding:12px 16px;">
     <div style="font-size:0.7rem;font-weight:700;color:#52b788;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">📢 Tiedotteet</div>
-    <div id="ann-mokki-items" style="display:flex;flex-direction:column;gap:6px;"></div>
+    <div id="ann-mokki-items" style="display:flex;flex-direction:column;gap:6px;color:rgba(255,255,255,0.5);font-size:0.8rem;">Ladataan…</div>
   </div>
 
   <div class="dash-main">
@@ -2410,13 +2410,13 @@ async function loadMokkiAnnouncements(retry) {
     const r = await fetch(url, {cache: 'no-store'});
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const items = await r.json();
-    if (!items || !items.length) { if (banner) banner.style.display = 'none'; return; }
+    if (!items || !items.length) { if (list) list.textContent = 'Ei tiedotteita juuri nyt.'; return; }
     const esc = s => (s || '').replace(/</g, '&lt;');
     const fmtDate = s => s ? new Date(s).toLocaleDateString('fi-FI', {day:'numeric', month:'short', year:'numeric'}) : '';
-    if (list) list.innerHTML = items.map(a => `<div class="ann-item"><div class="ann-title">${esc(a.title)}</div><div class="ann-body">${esc(a.body)}</div>${a.created ? `<div class="ann-date">${fmtDate(a.created)}</div>` : ''}</div>`).join('');
-    if (banner) banner.style.display = 'block';
+    if (list) { list.style.color = ''; list.style.fontSize = ''; list.innerHTML = items.map(a => `<div class="ann-item"><div class="ann-title">${esc(a.title)}</div><div class="ann-body">${esc(a.body)}</div>${a.created ? `<div class="ann-date">${fmtDate(a.created)}</div>` : ''}</div>`).join(''); }
   } catch (e) {
     console.warn('loadMokkiAnnouncements epäonnistui' + (retry ? ' (uusintayritys)' : '') + ':', e);
+    if (list) list.textContent = 'Tiedotteiden haku epäonnistui (' + e.message + ')';
     // Selaimen/service workerin hetkellinen verkkokatko ei saa jättää bannerointia
     // pysyvästi piiloon — yritetään kerran uudelleen 3s kuluttua (havaittu 2026-07-07,
     // sama bugiluokka kuin aiemmin checkWhatsNew:ssä — virheet nielty hiljaa catch(e){}).
