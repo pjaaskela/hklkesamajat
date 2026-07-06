@@ -154,6 +154,7 @@ textarea.inp{resize:vertical;min-height:72px}
     <a href="#" onclick="return nav('tiedotteet')" data-sec="tiedotteet">📢 Tiedotteet</a>
     <a href="#" onclick="return nav('laituri')" data-sec="laituri">🌊 Laituri-kirjaukset</a>
     <a href="#" onclick="return nav('mokkit')" data-sec="mokkit">🏠 Mökit</a>
+    <a href="#" onclick="return nav('viestit')" data-sec="viestit">✉️ Viestipohjat</a>
     <a href="#" onclick="return nav('ilmoitukset')" data-sec="ilmoitukset">🏡 Ilmoitukset</a>
     <a href="#" onclick="return nav('dokumentit')" data-sec="dokumentit">📄 Dokumentit</a>
     <a href="#" onclick="return nav('kartta')" data-sec="kartta">🗺️ Kartta & pisteet</a>
@@ -314,12 +315,55 @@ textarea.inp{resize:vertical;min-height:72px}
       <option value="int:sahko">⚡ Sähkö</option>
       <option value="int:sensorit">📡 Sensorit</option>
     </select>
+    <select class="inp" id="mass-template" style="width:auto;min-width:180px;"></select>
     <button class="btn btn-primary btn-sm" onclick="massInvite('all')">📨 Lähetä kaikille</button>
     <button class="btn btn-ghost btn-sm" onclick="massInvite('hallitus')">📨 Hallitukselle</button>
     <button class="btn btn-ghost btn-sm" onclick="massInvite('pending')">📨 Odottaville</button>
   </div>
   <div id="mass-msg" style="font-size:12px;min-height:1.2em;margin-bottom:8px;"></div>
+  <div style="display:flex;gap:4px;margin-bottom:14px;">
+    <div class="tab active" id="mokki-view-kortit" onclick="setMokkiView('kortit',this)">🗂️ Kortit</div>
+    <div class="tab" id="mokki-view-login" onclick="setMokkiView('kirjautuminen',this)">🕒 Kirjautumistilanne</div>
+  </div>
   <div id="mokki-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px"></div>
+  <div id="mokki-login-view" style="display:none">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;">
+        <th style="padding:6px 8px;">Mökki</th><th style="padding:6px 8px;">Nimi</th>
+        <th style="padding:6px 8px;">Rekisteröity</th><th style="padding:6px 8px;">Viimeisin kirjautuminen</th>
+      </tr></thead>
+      <tbody id="mokki-login-rows"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- VIESTIPOHJAT -->
+<div id="sec-viestit" class="sec-page">
+  <div class="page-title">✉️ Viestipohjat</div>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Kutsu- ja muistutusviestien pohjat. Näkyvät valittavina Mökit-sivun kutsu- ja joukkolähetystoiminnoissa. Aihe ja alkuteksti ovat muokattavissa, muu sisältö (mökin numero, ominaisuudet, nappi, allekirjoitus) pysyy samana kaikissa pohjissa.</p>
+  <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+    <button class="btn btn-primary btn-sm" onclick="openTemplateEdit(null)">➕ Uusi viestipohja</button>
+  </div>
+  <div id="template-list" style="display:grid;gap:12px;"></div>
+</div>
+
+<!-- VIESTIPOHJA-MODAL -->
+<div class="modal-overlay" id="template-modal">
+  <div class="modal" style="max-width:600px">
+    <button class="modal-close" onclick="closeTemplateModal()">✕</button>
+    <h3 id="template-modal-title">✉️ Muokkaa viestipohjaa</h3>
+    <input type="hidden" id="tmpl-id">
+    <div class="field"><label>NIMI (näkyy vain adminille)</label><input class="inp" id="tmpl-name" placeholder="esim. Kolmas muistutus"></div>
+    <div class="field"><label>SÄHKÖPOSTIN AIHE <span style="font-size:10px;color:var(--muted);font-weight:400;">({number} korvataan mökin numerolla)</span></label><input class="inp" id="tmpl-subject" placeholder="Muistutus: ... – Mökki {number}"></div>
+    <div class="field"><label>ALKUTEKSTI <span style="font-size:10px;color:var(--muted);font-weight:400;">(HTML sallittu, esim. &lt;p&gt;...&lt;/p&gt;)</span></label>
+      <textarea class="inp" id="tmpl-intro" rows="5" style="font-family:var(--mono);font-size:12px;" placeholder="<p>Hei, tämä on muistutus...</p>"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;justify-content:space-between;">
+      <button class="btn btn-ghost btn-sm" id="tmpl-delete-btn" onclick="deleteTemplateConfirm()" style="color:var(--red);">🗑️ Poista</button>
+      <button class="btn btn-primary" onclick="saveTemplate()">💾 Tallenna</button>
+    </div>
+    <div class="msg" id="tmpl-msg"></div>
+  </div>
 </div>
 
     <!-- DOKUMENTIT -->
@@ -940,6 +984,10 @@ textarea.inp{resize:vertical;min-height:72px}
         <label>SÄHKÖPOSTI</label>
         <input class="inp" id="invite-email" type="email" placeholder="Lähetetään tähän osoitteeseen (valinnainen)">
       </div>
+      <div class="field">
+        <label>VIESTIPOHJA</label>
+        <select class="inp" id="invite-template"></select>
+      </div>
       <div style="display:flex;gap:8px;margin-top:14px">
         <button class="btn btn-primary" onclick="generateInvite(false)">🔗 Luo linkki</button>
         <button class="btn btn-primary" id="invite-email-btn" onclick="generateInvite(true)">📧 Luo & lähetä</button>
@@ -961,7 +1009,7 @@ textarea.inp{resize:vertical;min-height:72px}
 
 <script>
 const API_BASE='https://api.hklkesamajat.fi';
-let _token='',_data={asukkaat:[],vikat:[],tiedotteet:[],vesipisteet:[],mokkit:[],docs:[]},_vikaFilter='kaikki',_vesiMap=null,_vesiMarkers=[];
+let _token='',_data={asukkaat:[],vikat:[],tiedotteet:[],vesipisteet:[],mokkit:[],docs:[],templates:[],loginStatus:[]},_vikaFilter='kaikki',_vesiMap=null,_vesiMarkers=[],_mokkiView='kortit';
 function ah(){return{'Content-Type':'application/json','X-Api-Key':_token};}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function v(id){return(document.getElementById(id)?.value||'').trim();}
@@ -977,7 +1025,8 @@ function nav(sec){
   document.querySelectorAll('.sec-page').forEach(e=>e.classList.remove('active'));
   document.getElementById('sec-'+sec).classList.add('active');
   document.querySelectorAll('.sidenav a[data-sec]').forEach(a=>a.classList.toggle('active',a.dataset.sec===sec));
-  if(sec==='mokkit')loadMokit();
+  if(sec==='mokkit'){loadMokit();loadTemplates();}
+  if(sec==='viestit')loadTemplates();
   if(sec==='dokumentit')loadDocs();
   if(sec==='ilmoitukset')loadListings();
   if(sec==='vesiverkko')loadWaterNetwork();
@@ -1766,18 +1815,20 @@ function openInvite(num, email) {
   document.getElementById('invite-email-msg').textContent = '';
   document.getElementById('invite-modal-title').textContent = '📨 Kutsu – Mökki ' + num;
   document.getElementById('invite-email-btn').style.display = email ? '' : 'none';
+  populateTemplateSelect('invite-template');
   document.getElementById('invite-modal').classList.add('open');
 }
 function closeInviteModal() { document.getElementById('invite-modal').classList.remove('open'); }
 async function generateInvite(sendEmail) {
   const num = document.getElementById('invite-num').value;
   const email = document.getElementById('invite-email').value.trim();
+  const templateId = document.getElementById('invite-template').value || null;
   document.getElementById('invite-msg').textContent = '⏳ Luodaan...';
   document.getElementById('invite-msg').style.color = 'var(--muted)';
   try {
     const r = await fetch(API_BASE + '/api/hkl/cottage/' + num + '/invite', {
       method: 'POST', headers: ah(),
-      body: JSON.stringify({send_email: sendEmail && !!email})
+      body: JSON.stringify({send_email: sendEmail && !!email, template_id: templateId})
     });
     if (!r.ok) { showMsg('invite-msg', '❌ Virhe ' + r.status, false); return; }
     const d = await r.json();
@@ -2437,6 +2488,7 @@ async function massInvite(target) {
   else if (target === 'pending') cottages = cottages.filter(c => !c.password_changed);
   const withEmail = cottages.filter(c => c.email);
   if (!withEmail.length) { document.getElementById('mass-msg').textContent = '❌ Ei mökkejä joilla on sähköposti'; return; }
+  const templateId = document.getElementById('mass-template').value || null;
   const label = target === 'hallitus' ? 'hallituksen jäsenille' : target === 'pending' ? 'odottaville' : 'kaikille';
   if (!confirm(`Lähetetään kutsulinkki ${withEmail.length} mökkiläiselle (${label})?\n\nSähköposti lähetetään osoitteesta webmaster@hklkesamajat.fi.`)) return;
   const msg = document.getElementById('mass-msg');
@@ -2446,7 +2498,7 @@ async function massInvite(target) {
   for (const c of withEmail) {
     try {
       const r = await fetch(API_BASE + '/api/hkl/cottage/' + c.number + '/invite', {
-        method: 'POST', headers: ah(), body: JSON.stringify({send_email: true})
+        method: 'POST', headers: ah(), body: JSON.stringify({send_email: true, template_id: templateId})
       });
       const d = await r.json();
       if (d.email_sent) sent++; else failed++;
@@ -2455,6 +2507,116 @@ async function massInvite(target) {
   }
   msg.textContent = `✅ Valmis: ${sent} lähetetty, ${failed} epäonnistui`;
   msg.style.color = 'var(--green)';
+}
+
+// --- Viestipohjat ---
+async function loadTemplates() {
+  try {
+    _data.templates = await fetch(API_BASE + '/api/hkl/admin/templates', {headers: ah()}).then(r=>r.json());
+    populateTemplateSelect('mass-template');
+    populateTemplateSelect('invite-template');
+    renderTemplates();
+  } catch(e) {}
+}
+function populateTemplateSelect(selectId) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = _data.templates.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  if (current && _data.templates.some(t => String(t.id) === current)) sel.value = current;
+}
+function renderTemplates() {
+  const box = document.getElementById('template-list');
+  if (!box) return;
+  box.innerHTML = _data.templates.map(t => `
+    <div class="card" style="margin-bottom:0;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+        <div>
+          <div class="card-title" style="margin-bottom:4px;">${esc(t.name)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">${esc(t.subject)}</div>
+          <div style="font-size:12px;color:var(--text);opacity:.8;max-width:480px;">${t.intro_html}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="openTemplateEdit(${t.id})">✏️ Muokkaa</button>
+      </div>
+    </div>
+  `).join('') || '<p style="color:var(--muted);font-size:13px;">Ei viestipohjia.</p>';
+}
+function openTemplateEdit(id) {
+  const t = id ? _data.templates.find(x => x.id === id) : null;
+  document.getElementById('tmpl-id').value = t ? t.id : '';
+  document.getElementById('tmpl-name').value = t ? t.name : '';
+  document.getElementById('tmpl-subject').value = t ? t.subject : 'Muistutus: ... – Mökki {number}';
+  document.getElementById('tmpl-intro').value = t ? t.intro_html : '<p style="color:#555;line-height:1.6;">Hei, tässä muistutus...</p>';
+  document.getElementById('template-modal-title').textContent = t ? '✉️ Muokkaa viestipohjaa' : '✉️ Uusi viestipohja';
+  document.getElementById('tmpl-delete-btn').style.display = t ? '' : 'none';
+  document.getElementById('tmpl-msg').textContent = '';
+  document.getElementById('template-modal').classList.add('open');
+}
+function closeTemplateModal() { document.getElementById('template-modal').classList.remove('open'); }
+async function saveTemplate() {
+  const id = document.getElementById('tmpl-id').value;
+  const body = {
+    name: document.getElementById('tmpl-name').value.trim(),
+    subject: document.getElementById('tmpl-subject').value.trim(),
+    intro_html: document.getElementById('tmpl-intro').value.trim(),
+  };
+  if (!body.name || !body.subject || !body.intro_html) { showMsg('tmpl-msg', '❌ Kaikki kentät vaaditaan', false); return; }
+  try {
+    const url = API_BASE + '/api/hkl/admin/templates' + (id ? '/' + id : '');
+    const r = await fetch(url, {method: id ? 'PUT' : 'POST', headers: ah(), body: JSON.stringify(body)});
+    if (!r.ok) { showMsg('tmpl-msg', '❌ Virhe ' + r.status, false); return; }
+    await loadTemplates();
+    closeTemplateModal();
+  } catch(e) { showMsg('tmpl-msg', '❌ ' + e.message, false); }
+}
+async function deleteTemplateConfirm() {
+  const id = document.getElementById('tmpl-id').value;
+  if (!id) return;
+  if (!confirm('Poistetaanko tämä viestipohja?')) return;
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/admin/templates/' + id, {method: 'DELETE', headers: ah()});
+    if (!r.ok) { const d = await r.json().catch(()=>({})); showMsg('tmpl-msg', '❌ ' + (d.detail || r.status), false); return; }
+    await loadTemplates();
+    closeTemplateModal();
+  } catch(e) { showMsg('tmpl-msg', '❌ ' + e.message, false); }
+}
+
+// --- Kirjautumistilanne ---
+function setMokkiView(view, el) {
+  _mokkiView = view;
+  document.querySelectorAll('#mokki-view-kortit, #mokki-view-login').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('mokki-grid').style.display = view === 'kortit' ? '' : 'none';
+  document.getElementById('mokki-login-view').style.display = view === 'kirjautuminen' ? '' : 'none';
+  if (view === 'kirjautuminen') loadLoginStatus();
+}
+async function loadLoginStatus() {
+  try {
+    _data.loginStatus = await fetch(API_BASE + '/api/hkl/admin/login-status', {headers: ah()}).then(r=>r.json());
+    renderLoginStatus();
+  } catch(e) {}
+}
+function renderLoginStatus() {
+  const tbody = document.getElementById('mokki-login-rows');
+  if (!tbody) return;
+  const fmtDate = (s) => s ? s.slice(0,16).replace('T',' ') : null;
+  const now = new Date();
+  tbody.innerHTML = _data.loginStatus.map(r => {
+    const last = fmtDate(r.last_login);
+    let ageLabel = '', ageColor = 'var(--muted)';
+    if (!last) { ageLabel = 'Ei koskaan'; ageColor = 'var(--red)'; }
+    else {
+      const days = Math.floor((now - new Date(r.last_login.replace(' ','T'))) / 86400000);
+      ageLabel = last + ` (${days} vrk sitten)`;
+      ageColor = days > 30 ? 'var(--amber)' : 'var(--green)';
+    }
+    return `<tr style="border-bottom:1px solid var(--border2);">
+      <td style="padding:6px 8px;font-weight:600;">${esc(r.number)}</td>
+      <td style="padding:6px 8px;">${esc(r.name||'–')}</td>
+      <td style="padding:6px 8px;color:${r.password_changed?'var(--green)':'var(--muted)'};">${r.password_changed?'✅ Kyllä':'⏳ Ei'}</td>
+      <td style="padding:6px 8px;color:${ageColor};">${ageLabel}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="4" style="padding:12px;color:var(--muted);">Ei dataa</td></tr>';
 }
 
 const ADMIN_USERS_DATA=[
