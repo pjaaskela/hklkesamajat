@@ -2407,7 +2407,17 @@ async function loadMokkiAnnouncements(retry) {
   const list = document.getElementById('ann-mokki-items');
   try {
     const url = API_BASE + '/api/hkl/announcements?scope=mokki&_=' + Date.now();
-    const r = await fetch(url, {cache: 'no-store'});
+    // Pakotettu aikakatkaisu — jos pyyntö jää jumiin (esim. vanha service worker
+    // ei koskaan settle:aa fetchiä), laatikko EI SAA jäädä ikuisesti "Ladataan…"-
+    // tekstiin (havaittu 2026-07-07, kesti useita kierroksia löytää).
+    const ctrl = new AbortController();
+    const timeoutId = setTimeout(() => ctrl.abort(), 8000);
+    let r;
+    try {
+      r = await fetch(url, {cache: 'no-store', signal: ctrl.signal});
+    } finally {
+      clearTimeout(timeoutId);
+    }
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const items = await r.json();
     if (!items || !items.length) { if (list) list.textContent = 'Ei tiedotteita juuri nyt.'; return; }
@@ -4355,7 +4365,24 @@ async function submitAreaPhoto() {
 </div>
 
 <script>function showMpGuide(){document.getElementById('mp-guide').style.display='flex';}</script>
-<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js?v=4').catch(()=>{});</script>
+<script>
+if ('serviceWorker' in navigator) {
+  // Jos vanha (v3 tai aiempi) service worker on jäänyt jumiin ohjaamaan sivua,
+  // poistetaan se kokonaan ja ladataan sivu uudelleen ennen uuden rekisteröintiä.
+  // Vanha versio siepasi myös cross-origin API-kutsut (esim. api.hklkesamajat.fi)
+  // ja saattoi jättää ne pysyvästi jumiin — pelkkä uusi rekisteröinti ei riitä
+  // jos vanha on jo aktiivinen tämän sivun ohjaajana (havaittu 2026-07-07).
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    const stale = regs.find(r => r.active && r.active.scriptURL && !r.active.scriptURL.includes('v=4'));
+    if (stale && !sessionStorage.getItem('hkl_sw_reloaded')) {
+      sessionStorage.setItem('hkl_sw_reloaded', '1');
+      stale.unregister().then(() => location.reload());
+    } else {
+      navigator.serviceWorker.register('sw.js?v=4').catch(()=>{});
+    }
+  }).catch(() => { navigator.serviceWorker.register('sw.js?v=4').catch(()=>{}); });
+}
+</script>
 <script src="https://jaaskel.com/hkl-search.js" defer></script>
 <script src="https://jaaskel.com/hkl-analytics.js?v=20260703" defer></script>
 </body>
