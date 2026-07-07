@@ -303,6 +303,8 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--sand); 
 #ann-mokki .ann-title { font-weight: 700; font-size: 0.85rem; color: #e6f5ec; margin-bottom: 2px; }
 #ann-mokki .ann-body { font-size: 0.8rem; color: rgba(255,255,255,0.65); line-height: 1.5; }
 #ann-mokki .ann-date { font-size: 0.68rem; color: rgba(255,255,255,0.4); margin-top: 3px; }
+#ann-mokki .ann-link { display: inline-block; margin-top: 6px; font-size: 0.78rem; font-weight: 700; color: #52b788; text-decoration: none; }
+#ann-mokki .ann-link:hover { text-decoration: underline; }
 .mn { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #e2e8f0; height: 48px; display: flex; align-items: center; padding: 0 16px; gap: 8px; }
 .mn-back { display: inline-flex; align-items: center; gap: 5px; font-size: 0.82rem; font-weight: 600; color: #16a34a; text-decoration: none; padding: 5px 10px; border-radius: 8px; transition: background .15s; }
 .mn-back:hover { background: #f0fdf4; }
@@ -2410,7 +2412,7 @@ async function loadMokkiAnnouncements() {
     if (!items || !items.length) { if (banner) banner.style.display = 'none'; return; }
     const esc = s => (s || '').replace(/</g, '&lt;');
     const fmtDate = s => s ? new Date(s).toLocaleDateString('fi-FI', {day:'numeric', month:'short', year:'numeric'}) : '';
-    if (list) list.innerHTML = items.map(a => `<div class="ann-item"><div class="ann-title">${esc(a.title)}</div><div class="ann-body">${esc(a.body)}</div>${a.created ? `<div class="ann-date">${fmtDate(a.created)}</div>` : ''}</div>`).join('');
+    if (list) list.innerHTML = items.map(a => `<div class="ann-item"><div class="ann-title">${esc(a.title)}</div><div class="ann-body">${esc(a.body)}</div>${a.url ? `<a class="ann-link" href="${(a.url||'').replace(/"/g,'&quot;')}" target="_blank" rel="noopener">Lue lisää →</a>` : ''}${a.created ? `<div class="ann-date">${fmtDate(a.created)}</div>` : ''}</div>`).join('');
     if (banner) banner.style.display = 'block';
   } catch (e) {
     console.warn('loadMokkiAnnouncements epäonnistui:', e);

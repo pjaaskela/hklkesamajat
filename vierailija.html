@@ -465,6 +465,8 @@ footer strong { color: white; }
 .ann-banner-item{background:rgba(82,183,136,0.08);border:1px solid rgba(82,183,136,0.2);border-radius:8px;padding:9px 14px}
 .ann-banner-title{font-weight:700;font-size:0.85rem;color:#e6f5ec;margin-bottom:2px}
 .ann-banner-text{font-size:0.8rem;color:rgba(255,255,255,0.65);line-height:1.5}
+.ann-banner-link{display:inline-block;margin-top:6px;font-size:0.78rem;font-weight:700;color:#52b788;text-decoration:none}
+.ann-banner-link:hover{text-decoration:underline}
 
 /* ADMIN */
 #admin-panel { display: none; background: #1a2e22; color: white; padding: 32px 20px; }
@@ -1411,7 +1413,7 @@ async function loadAnnouncementsBanner() {
     if (!items || !items.length) return;
     const list = document.getElementById('ann-banner-items');
     const banner = document.getElementById('ann-banner');
-    list.innerHTML = items.map(a => `<div class="ann-banner-item"><div class="ann-banner-title">${a.title.replace(/</g,'&lt;')}</div><div class="ann-banner-text">${a.body.replace(/</g,'&lt;')}</div></div>`).join('');
+    list.innerHTML = items.map(a => `<div class="ann-banner-item"><div class="ann-banner-title">${a.title.replace(/</g,'&lt;')}</div><div class="ann-banner-text">${a.body.replace(/</g,'&lt;')}</div>${a.url?`<a class="ann-banner-link" href="${a.url.replace(/"/g,'&quot;')}" target="_blank" rel="noopener">Lue lisää →</a>`:''}</div>`).join('');
     if (banner) banner.style.display = 'block';
   } catch(e) {}
 }
