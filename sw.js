@@ -60,7 +60,7 @@ self.addEventListener('message', e => {
   }
 });
 
-// Server push (future VAPID support) — payload: {title, body, url}
+// Server push (VAPID, 2026-07-07) — payload: {title, body, url, tag}
 self.addEventListener('push', e => {
   let data = {};
   try { data = e.data ? e.data.json() : {}; } catch (_) {}
