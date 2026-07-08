@@ -3424,7 +3424,7 @@ async function loadAluekartta() {
       const shadow = isOwn ? '0 0 0 2px #f59e0b,0 2px 8px rgba(0,0,0,.6)' : '0 1px 4px rgba(0,0,0,.5)';
       const bw = isOwn ? 3 : 2;
       return L.divIcon({
-        html: `<div style="background:${bg};color:#fff;border:${bw}px solid #fff;border-radius:6px;padding:5px 11px;font-size:15px;font-weight:700;white-space:nowrap;box-shadow:${shadow};cursor:${isOwn?'default':'pointer'}">${_e(num)}</div>`,
+        html: `<div style="background:${bg};color:#fff;border:${bw}px solid #fff;border-radius:6px;padding:5px 11px;font-size:15px;font-weight:700;white-space:nowrap;box-shadow:${shadow};cursor:pointer">${_e(num)}</div>`,
         className:'', iconAnchor:[0,0], iconSize: null
       });
     }
@@ -3434,25 +3434,24 @@ async function loadAluekartta() {
       const isOwn = String(c.number) === String(_currentMokki);
       const m = L.marker(ll, {icon: _mokkiIcon(isOwn, c.number), zIndexOffset: isOwn ? 1000 : 0});
       _mokkiMarkerData.push({m, isOwn, num: c.number});
-      if (!isOwn) {
-        m.on('click', () => {
-          const sheet = _getMokkiModal();
-          sheet.querySelector('#vv-sheet-title').innerHTML = `🏡 Mökki ${_e(c.number)}`;
-          const photoDiv = sheet.querySelector('#vv-sheet-photo');
-          if (c.has_cabin_photo) {
-            photoDiv.style.display = 'block';
-            photoDiv.innerHTML = `<img src="${API_BASE}/api/hkl/cottage-photo/${encodeURIComponent(c.number)}" style="width:100%;height:auto;display:block;" onerror="this.parentElement.style.display='none'">`;
-          } else {
-            photoDiv.style.display = 'none';
-            photoDiv.innerHTML = '';
-          }
-          sheet.querySelector('#vv-sheet-body').innerHTML =
-            c.kuvaus ? `<p style="margin:0;">${_e(c.kuvaus)}</p>` : `<p style="margin:0;color:#94a3b8;text-align:center;">Ei kuvausta</p>`;
-          const inner = sheet.querySelector('#vv-sheet-inner');
-          if (inner) { inner.style.animation = 'none'; inner.offsetHeight; inner.style.animation = ''; }
-          sheet.style.display = 'flex';
-        });
-      }
+      // Näytä kuva+kuvaus myös omasta mökistä klikattaessa, ei vain muiden (2026-07-08)
+      m.on('click', () => {
+        const sheet = _getMokkiModal();
+        sheet.querySelector('#vv-sheet-title').innerHTML = `🏡 Mökki ${_e(c.number)}${isOwn ? ' (oma)' : ''}`;
+        const photoDiv = sheet.querySelector('#vv-sheet-photo');
+        if (c.has_cabin_photo) {
+          photoDiv.style.display = 'block';
+          photoDiv.innerHTML = `<img src="${API_BASE}/api/hkl/cottage-photo/${encodeURIComponent(c.number)}" style="width:100%;height:auto;display:block;" onerror="this.parentElement.style.display='none'">`;
+        } else {
+          photoDiv.style.display = 'none';
+          photoDiv.innerHTML = '';
+        }
+        sheet.querySelector('#vv-sheet-body').innerHTML =
+          c.kuvaus ? `<p style="margin:0;">${_e(c.kuvaus)}</p>` : `<p style="margin:0;color:#94a3b8;text-align:center;">Ei kuvausta</p>`;
+        const inner = sheet.querySelector('#vv-sheet-inner');
+        if (inner) { inner.style.animation = 'none'; inner.offsetHeight; inner.style.animation = ''; }
+        sheet.style.display = 'flex';
+      });
       m.addTo(mokkiLayer);
     });
 
