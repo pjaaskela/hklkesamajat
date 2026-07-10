@@ -727,7 +727,11 @@ textarea.inp{resize:vertical;min-height:72px}
 
       <div class="card" style="margin-bottom:16px;">
         <div class="card-head">📋 Mökkiläissivun osiot</div>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:6px;">Valitse mitkä osiot ovat oletuksena auki. Vedä järjestääksesi.</p>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:6px;">☰ Vedä järjestääksesi · "Auki" = osio on oletuksena avattuna · "Piilota" = osio ei näy mökkiläisille lainkaan.</p>
+        <div style="display:flex;gap:10px;padding:0 10px 4px;font-size:11px;color:var(--muted);">
+          <span style="width:16px;"></span><span style="width:16px;"></span><span style="flex:1;"></span>
+          <span style="width:44px;text-align:center;">Auki</span><span style="width:56px;text-align:center;">Piilota</span>
+        </div>
         <div id="set-sections" style="display:flex;flex-direction:column;gap:4px;"></div>
       </div>
 
@@ -2239,13 +2243,17 @@ const MOKKI_SECTIONS = [
   {key:'siivous', label:'🧹 Siivous'},
   {key:'waste', label:'♻️ Jätteet & tyhjennykset'},
   {key:'flag', label:'🇫🇮 Liputuspäivät'},
-  {key:'mokkikartta', label:'🏘️ Mökkikartta'},
+  {key:'aluekartta', label:'🗺️ Aluekartta ja venepaikat'},
   {key:'opas', label:'📖 Kesämajalaisen opas'},
   {key:'docs', label:'📄 Dokumentit & ohjeet'},
   {key:'hallitus', label:'🏛️ Hallitus'},
   {key:'ilmoitus', label:'📢 Ilmoitukset'},
   {key:'listings', label:'🏡 Osto/myynti'},
 ];
+// HUOM 2026-07-10: 'mokkikartta' oli tässä ennen 'aluekartta':n tilalla, mutta
+// mokki.html:n oikea kortin id on #aluekartta-card — vanha avain ei koskaan
+// vastannut mitään oikeaa osiota (piilota/järjestä-toiminnot eivät tehneet
+// mitään sillä avaimella). Korjattu vastaamaan oikeaa DOM-id:tä.
 let _siteSettings = {};
 
 async function loadWhatsNew(){
@@ -2372,16 +2380,19 @@ async function loadSiteSettings() {
   document.getElementById('set-sauna-peak').value = _siteSettings.sauna_clean_peak || 'MA+KE+PE klo 10-12';
   document.getElementById('set-wc-clean').value = _siteSettings.wc_clean || 'MA+TO klo 12-12:30';
   const openSections = _siteSettings.open_sections || [];
+  const hiddenSections = _siteSettings.hidden_sections || [];
   const savedOrder = _siteSettings.section_order || [];
   const ordered = savedOrder.length ? savedOrder.map(k=>MOKKI_SECTIONS.find(s=>s.key===k)).filter(Boolean) : [...MOKKI_SECTIONS];
   MOKKI_SECTIONS.forEach(s => { if (!ordered.find(o=>o.key===s.key)) ordered.push(s); });
   const el = document.getElementById('set-sections');
   el.innerHTML = ordered.map(s => {
     const checked = openSections.includes(s.key) ? 'checked' : '';
+    const hidden = hiddenSections.includes(s.key) ? 'checked' : '';
     return `<div draggable="true" data-sec-key="${s.key}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px;cursor:grab;user-select:none;border:2px solid transparent;" ondragstart="this.style.opacity='0.5';event.dataTransfer.setData('text',this.dataset.secKey)" ondragend="this.style.opacity='1'" ondragover="event.preventDefault();this.style.borderColor='var(--green)'" ondragleave="this.style.borderColor='transparent'" ondrop="event.preventDefault();this.style.borderColor='transparent';reorderSection(event.dataTransfer.getData('text'),this.dataset.secKey)">
       <span style="color:var(--muted);font-size:12px;cursor:grab;">☰</span>
-      <input type="checkbox" data-sec-check="${s.key}" ${checked} style="accent-color:var(--green);width:16px;height:16px;" onclick="event.stopPropagation()">
       <span style="font-size:13px;flex:1;">${s.label}</span>
+      <span style="width:44px;text-align:center;"><input type="checkbox" data-sec-check="${s.key}" ${checked} title="Auki oletuksena" style="accent-color:var(--green);width:16px;height:16px;" onclick="event.stopPropagation()"></span>
+      <span style="width:56px;text-align:center;"><input type="checkbox" data-sec-hide="${s.key}" ${hidden} title="Piilota mökkiläisiltä" style="accent-color:#dc2626;width:16px;height:16px;" onclick="event.stopPropagation()"></span>
     </div>`;
   }).join('');
 }
@@ -2398,11 +2409,14 @@ function reorderSection(fromKey, toKey) {
 
 async function saveSiteSettings() {
   const openSections = [];
+  const hiddenSections = [];
   const sectionOrder = [];
   document.querySelectorAll('#set-sections [data-sec-key]').forEach(row => {
     sectionOrder.push(row.dataset.secKey);
-    const cb = row.querySelector('input[type=checkbox]');
+    const cb = row.querySelector('input[data-sec-check]');
     if (cb && cb.checked) openSections.push(row.dataset.secKey);
+    const hb = row.querySelector('input[data-sec-hide]');
+    if (hb && hb.checked) hiddenSections.push(row.dataset.secKey);
   });
   const settings = {
     venepaikka_asukas: parseInt(document.getElementById('set-hinta-asukas').value) || 300,
@@ -2425,6 +2439,7 @@ async function saveSiteSettings() {
     sauna_clean_peak: document.getElementById('set-sauna-peak').value.trim(),
     wc_clean: document.getElementById('set-wc-clean').value.trim(),
     open_sections: openSections,
+    hidden_sections: hiddenSections,
     section_order: sectionOrder,
   };
   try {
