@@ -299,12 +299,12 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--sand); 
 }
 .page-footer a { color: var(--green); text-decoration: none; }
 
-#ann-mokki .ann-item { background: rgba(82,183,136,0.08); border: 1px solid rgba(82,183,136,0.2); border-radius: 8px; padding: 9px 14px; }
-#ann-mokki .ann-title { font-weight: 700; font-size: 0.85rem; color: #e6f5ec; margin-bottom: 2px; }
-#ann-mokki .ann-body { font-size: 0.8rem; color: rgba(255,255,255,0.65); line-height: 1.5; }
-#ann-mokki .ann-date { font-size: 0.68rem; color: rgba(255,255,255,0.4); margin-top: 3px; }
-#ann-mokki .ann-link { display: inline-block; margin-top: 6px; font-size: 0.78rem; font-weight: 700; color: #52b788; text-decoration: none; }
-#ann-mokki .ann-link:hover { text-decoration: underline; }
+#tiedotteet-card .ann-item { background: rgba(82,183,136,0.08); border: 1px solid rgba(82,183,136,0.2); border-radius: 8px; padding: 9px 14px; }
+#tiedotteet-card .ann-title { font-weight: 700; font-size: 0.85rem; color: #e6f5ec; margin-bottom: 2px; }
+#tiedotteet-card .ann-body { font-size: 0.8rem; color: rgba(255,255,255,0.65); line-height: 1.5; }
+#tiedotteet-card .ann-date { font-size: 0.68rem; color: rgba(255,255,255,0.4); margin-top: 3px; }
+#tiedotteet-card .ann-link { display: inline-block; margin-top: 6px; font-size: 0.78rem; font-weight: 700; color: #52b788; text-decoration: none; }
+#tiedotteet-card .ann-link:hover { text-decoration: underline; }
 .mn { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #e2e8f0; height: 48px; display: flex; align-items: center; padding: 0 16px; gap: 8px; }
 .mn-back { display: inline-flex; align-items: center; gap: 5px; font-size: 0.82rem; font-weight: 600; color: #16a34a; text-decoration: none; padding: 5px 10px; border-radius: 8px; transition: background .15s; }
 .mn-back:hover { background: #f0fdf4; }
@@ -765,11 +765,6 @@ body { padding-top: 48px; }
     </div>
   </div>
 
-  <!-- TIEDOTTEET BANNER (piilossa oletuksena, näytetään vain jos tiedotteita löytyy — 2026-07-07) -->
-  <div id="ann-mokki" style="display:none;background:#1a3522;border-bottom:2px solid #52b788;border-radius:10px;margin:0 16px 12px;padding:12px 16px;">
-    <div style="font-size:0.7rem;font-weight:700;color:#52b788;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">📢 Tiedotteet</div>
-    <div id="ann-mokki-items" style="display:flex;flex-direction:column;gap:6px;color:rgba(255,255,255,0.5);font-size:0.8rem;"></div>
-  </div>
 
   <div class="dash-main">
 
@@ -931,6 +926,16 @@ body { padding-top: 48px; }
     </div>
 
     <div id="mokki-cards">
+    <!-- TIEDOTTEET BANNER (piilossa oletuksena, näytetään vain jos tiedotteita löytyy — 2026-07-07.
+         2026-07-11: siirretty #mokki-cards-säiliön sisään jotta admin-paneelin
+         osiojärjestely/piilotus toimii sen kohdalla, samoin kuin aluekartalle
+         aiemmin — pysyy rakenteellisesti aina mökkifiiliksen ja AI-kuvauksen
+         alapuolella koska ne ovat säiliön ulkopuolella/ennen sitä.) -->
+    <div id="tiedotteet-card" style="display:none;background:#1a3522;border-bottom:2px solid #52b788;border-radius:10px;margin:0 16px 12px;padding:12px 16px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#52b788;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">📢 Tiedotteet</div>
+      <div id="ann-mokki-items" style="display:flex;flex-direction:column;gap:6px;color:rgba(255,255,255,0.5);font-size:0.8rem;"></div>
+    </div>
+
     <!-- TAPAHTUMAT -->
     <div class="card" id="events-card">
       <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
@@ -2417,7 +2422,7 @@ async function checkSession() {
 }
 
 async function loadMokkiAnnouncements() {
-  const banner = document.getElementById('ann-mokki');
+  const banner = document.getElementById('tiedotteet-card');
   const list = document.getElementById('ann-mokki-items');
   try {
     const items = await fetch(API_BASE + '/api/hkl/announcements?scope=mokki').then(r => r.json());
