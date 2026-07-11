@@ -2723,11 +2723,18 @@ async function loadListings() {
 // ========== SAUNA GUEST COUNTER ==========
 let _saunaGuests = 3;
 function updateSaunaTotal() {
-  document.getElementById('sauna-guest-total').textContent = (_saunaGuests * _hinnat.saunamaksu) + ' €';
-  document.getElementById('sauna-mp-amount').textContent = _saunaGuests * _hinnat.saunamaksu;
+  // 2026-07-11: sauna-guest-total/sauna-mp-amount puuttuvat nykyisestä HTML:stä.
+  // Tätä kutsutaan applySiteSettings()-funktion sisältä — suojaamattomana se
+  // kaatoi koko funktion kesken (open_sections/hidden_sections/section_order
+  // -käsittely jäi ajamatta hiljaa try/catch:in nielaisemana).
+  const total = document.getElementById('sauna-guest-total');
+  const mp = document.getElementById('sauna-mp-amount');
+  if (total) total.textContent = (_saunaGuests * _hinnat.saunamaksu) + ' €';
+  if (mp) mp.textContent = _saunaGuests * _hinnat.saunamaksu;
 }
 function updateSaunaGuests() {
-  document.getElementById('sauna-guest-count').textContent = _saunaGuests;
+  const count = document.getElementById('sauna-guest-count');
+  if (count) count.textContent = _saunaGuests;
   updateSaunaTotal();
 }
 function saunaGuests(d) { _saunaGuests = Math.max(1, Math.min(10, _saunaGuests + d)); updateSaunaGuests(); }
@@ -3180,6 +3187,11 @@ function loadCamVideo(idx) {
   const url = MOMENTS_BASE + '/video/' + filename;
   const info = document.getElementById('cam-filename');
   const offline = document.getElementById('cam-offline');
+  // 2026-07-11: cam-video/cam-filename poistuivat HTML:stä jossain vaiheessa
+  // mutta tätä funktiota ei päivitetty — se kaatoi koko showDashboard()-loppuosan
+  // (mm. applySectionVisibility(), renderVeneohje()) hiljaisesti jokaisella
+  // sivulatauksella, koska showDashboard() ei ole try/catch-suojattu.
+  if (!video || !info || !offline) return;
 
   info.textContent = filename.replace('.mp4', '') + ' · Esee 2026-01';
   offline.style.display = 'none';
@@ -3208,6 +3220,7 @@ function loadCamVideo(idx) {
 
 function camPlay() {
   const video = document.getElementById('cam-video');
+  if (!video) return;
   if (video.paused) video.play(); else video.pause();
 }
 
