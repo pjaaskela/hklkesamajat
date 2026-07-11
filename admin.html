@@ -2248,7 +2248,6 @@ const MOKKI_SECTIONS = [
   {key:'beaches', label:'🏖️ Lähirannat'},
   {key:'photos', label:'📷 Omat kuvat'},
   {key:'laituri', label:'🌊 Laiturilämpötila'},
-  {key:'camera', label:'📹 Kamera (vain mökki 484)'},
   {key:'solar', label:'☀️ Aurinkopaneeli'},
   {key:'profile', label:'👤 Oma profiili'},
   {key:'aluekartta', label:'🗺️ Aluekartta ja venepaikat'},
@@ -2258,7 +2257,13 @@ const MOKKI_SECTIONS = [
   {key:'hallitus', label:'🏛️ Hallitus'},
   {key:'ilmoitus', label:'📢 Ilmoitukset'},
   {key:'listings', label:'🏡 Osto/myynti'},
-  {key:'sensor', label:'📡 Mökki Live-tila (vain mökki 484, hero-alueella)'},
+  // 2026-07-11: 'camera' (Kamera) ja 'sensor' (Mökki Live-tila) EIVÄT ole
+  // tässä listassa tarkoituksella — ne ovat data-mokki="484"-rajattua
+  // laitteistoa (Pekan omat kotiautomaatioanturit), eivät yhdistyksen
+  // yhteisiä osioita. Admin-hallinta ei sovi niille: se antaisi virheellisen
+  // vaikutelman että näkyvyyttä voisi ohjata kaikille mökkiläisille, vaikka
+  // ne ovat aina piilossa muilta kuin mökki 484:ltä data-mokki-suodatuksen
+  // kautta riippumatta tästä asetuksesta.
 ];
 // HUOM 2026-07-10: 'mokkikartta' oli tässä ennen 'aluekartta':n tilalla, mutta
 // mokki.html:n oikea kortin id on #aluekartta-card — vanha avain ei koskaan
