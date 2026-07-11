@@ -2237,19 +2237,28 @@ async function deleteFeedback(id){
 }
 
 const MOKKI_SECTIONS = [
+  // Järjestys vastaa mokki.html:n oikeaa DOM-järjestystä (2026-07-11 käyty
+  // koko sivu läpi ja lisätty kaikki #mokki-cards-säiliön kortit tähän).
   {key:'tiedotteet', label:'📢 Tiedotteet (ilmoitusbanneri)'},
   {key:'events', label:'📅 Tapahtumat'},
-  {key:'sensor', label:'📡 Mökki Live-tila'},
   {key:'sauna', label:'🛁 Yhteissauna'},
   {key:'siivous', label:'🧹 Siivous'},
   {key:'waste', label:'♻️ Jätteet & tyhjennykset'},
   {key:'flag', label:'🇫🇮 Liputuspäivät'},
+  {key:'beaches', label:'🏖️ Lähirannat'},
+  {key:'photos', label:'📷 Omat kuvat'},
+  {key:'laituri', label:'🌊 Laiturilämpötila'},
+  {key:'camera', label:'📹 Kamera (vain mökki 484)'},
+  {key:'solar', label:'☀️ Aurinkopaneeli'},
+  {key:'profile', label:'👤 Oma profiili'},
   {key:'aluekartta', label:'🗺️ Aluekartta ja venepaikat'},
   {key:'opas', label:'📖 Kesämajalaisen opas'},
+  {key:'veneohje', label:'⚓ Venepaikan haltijan ohje'},
   {key:'docs', label:'📄 Dokumentit & ohjeet'},
   {key:'hallitus', label:'🏛️ Hallitus'},
   {key:'ilmoitus', label:'📢 Ilmoitukset'},
   {key:'listings', label:'🏡 Osto/myynti'},
+  {key:'sensor', label:'📡 Mökki Live-tila (vain mökki 484, hero-alueella)'},
 ];
 // HUOM 2026-07-10: 'mokkikartta' oli tässä ennen 'aluekartta':n tilalla, mutta
 // mokki.html:n oikea kortin id on #aluekartta-card — vanha avain ei koskaan
