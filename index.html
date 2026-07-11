@@ -143,7 +143,7 @@ footer a { color: rgba(82,183,136,0.55); }
       <div class="glass-pill">
         <div class="glass-pill-label">☕ Buffetti</div>
         <div class="glass-pill-value" style="font-size:1rem;" id="h-buffetti-status">–</div>
-        <div class="glass-pill-sub">pe–su 11–18</div>
+        <div class="glass-pill-sub" id="h-buffetti-hours">–</div>
       </div>
       <div class="glass-pill">
         <div class="glass-pill-label">☀️ Aurinko</div>
@@ -251,12 +251,45 @@ function fmt1(v) { return v != null ? v.toFixed(1) : '–'; }
 function windDir(deg) { const d=['Pohjoinen','Koillinen','Itä','Kaakko','Etelä','Lounas','Länsi','Luode']; return d[Math.round(deg/45)%8]; }
 function dist(la1,lo1,la2,lo2) { const R=6371,dLa=Math.PI/180*(la2-la1),dLo=Math.PI/180*(lo2-lo1); const a=Math.sin(dLa/2)**2+Math.cos(Math.PI/180*la1)*Math.cos(Math.PI/180*la2)*Math.sin(dLo/2)**2; return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
 
+// Oletusarvot ennen kuin /api/hkl/site-settings ehtii vastata — sama malli
+// kuin vierailija.html:ssä, jotta admin.htmlin asetukset ovat aina totuuden
+// lähde eikä kovakoodattu kopio pääse taas eriytymään siitä (bug 2026-07-11:
+// tämä sivu näytti "pe–su 11–18" vaikka admin oli jo asetettu "la–su 12–17").
+let _bufSettings = {
+  buf_kausi_alku:5, buf_kausi_loppu:8,
+  buf_kesa_alku:5,  buf_kesa_loppu:8,
+  buf_kesa_paivat:'6,0', buf_kesa_auki:12, buf_kesa_kiinni:17,
+  buf_paivat:'6,0',      buf_auki:12,      buf_kiinni:17,
+};
+function _parseDays(str){ return (str||'').split(',').map(Number).filter(n=>!isNaN(n)); }
 function isBuffettiOpen() {
   const now = new Date(new Date().toLocaleString('en-US', {timeZone:'Europe/Helsinki'}));
-  const day = now.getDay(), month = now.getMonth()+1, t = now.getHours()*60+now.getMinutes();
-  if (month<5||month>9) return false;
-  if (![0,5,6].includes(day)) return false;
-  return t>=11*60&&t<18*60;
+  const day = now.getDay();
+  const month = now.getMonth() + 1;
+  const timeMin = now.getHours() * 60 + now.getMinutes();
+  const s = _bufSettings;
+  if (month < s.buf_kausi_alku || month > s.buf_kausi_loppu) return false;
+  if (month >= s.buf_kesa_alku && month <= s.buf_kesa_loppu) {
+    if (!_parseDays(s.buf_kesa_paivat).includes(day)) return false;
+    return timeMin >= s.buf_kesa_auki*60 && timeMin < s.buf_kesa_kiinni*60;
+  }
+  if (!_parseDays(s.buf_paivat).includes(day)) return false;
+  return timeMin >= s.buf_auki*60 && timeMin < s.buf_kiinni*60;
+}
+function _applyBufSettings(ss) {
+  const keys = ['buf_kausi_alku','buf_kausi_loppu','buf_kesa_alku','buf_kesa_loppu',
+                 'buf_kesa_paivat','buf_kesa_auki','buf_kesa_kiinni','buf_paivat','buf_auki','buf_kiinni'];
+  keys.forEach(k => { if (ss[k] !== undefined) _bufSettings[k] = ss[k]; });
+  const dayNames = {0:'su',1:'ma',2:'ti',3:'ke',4:'to',5:'pe',6:'la'};
+  const kesaPv = _parseDays(_bufSettings.buf_kesa_paivat).map(d=>dayNames[d]||d).join('–');
+  const muutPv = _parseDays(_bufSettings.buf_paivat).map(d=>dayNames[d]||d).join('–');
+  let hoursText = `${kesaPv} ${_bufSettings.buf_kesa_auki}–${_bufSettings.buf_kesa_kiinni}`;
+  if (_bufSettings.buf_kausi_alku !== _bufSettings.buf_kesa_alku) {
+    hoursText += ` / ${muutPv} ${_bufSettings.buf_auki}–${_bufSettings.buf_kiinni}`;
+  }
+  const hoursEl = document.getElementById('h-buffetti-hours');
+  if (hoursEl) hoursEl.textContent = hoursText;
+  renderBuffettiStatus();
 }
 
 function renderBuffettiStatus() {
@@ -349,6 +382,7 @@ async function loadAnnouncementsBanner() {
 
 renderBuffettiStatus();
 setInterval(renderBuffettiStatus, 60_000);
+fetch(API_BASE + '/api/hkl/site-settings').then(r => r.json()).then(_applyBufSettings).catch(() => {});
 
 async function loadRoleLiveData() {
   // Water temp for vierailija card
