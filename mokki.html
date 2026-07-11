@@ -3837,6 +3837,12 @@ async function loadMokkiDay() {
         document.getElementById('mokki-day-time').textContent = 'AI-kuvaus laadittu ' + t.toLocaleTimeString('fi-FI', {hour:'2-digit', minute:'2-digit'}) + ' · Säätiedot reaaliajassa';
       }
       card.style.display = '';
+      // 2026-07-11: #ai-hero (vanhempi "Päivän kuvaus" -kortti) on näkyvissä
+      // oletuksena eikä se koskaan piiloutunut kun tämä uudempi, kattavampi
+      // kortti otettiin käyttöön — käyttäjälle näkyi kaksi lähes identtistä
+      // AI-säätiivistelmää peräkkäin. Piilotetaan vanha kun uusi lataa onnistuneesti.
+      const oldHero = document.getElementById('ai-hero');
+      if (oldHero) oldHero.style.display = 'none';
     }
     if (w && w.current) {
       const we = document.getElementById('md-wind'); if(we) we.textContent = w.current.wind_speed_10m.toFixed(0) + ' m/s';
