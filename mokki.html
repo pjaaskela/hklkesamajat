@@ -316,33 +316,6 @@ body { padding-top: 48px; }
 .glass-pill-value{font-size:1.3rem;font-weight:800;line-height:1.1;}
 .glass-pill-sub{font-size:0.7rem;opacity:0.65;margin-top:2px;}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-#ai-hero {
-  display:none;
-  background: linear-gradient(145deg, rgba(8,61,42,0.82) 0%, rgba(14,92,70,0.78) 50%, rgba(10,74,110,0.80) 100%), url('hkl-laituri.jpg') center/cover no-repeat;
-  border-radius:16px; margin:0 16px 16px; padding:28px 24px 20px; position:relative;
-}
-#ai-hero .ai-orbs {
-  position:absolute; inset:0; overflow:hidden; border-radius:16px; pointer-events:none;
-}
-#ai-hero .ai-orb {
-  position:absolute; border-radius:50%; filter:blur(60px); opacity:0.15;
-}
-#ai-hero .ai-orb-1 { width:200px; height:200px; background:#52b788; top:-60px; left:-40px; }
-#ai-hero .ai-orb-2 { width:150px; height:150px; background:#48b5d3; bottom:-30px; right:-30px; }
-#ai-hero .ai-inner { position:relative; z-index:1; }
-#ai-hero .ai-label { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); margin-bottom:8px; display:flex; align-items:center; gap:5px; }
-#ai-hero .ai-text { font-size:0.95rem; line-height:1.65; color:white; font-weight:500; }
-#ai-hero .ai-stats {
-  display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; padding-top:14px;
-  border-top:1px solid rgba(255,255,255,0.15);
-}
-#ai-hero .ai-stat {
-  background:rgba(255,255,255,0.12); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-  border:1px solid rgba(255,255,255,0.2); border-radius:10px; padding:8px 14px; text-align:center; min-width:80px;
-}
-#ai-hero .ai-stat-val { font-size:1.1rem; font-weight:800; color:white; line-height:1.1; }
-#ai-hero .ai-stat-lbl { font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:rgba(255,255,255,0.6); margin-top:2px; }
-#ai-hero .ai-time { font-size:0.6rem; color:rgba(255,255,255,0.4); margin-top:10px; }
 .sauna-ring-wrap { display:flex;align-items:center;gap:16px;margin:10px 0 14px; }
 .sauna-ring { position:relative;width:80px;height:80px;flex-shrink:0; }
 .sauna-ring svg { transform:rotate(-90deg); }
@@ -744,26 +717,6 @@ body { padding-top: 48px; }
     </div>
   </div>
 
-  <!-- AI PÄIVÄNKUVAUS + LIVE SNAPSHOT -->
-  <div id="ai-hero">
-    <div class="ai-orbs"><div class="ai-orb ai-orb-1"></div><div class="ai-orb ai-orb-2"></div></div>
-    <div class="ai-inner">
-      <div class="ai-label">✨ Päivän kuvaus · <span id="ai-date"></span></div>
-      <div class="ai-text" id="ai-text"></div>
-      <div class="ai-stats">
-        <div class="ai-stat" id="ai-temp-stat" style="display:none"><div class="ai-stat-val" id="ai-temp">–</div><div class="ai-stat-lbl">Sisälämpö</div></div>
-        <div class="ai-stat"><div class="ai-stat-val" id="ai-outdoor">–</div><div class="ai-stat-lbl">Ulkolämpö</div></div>
-        <div class="ai-stat"><div class="ai-stat-val" id="ai-water">–</div><div class="ai-stat-lbl">Vesi</div></div>
-        <div class="ai-stat"><div class="ai-stat-val" id="ai-wind">–</div><div class="ai-stat-lbl">Tuuli</div></div>
-      </div>
-      <div id="mk-aqi-row" style="margin-top:10px;padding:8px 12px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-        <span style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:rgba(255,255,255,0.6);">🌿 Ilmanlaatu</span>
-        <span style="font-size:1rem;font-weight:800;color:#d9f99d;" id="mk-aqi-val">30 · Hyvä</span>
-        <span style="font-size:0.7rem;color:rgba(255,255,255,0.65);" id="mk-pollen">🌸 Heinä: kohtalainen</span>
-      </div>
-      <div class="ai-time" id="ai-time"></div>
-    </div>
-  </div>
 
 
   <div class="dash-main">
@@ -2501,7 +2454,6 @@ function showDashboard(num) {
   setInterval(renderSaunaCard, 60000);
   loadCamera();
   loadLaituriLast();
-  loadAISummary();
   loadSolar();
   // loadAirQuality called globally at page load
   loadWasteSchedule();
@@ -3592,76 +3544,6 @@ async function loadSolar() {
   }
 }
 
-// ========== AI SUMMARY + HERO STATS ==========
-async function loadAISummary() {
-  const hero = document.getElementById('ai-hero');
-  try {
-    const [aiData, sensorData, weatherData, rainData] = await Promise.allSettled([
-      fetch(API_BASE + '/api/hkl/day-summary').then(r => r.json()),
-      fetch(API_BASE + '/api/hkl/local-sensor').then(r => r.json()),
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=60.15524&longitude=24.85453&current=temperature_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=ms&timezone=Europe/Helsinki`).then(r => r.json()),
-      fetch(API_BASE + '/api/hkl/weather-stats').then(r => r.json())
-    ]);
-    const ai = aiData.status === 'fulfilled' ? aiData.value : null;
-    const sensor = sensorData.status === 'fulfilled' ? sensorData.value : null;
-    const weather = weatherData.status === 'fulfilled' ? weatherData.value : null;
-    const rain = rainData.status === 'fulfilled' ? rainData.value : null;
-
-    hero.style.display = 'block';
-
-    if (ai && ai.summary) {
-      document.getElementById('ai-text').textContent = ai.summary;
-      if (ai.generated) {
-        const t = new Date(ai.generated);
-        document.getElementById('ai-time').textContent = 'Päivitetty ' + t.toLocaleTimeString('fi-FI', {hour:'2-digit', minute:'2-digit'});
-      }
-    } else {
-      document.getElementById('ai-text').textContent = 'Tervetuloa mökille! Sää- ja olosuhdetiedot päivittyvät automaattisesti.';
-    }
-
-    const now = new Date();
-    const dateEl = document.getElementById('ai-date');
-    if (dateEl) dateEl.textContent = now.toLocaleDateString('fi-FI', {weekday:'long', day:'numeric', month:'long'});
-
-    if (sensor && _currentMokki === '484') {
-      const te = document.getElementById('ai-temp');
-      const ts = document.getElementById('ai-temp-stat');
-      if (ts) ts.style.display = '';
-      if (te && sensor.indoor_temp != null) te.textContent = sensor.indoor_temp.toFixed(1) + '°';
-      else if (te && sensor.temperature != null) te.textContent = sensor.temperature.toFixed(1) + '°';
-    }
-    if (weather && weather.current) {
-      const oe = document.getElementById('ai-outdoor');
-      const we = document.getElementById('ai-wind');
-      if (oe) oe.textContent = weather.current.temperature_2m.toFixed(1) + '°';
-      if (we) {
-        const dirs=['Pohjoinen','Koillinen','Itä','Kaakko','Etelä','Lounas','Länsi','Luode'];
-        const dir=dirs[Math.round((weather.current.wind_direction_10m??0)/45)%8];
-        we.innerHTML = weather.current.wind_speed_10m.toFixed(0)+' m/s<span style="display:block;font-size:0.62rem;font-weight:600;opacity:0.75;margin-top:1px;">'+dir+'</span>';
-      }
-    }
-    if (rain) {
-      const re = document.getElementById('ai-rain');
-      if (re) {
-        if (rain.raining) {
-          re.textContent = '🌧 Sataa';
-          re.style.fontSize = '0.75rem';
-        } else {
-          re.textContent = rain.rain_today_min > 0 ? rain.rain_today_min + ' mm' : 'Ei sadetta';
-          re.style.fontSize = rain.rain_today_min > 0 ? '' : '0.65rem';
-        }
-      }
-    }
-
-    try {
-      const laituri = await fetch(API_BASE + '/api/hkl/laituri').then(r => r.json());
-      const we2 = document.getElementById('ai-water');
-      if (we2 && laituri.temp != null) we2.textContent = laituri.temp.toFixed(1) + '°';
-    } catch(e) {}
-
-  } catch(e) { console.error('loadAISummary error:', e); }
-}
-
 // ========== WASTE SCHEDULE ==========
 function loadWasteSchedule() {
   const schedule = [
@@ -3848,12 +3730,6 @@ async function loadMokkiDay() {
         document.getElementById('mokki-day-time').textContent = 'AI-kuvaus laadittu ' + t.toLocaleTimeString('fi-FI', {hour:'2-digit', minute:'2-digit'}) + ' · Säätiedot reaaliajassa';
       }
       card.style.display = '';
-      // 2026-07-11: #ai-hero (vanhempi "Päivän kuvaus" -kortti) on näkyvissä
-      // oletuksena eikä se koskaan piiloutunut kun tämä uudempi, kattavampi
-      // kortti otettiin käyttöön — käyttäjälle näkyi kaksi lähes identtistä
-      // AI-säätiivistelmää peräkkäin. Piilotetaan vanha kun uusi lataa onnistuneesti.
-      const oldHero = document.getElementById('ai-hero');
-      if (oldHero) oldHero.style.display = 'none';
     }
     if (w && w.current) {
       const we = document.getElementById('md-wind'); if(we) we.textContent = w.current.wind_speed_10m.toFixed(0) + ' m/s';
@@ -4109,7 +3985,6 @@ function renderFlagDays() {
 
 // ========== SECTION VISIBILITY ==========
 const SECTION_DEFS = [
-  { key: 'ai', label: '✨ AI-kuvaus', sel: '#ai-hero' },
   { key: 'mokkiday', label: '🚌 Mökkipäivä', sel: '#mokki-day-card' },
   { key: 'sensor', label: '📡 Live-tila', sel: '#sensor-card', mokki: true },
   { key: 'elec', label: '⚡ Sähkö', sel: '#elec-card', mokki: true },
