@@ -2285,6 +2285,12 @@ async function applySiteSettings() {
         if (s.open_sections.includes(key) && body) {
           body.style.display = '';
           if (chevron) chevron.style.transform = 'rotate(90deg)';
+          // 2026-07-11: kortit joiden sisältö ladataan laiskasti klikatessa
+          // (ks. toggleCardCollapse) eivät saa sisältöään koskaan jos kortti
+          // avataan tätä kautta admin-asetuksella — ne jäivät jumiin
+          // "Ladataan..." -tilaan. Laukaistaan sama lataus kuin klikattaessa.
+          if (key === 'aluekartta') setTimeout(loadAluekartta, 100);
+          if (key === 'veneohje' && !_veneohjeRendered) renderVeneohje();
         }
       });
     }
