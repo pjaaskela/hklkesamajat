@@ -605,7 +605,7 @@ footer strong { color: white; }
 
 </main>
 
-<div class="live-section">
+<div id="vierailija-cards" class="live-section" style="padding-bottom:80px;">
 
 <!-- Hidden placeholders for JS compatibility (removed basic weather grid) -->
 <div style="display:none;">
@@ -623,6 +623,7 @@ footer strong { color: white; }
 </div>
 
   <!-- Levätilanne + Siitepöly -->
+    <div id="algae-card" data-vsec="algae">
   <div class="grid-2 reveal" style="margin-top:16px;">
     <div class="stat-card">
       <div class="stat-label">🌿 Levätilanne</div>
@@ -635,7 +636,9 @@ footer strong { color: white; }
     </div>
   </div>
 
+    </div>
   <!-- Vedenlämpö -->
+    <div id="vedenlampo-card" data-vsec="vedenlampo">
   <div id="vedenlampo" class="card reveal" style="margin-top:16px;">
     <div class="card-title"><span>🌡️</span> Vedenlämpötila</div>
     <div id="laituri-row"></div>
@@ -648,7 +651,9 @@ footer strong { color: white; }
     <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;">Oma laituri: manuaalinen · Muut: UIRAS/FVH · Malli: Open-Meteo</div>
   </div>
 
+    </div>
   <!-- Historiakuvaaja -->
+    <div id="historychart-card" data-vsec="historychart">
   <div id="local-history-chart" class="card reveal" style="margin-top:16px;display:none;">
     <div class="card-title" style="margin-bottom:10px;"><span>📈</span> Lämpötila &amp; kosteus — 48h</div>
     <div style="position:relative;height:180px;">
@@ -657,7 +662,9 @@ footer strong { color: white; }
     <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;">Mökki ulkomittari · Home Assistant</div>
   </div>
 
+    </div>
   <!-- HISTORIA -->
+    <div id="historia-card" data-vsec="historia">
   <div class="section-header reveal" style="margin-top:36px;"><h2 data-i18n="vis_history_title">📜 Historia</h2><div class="divider"></div></div>
   <a href="https://jaaskel.com/historia.pdf" target="_blank" class="card reveal" style="display:block;text-decoration:none;color:inherit;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;background:linear-gradient(135deg,#f8f4e8,#eee8d5);"
      onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,0.14)'"
@@ -673,7 +680,9 @@ footer strong { color: white; }
     </div>
   </a>
 
+    </div>
   <!-- MÖKKIKARTTA -->
+    <div id="mokkikartta-card" data-vsec="mokkikartta">
   <div class="card reveal" style="margin-top:20px;padding:0;overflow:hidden;">
     <a href="https://jaaskel.com/mokkikartta.pdf" target="_blank" style="display:block;text-decoration:none;color:inherit;">
       <div style="padding:18px 22px 10px;">
@@ -685,7 +694,9 @@ footer strong { color: white; }
     </a>
   </div>
 
+    </div>
   <!-- KARTTA -->
+    <div id="kartta-card" data-vsec="kartta">
   <div id="kartta" class="section-header reveal" style="margin-top:16px;"><h2 data-i18n="vis_location">🗺️ Sijainti</h2><div class="divider"></div><p>Lounaisväylänpolku, 00200 Helsinki</p></div>
   <div class="map-container reveal" style="height:380px;">
     <div id="gmap" style="width:100%;height:100%;border-radius:var(--radius);"></div>
@@ -694,10 +705,8 @@ footer strong { color: white; }
     <a href="https://www.google.com/maps/search/?api=1&query=60.15524,24.85453" target="_blank" rel="noopener" style="color:var(--green);">Avaa Google Mapsissa ↗</a>
   </p>
 
-</div>
-
-<!-- PALVELUT + YHDISTYS + VENEPAIKAT + LAJITTELU -->
-<main>
+    </div>
+    <div id="yhdistys-card" data-vsec="yhdistys">
 
   <div class="section-header reveal" style="margin-top:48px;">
     <h2 data-i18n="vis_about">Tietoa yhdistyksestä</h2>
@@ -771,7 +780,9 @@ footer strong { color: white; }
   </div>
 
 
+    </div>
   <!-- VENEPAIKAT -->
+    <div id="venepaikat-card" data-vsec="venepaikat">
   <div class="card reveal" style="margin-top:28px;background:linear-gradient(135deg,#0a4a6e 0%,#1e6b8a 50%,#0e5c3a 100%);color:#fff;padding:0;overflow:hidden;">
     <div style="display:flex;align-items:stretch;">
       <div style="flex:1;padding:28px 24px;">
@@ -803,7 +814,9 @@ footer strong { color: white; }
     </div>
   </div>
 
+    </div>
   <!-- KANNATUSMAKSU -->
+    <div id="kannatus-card" data-vsec="kannatus">
   <div class="card reveal" style="margin-top:28px;background:linear-gradient(135deg,#0e5c3a 0%,#0a4a6e 100%);color:#fff;padding:0;overflow:hidden;">
     <div style="display:flex;align-items:stretch;">
       <div style="flex:1;padding:28px 24px;">
@@ -836,7 +849,9 @@ footer strong { color: white; }
     </div>
   </div>
 
+    </div>
   <!-- LÄHIPALVELUT -->
+    <div id="lahipalvelut-card" data-vsec="lahipalvelut">
   <div id="buffetti" class="section-header reveal" style="margin-top:28px;"><h2 data-i18n="vis_nearby">🏪 Lähipalvelut</h2><div class="divider"></div><p>Kahvila ja lähimmät palvelut 1,5 km säteellä</p></div>
   <a href="https://kahvilabuffetti.fi" target="_blank" rel="noopener" style="text-decoration:none;display:block;margin-bottom:12px;" class="reveal">
     <div class="card" style="display:flex;gap:20px;align-items:center;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;"
@@ -865,7 +880,9 @@ footer strong { color: white; }
     <div class="skeleton" style="height:36px;border-radius:8px;width:70%;"></div>
   </div>
 
+    </div>
   <!-- HSL -->
+    <div id="hsl-card" data-vsec="hsl">
   <div class="card reveal" style="margin-top:16px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
       <div class="card-title" style="margin-bottom:0;"><span>🚌</span> Julkinen liikenne</div>
@@ -884,7 +901,9 @@ footer strong { color: white; }
     <div style="font-size:0.68rem;color:var(--text-muted);margin-top:8px;">HSL Digitransit · 🟢 = reaaliaikainen</div>
   </div>
 
+    </div>
   <!-- UUTISET -->
+    <div id="uutiset-card" data-vsec="uutiset">
   <div id="uutiset" class="section-header reveal" style="margin-top:48px;">
     <h2 data-i18n="vis_media">📰 Media & uutiset</h2>
     <div class="divider"></div>
@@ -899,7 +918,8 @@ footer strong { color: white; }
 
 
 
-</main>
+    </div>
+</div><!-- /vierailija-cards -->
 
 <!-- ADMIN -->
 <div id="admin-panel" style="display:none;background:#1a2e22;color:white;padding:32px 20px;">
@@ -1543,7 +1563,30 @@ fetch(API_BASE + '/api/hkl/site-settings').then(r => r.json()).then(s => {
   if (s.venepaikka_asukas) document.getElementById('vp-hinta-asukas').textContent = s.venepaikka_asukas + '€';
   if (s.venepaikka_ulkopuolinen) document.getElementById('vp-hinta-ulkopuolinen').textContent = s.venepaikka_ulkopuolinen + '€';
   _applyBufSettings(s);
+  applyVisitorSections(s);
 }).catch(() => { renderBuffettiStatus(); });
+
+// Vierailijasivun osioiden admin-hallinta (piilotus + järjestely) — asetukset
+// tulevat samasta site-settings-objektista omilla avaimillaan, jotta ne eivät
+// sekoitu mökkisivun asetuksiin. 2026-07-13.
+function applyVisitorSections(s) {
+  try {
+    const hidden = s.vierailija_hidden_sections || [];
+    hidden.forEach(key => {
+      const el = document.getElementById(key + '-card');
+      if (el) el.style.display = 'none';
+    });
+    const order = s.vierailija_section_order || [];
+    if (order.length) {
+      const container = document.getElementById('vierailija-cards');
+      if (container) {
+        const cards = {};
+        container.querySelectorAll('[data-vsec]').forEach(c => { cards[c.getAttribute('data-vsec')] = c; });
+        order.forEach(key => { if (cards[key]) container.appendChild(cards[key]); });
+      }
+    }
+  } catch (e) {}
+}
 setInterval(loadHSL, 60_000);
 setInterval(renderBuffettiStatus, 60_000);
 

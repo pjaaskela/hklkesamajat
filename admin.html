@@ -735,6 +735,16 @@ textarea.inp{resize:vertical;min-height:72px}
         <div id="set-sections" style="display:flex;flex-direction:column;gap:4px;"></div>
       </div>
 
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-head">👋 Vierailijasivun osiot</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:6px;">☰ Vedä järjestääksesi · "Piilota" = osio ei näy vierailijasivulla lainkaan.</p>
+        <div style="display:flex;gap:10px;padding:0 10px 4px;font-size:11px;color:var(--muted);">
+          <span style="width:16px;"></span><span style="width:16px;"></span><span style="flex:1;"></span>
+          <span style="width:56px;text-align:center;">Piilota</span>
+        </div>
+        <div id="set-vis-sections" style="display:flex;flex-direction:column;gap:4px;"></div>
+      </div>
+
       <button class="btn btn-primary" onclick="saveSiteSettings()">Tallenna asetukset</button>
       <span id="set-msg" style="margin-left:10px;font-size:12px;"></span>
 
@@ -2240,6 +2250,7 @@ const MOKKI_SECTIONS = [
   // Järjestys vastaa mokki.html:n oikeaa DOM-järjestystä (2026-07-11 käyty
   // koko sivu läpi ja lisätty kaikki #mokki-cards-säiliön kortit tähän).
   {key:'tiedotteet', label:'📢 Tiedotteet (ilmoitusbanneri)'},
+  {key:'areaphoto', label:'📸 Jaa kuva alueesta'},
   {key:'events', label:'📅 Tapahtumat'},
   {key:'sauna', label:'🛁 Yhteissauna'},
   {key:'siivous', label:'🧹 Siivous'},
@@ -2264,6 +2275,24 @@ const MOKKI_SECTIONS = [
   // vaikutelman että näkyvyyttä voisi ohjata kaikille mökkiläisille, vaikka
   // ne ovat aina piilossa muilta kuin mökki 484:ltä data-mokki-suodatuksen
   // kautta riippumatta tästä asetuksesta.
+];
+
+// Vierailijasivun (vierailija.html) hallittavat osiot — vastaa siellä olevia
+// #vierailija-cards-säiliön data-vsec-kortteja (2026-07-13). Vain piilotus +
+// järjestely (ei "auki", koska osiot eivät ole kokoontaitettavia).
+const VISITOR_SECTIONS = [
+  {key:'algae',        label:'🌿 Levätilanne & siitepöly'},
+  {key:'vedenlampo',   label:'🌡️ Vedenlämpötila'},
+  {key:'historychart', label:'📈 Lämpötila & kosteus 48h'},
+  {key:'historia',     label:'📜 Historia'},
+  {key:'mokkikartta',  label:'🏘️ Mökkikartta'},
+  {key:'kartta',       label:'🗺️ Sijainti (kartta)'},
+  {key:'yhdistys',     label:'ℹ️ Tietoa yhdistyksestä & hallitus'},
+  {key:'venepaikat',   label:'⚓ Venepaikat'},
+  {key:'kannatus',     label:'💚 Kannatusmaksu'},
+  {key:'lahipalvelut', label:'🏪 Lähipalvelut'},
+  {key:'hsl',          label:'🚌 Julkinen liikenne'},
+  {key:'uutiset',      label:'📰 Uutiset'},
 ];
 // HUOM 2026-07-10: 'mokkikartta' oli tässä ennen 'aluekartta':n tilalla, mutta
 // mokki.html:n oikea kortin id on #aluekartta-card — vanha avain ei koskaan
@@ -2410,6 +2439,21 @@ async function loadSiteSettings() {
       <span style="width:56px;text-align:center;"><input type="checkbox" data-sec-hide="${s.key}" ${hidden} title="Piilota mökkiläisiltä" style="accent-color:#dc2626;width:16px;height:16px;" onclick="event.stopPropagation()"></span>
     </div>`;
   }).join('');
+
+  // Vierailijasivun osiot (vain piilotus + järjestely)
+  const visHidden = _siteSettings.vierailija_hidden_sections || [];
+  const visOrder = _siteSettings.vierailija_section_order || [];
+  const visOrdered = visOrder.length ? visOrder.map(k=>VISITOR_SECTIONS.find(s=>s.key===k)).filter(Boolean) : [...VISITOR_SECTIONS];
+  VISITOR_SECTIONS.forEach(s => { if (!visOrdered.find(o=>o.key===s.key)) visOrdered.push(s); });
+  const visEl = document.getElementById('set-vis-sections');
+  if (visEl) visEl.innerHTML = visOrdered.map(s => {
+    const hidden = visHidden.includes(s.key) ? 'checked' : '';
+    return `<div draggable="true" data-vsec-key="${s.key}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px;cursor:grab;user-select:none;border:2px solid transparent;" ondragstart="this.style.opacity='0.5';event.dataTransfer.setData('text',this.dataset.vsecKey)" ondragend="this.style.opacity='1'" ondragover="event.preventDefault();this.style.borderColor='var(--green)'" ondragleave="this.style.borderColor='transparent'" ondrop="event.preventDefault();this.style.borderColor='transparent';reorderVisSection(event.dataTransfer.getData('text'),this.dataset.vsecKey)">
+      <span style="color:var(--muted);font-size:12px;cursor:grab;">☰</span>
+      <span style="font-size:13px;flex:1;">${s.label}</span>
+      <span style="width:56px;text-align:center;"><input type="checkbox" data-vsec-hide="${s.key}" ${hidden} title="Piilota vierailijasivulta" style="accent-color:#dc2626;width:16px;height:16px;" onclick="event.stopPropagation()"></span>
+    </div>`;
+  }).join('');
 }
 
 function reorderSection(fromKey, toKey) {
@@ -2417,6 +2461,16 @@ function reorderSection(fromKey, toKey) {
   const items = [...el.children];
   const fromIdx = items.findIndex(i=>i.dataset.secKey===fromKey);
   const toIdx = items.findIndex(i=>i.dataset.secKey===toKey);
+  if (fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return;
+  const moved = items[fromIdx];
+  if (fromIdx < toIdx) items[toIdx].after(moved); else items[toIdx].before(moved);
+}
+
+function reorderVisSection(fromKey, toKey) {
+  const el = document.getElementById('set-vis-sections');
+  const items = [...el.children];
+  const fromIdx = items.findIndex(i=>i.dataset.vsecKey===fromKey);
+  const toIdx = items.findIndex(i=>i.dataset.vsecKey===toKey);
   if (fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return;
   const moved = items[fromIdx];
   if (fromIdx < toIdx) items[toIdx].after(moved); else items[toIdx].before(moved);
@@ -2432,6 +2486,13 @@ async function saveSiteSettings() {
     if (cb && cb.checked) openSections.push(row.dataset.secKey);
     const hb = row.querySelector('input[data-sec-hide]');
     if (hb && hb.checked) hiddenSections.push(row.dataset.secKey);
+  });
+  const visHiddenSections = [];
+  const visSectionOrder = [];
+  document.querySelectorAll('#set-vis-sections [data-vsec-key]').forEach(row => {
+    visSectionOrder.push(row.dataset.vsecKey);
+    const hb = row.querySelector('input[data-vsec-hide]');
+    if (hb && hb.checked) visHiddenSections.push(row.dataset.vsecKey);
   });
   const settings = {
     venepaikka_asukas: parseInt(document.getElementById('set-hinta-asukas').value) || 300,
@@ -2456,6 +2517,8 @@ async function saveSiteSettings() {
     open_sections: openSections,
     hidden_sections: hiddenSections,
     section_order: sectionOrder,
+    vierailija_hidden_sections: visHiddenSections,
+    vierailija_section_order: visSectionOrder,
   };
   try {
     const r = await fetch(API_BASE+'/api/hkl/site-settings', {

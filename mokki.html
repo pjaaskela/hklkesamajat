@@ -747,8 +747,6 @@ body { padding-top: 48px; }
       </div>
     </div>
 
-    <!-- KUVIEN LÄHETYS -->
-    <button onclick="openAreaPhotoModal()" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px dashed var(--green);background:var(--green-pale);color:var(--green);font-weight:700;font-size:0.85rem;cursor:pointer;text-align:left;">📸 Jaa kuva alueesta → näkyy vierailija-galleriassa</button>
 
     <!-- 1. MÖKKI STATUS CARD -->
     <div class="card" id="sensor-card" data-mokki="484">
@@ -887,6 +885,14 @@ body { padding-top: 48px; }
     <div id="tiedotteet-card" style="display:none;background:#1a3522;border-bottom:2px solid #52b788;border-radius:10px;margin:0 16px 12px;padding:12px 16px;">
       <div style="font-size:0.7rem;font-weight:700;color:#52b788;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">📢 Tiedotteet</div>
       <div id="ann-mokki-items" style="display:flex;flex-direction:column;gap:6px;color:rgba(255,255,255,0.5);font-size:0.8rem;"></div>
+    </div>
+
+    <!-- JAA KUVA ALUEESTA (2026-07-13: siirretty #mokki-cards-säiliön sisään ja
+         käärittiin id="areaphoto-card":iin, jotta admin voi piilottaa/järjestää
+         sen kuten muutkin mökkiläisen osiot — backlog "kaikki mökkiläisen
+         elementit hallittavaksi"). -->
+    <div id="areaphoto-card" style="margin:0 16px 12px;">
+      <button onclick="openAreaPhotoModal()" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px dashed var(--green);background:var(--green-pale);color:var(--green);font-weight:700;font-size:0.85rem;cursor:pointer;text-align:left;">📸 Jaa kuva alueesta → näkyy vierailija-galleriassa</button>
     </div>
 
     <!-- TAPAHTUMAT -->
