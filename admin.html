@@ -347,7 +347,41 @@ textarea.inp{resize:vertical;min-height:72px}
 
 <!-- VIESTIPOHJAT -->
 <div id="sec-viestit" class="sec-page">
-  <div class="page-title">✉️ Viestipohjat</div>
+  <div class="page-title">✉️ Viestit</div>
+
+  <!-- LÄHETÄ VIESTI (kohdennettu, 2026-07-13) -->
+  <div class="card" style="border:2px solid var(--green);margin-bottom:24px;">
+    <div class="card-title">📨 Lähetä viesti mökkiläisille</div>
+    <p style="color:var(--muted);font-size:12px;margin:0 0 12px">Valitse vastaanottajat, kirjoita viesti ja lähetä. Lähetä ensin testi itsellesi.</p>
+    <div class="field">
+      <label>VASTAANOTTAJAT</label>
+      <select class="inp" id="sm-target" onchange="smTargetChanged()">
+        <option value="all">👥 Kaikki mökkiläiset</option>
+        <option value="interest:lammitys">🔥 Lämmityksestä kiinnostuneet</option>
+        <option value="interest:kamera">📷 Kamerasta kiinnostuneet</option>
+        <option value="interest:sahko">⚡ Sähköstä kiinnostuneet</option>
+        <option value="interest:aurinkopaneeli">☀️ Aurinkopaneelista kiinnostuneet</option>
+        <option value="interest:sensorit">📡 Sensoreista kiinnostuneet</option>
+        <option value="cottage">🏠 Yksittäiset mökit (numerot)</option>
+      </select>
+    </div>
+    <div class="field" id="sm-cottage-field" style="display:none">
+      <label>MÖKKIEN NUMEROT <span style="font-size:10px;color:var(--muted);font-weight:400;">(pilkulla erotettuna, esim. 484, 12, 305)</span></label>
+      <input class="inp" id="sm-cottages" placeholder="484, 12, 305" oninput="smUpdateCount()">
+    </div>
+    <div id="sm-count" style="font-size:13px;color:var(--green);font-weight:600;margin-bottom:12px">Vastaanottajia: …</div>
+    <div class="field"><label>AIHE</label><input class="inp" id="sm-subject" maxlength="150" placeholder="esim. Lämmitysremontti-info"></div>
+    <div class="field"><label>VIESTI <span style="font-size:10px;color:var(--muted);font-weight:400;">(tyhjä rivi = uusi kappale)</span></label>
+      <textarea class="inp" id="sm-message" rows="8" placeholder="Hei,&#10;&#10;..."></textarea>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <button class="btn btn-ghost btn-sm" onclick="sendMessage(true)">✉️ Lähetä testi itselleni</button>
+      <button class="btn btn-primary" onclick="sendMessage(false)">📨 Lähetä viesti</button>
+      <span class="msg" id="sm-msg" style="margin-left:6px"></span>
+    </div>
+  </div>
+
+  <div class="card-title" style="margin-top:8px;">Viestipohjat (kutsut & muistutukset)</div>
   <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Kutsu- ja muistutusviestien pohjat. Näkyvät valittavina Mökit-sivun kutsu- ja joukkolähetystoiminnoissa. Aihe ja alkuteksti ovat muokattavissa, muu sisältö (mökin numero, ominaisuudet, nappi, allekirjoitus) pysyy samana kaikissa pohjissa.</p>
   <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
     <button class="btn btn-primary btn-sm" onclick="openTemplateEdit(null)">➕ Uusi viestipohja</button>
@@ -1048,7 +1082,7 @@ function nav(sec){
   document.getElementById('sec-'+sec).classList.add('active');
   document.querySelectorAll('.sidenav a[data-sec]').forEach(a=>a.classList.toggle('active',a.dataset.sec===sec));
   if(sec==='mokkit'){loadMokit();loadTemplates();}
-  if(sec==='viestit')loadTemplates();
+  if(sec==='viestit'){loadTemplates();smUpdateCount();}
   if(sec==='dokumentit')loadDocs();
   if(sec==='ilmoitukset')loadListings();
   if(sec==='vesiverkko')loadWaterNetwork();
@@ -2609,6 +2643,58 @@ async function massInvite(target) {
   }
   msg.textContent = `✅ Valmis: ${sent} lähetetty, ${failed} epäonnistui`;
   msg.style.color = 'var(--green)';
+}
+
+// --- Lähetä viesti (kohdennettu, 2026-07-13) ---
+function smParseTarget(){
+  const v = document.getElementById('sm-target').value;
+  if(v==='all') return {type:'all', value:''};
+  if(v==='cottage') return {type:'cottage', value:(document.getElementById('sm-cottages').value||'').trim()};
+  if(v.startsWith('interest:')) return {type:'interest', value:v.slice(9)};
+  return {type:'all', value:''};
+}
+function smTargetChanged(){
+  const v = document.getElementById('sm-target').value;
+  document.getElementById('sm-cottage-field').style.display = (v==='cottage') ? '' : 'none';
+  smUpdateCount();
+}
+let _smCountTimer;
+function smUpdateCount(){
+  clearTimeout(_smCountTimer);
+  _smCountTimer = setTimeout(async ()=>{
+    const t = smParseTarget();
+    const el = document.getElementById('sm-count');
+    if(!el) return;
+    if(t.type==='cottage' && !t.value){ el.textContent='Vastaanottajia: 0 — syötä mökkinumerot'; el.style.color='var(--muted)'; return; }
+    el.textContent='Vastaanottajia: …'; el.style.color='var(--muted)';
+    try{
+      const r = await fetch(`${API_BASE}/api/hkl/send-message/recipients?target_type=${t.type}&target_value=${encodeURIComponent(t.value)}`,{headers:ah()});
+      const d = await r.json();
+      el.textContent = `Vastaanottajia: ${d.count}`;
+      el.style.color = d.count>0 ? 'var(--green)' : 'var(--red)';
+    }catch(e){ el.textContent='Vastaanottajia: (virhe)'; el.style.color='var(--red)'; }
+  }, 300);
+}
+async function sendMessage(test){
+  const subject = document.getElementById('sm-subject').value.trim();
+  const message = document.getElementById('sm-message').value.trim();
+  const t = smParseTarget();
+  if(!subject || !message){ showMsg('sm-msg','❌ Täytä aihe ja viesti', false); return; }
+  if(!test){
+    if(t.type==='cottage' && !t.value){ showMsg('sm-msg','❌ Syötä mökkinumerot', false); return; }
+    let cnt='?';
+    try{ const r=await fetch(`${API_BASE}/api/hkl/send-message/recipients?target_type=${t.type}&target_value=${encodeURIComponent(t.value)}`,{headers:ah()}); cnt=(await r.json()).count; }catch(e){}
+    if(cnt===0){ showMsg('sm-msg','❌ Ei vastaanottajia', false); return; }
+    if(!confirm(`Lähetetään viesti ${cnt} vastaanottajalle.\n\nAihe: ${subject}\n\nLähetetään osoitteesta webmaster@hklkesamajat.fi. Jatketaanko?`)) return;
+  }
+  const msg=document.getElementById('sm-msg');
+  msg.style.color='var(--amber)'; msg.textContent = test ? 'Lähetetään testi…' : 'Lähetetään…';
+  try{
+    const r = await fetch(`${API_BASE}/api/hkl/send-message`, {method:'POST', headers:ah(), body:JSON.stringify({subject, message, target_type:t.type, target_value:t.value, test})});
+    const d = await r.json().catch(()=>({}));
+    if(r.ok && d.ok){ showMsg('sm-msg', test ? `✅ Testi lähetetty webmasterille (${d.sent} kpl)` : `✅ Lähetetty ${d.sent} vastaanottajalle!`, true); }
+    else { showMsg('sm-msg', '❌ Virhe: '+(d.detail||('HTTP '+r.status)), false); }
+  }catch(e){ showMsg('sm-msg','❌ Verkkovirhe', false); }
 }
 
 // --- Viestipohjat ---
