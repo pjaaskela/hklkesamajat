@@ -1514,6 +1514,19 @@ body { padding-top: 48px; }
       </div>
     </div>
 
+    <!-- MEDIA & UUTISET (2026-07-13: tuotu myös mökkiläisen sivulle, sama /api/hkl/news) -->
+    <div class="card" id="uutiset-card" data-collapse="true">
+      <div class="card-header" onclick="toggleCardCollapse('uutiset-card')" style="cursor:pointer;">
+        <div class="card-title">📰 Media &amp; uutiset</div>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
+      </div>
+      <div class="card-body card-collapse-body" style="display:none;">
+        <div id="mokki-news-grid" style="display:flex;flex-direction:column;gap:6px;">
+          <div style="color:var(--text-muted);font-size:0.85rem;">Ladataan…</div>
+        </div>
+      </div>
+    </div>
+
     </div><!-- /mokki-cards -->
 
     <!-- LISÄPALVELUT (compact) -->
@@ -2255,6 +2268,7 @@ async function applySiteSettings() {
           // "Ladataan..." -tilaan. Laukaistaan sama lataus kuin klikattaessa.
           if (key === 'aluekartta') setTimeout(loadAluekartta, 100);
           if (key === 'veneohje' && !_veneohjeRendered) renderVeneohje();
+          if (key === 'uutiset') loadMokkiNews();
         }
       });
     }
@@ -3913,6 +3927,36 @@ function toggleCardCollapse(id) {
     setTimeout(loadAluekartta, 100);
   }
   if (!open && id === 'veneohje-card' && !_veneohjeRendered) renderVeneohje();
+  if (!open && id === 'uutiset-card') loadMokkiNews();
+}
+
+// ========== MEDIA & UUTISET (2026-07-13) ==========
+let _uutisetLoaded = false;
+async function loadMokkiNews() {
+  if (_uutisetLoaded) return;
+  _uutisetLoaded = true;
+  const grid = document.getElementById('mokki-news-grid');
+  if (!grid) return;
+  try {
+    const d = await fetch(API_BASE + '/api/hkl/news').then(r => r.json());
+    const arts = d.articles || [], media = d.media || [];
+    const card = a => {
+      const dateStr = a.date ? new Date(a.date).toLocaleDateString('fi-FI',{day:'numeric',month:'short',year:'numeric'}) : '';
+      return `<a href="${a.url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--sand);text-decoration:none;color:inherit;">`
+        + (a.image ? `<img src="${a.image}" alt="" loading="lazy" style="width:36px;height:36px;object-fit:cover;border-radius:7px;flex-shrink:0;background:#eef3ef;" onerror="this.style.display='none'">` : '')
+        + `<span style="font-size:0.62rem;font-weight:700;text-transform:uppercase;color:var(--green);background:rgba(82,183,136,0.12);padding:2px 6px;border-radius:4px;white-space:nowrap;flex-shrink:0;">${a.source||'Uutinen'}</span>`
+        + `<span style="font-size:0.84rem;font-weight:600;line-height:1.4;flex:1;">${a.title}</span>`
+        + (dateStr ? `<span style="font-size:0.68rem;color:var(--text-muted);white-space:nowrap;flex-shrink:0;">${dateStr}</span>` : '')
+        + `</a>`;
+    };
+    let html = '';
+    if (arts.length) html += '<div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--green);margin-bottom:4px;">🔴 Tuoreet uutiset · Lauttasaari</div>' + arts.map(card).join('');
+    if (media.length) html += '<div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin:12px 0 4px;">📰 Mediaseuranta</div>' + media.map(card).join('');
+    grid.innerHTML = html || '<div style="color:var(--text-muted);font-size:0.85rem;">Ei tuoreita uutisia alueelta.</div>';
+  } catch(e) {
+    grid.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;">Uutisten lataus epäonnistui.</div>';
+    _uutisetLoaded = false;
+  }
 }
 
 // ========== FLAG DAYS (LIPUTUSPÄIVÄT) ==========

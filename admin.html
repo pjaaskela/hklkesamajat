@@ -357,6 +357,7 @@ textarea.inp{resize:vertical;min-height:72px}
       <label>VASTAANOTTAJAT</label>
       <select class="inp" id="sm-target" onchange="smTargetChanged()">
         <option value="all">👥 Kaikki mökkiläiset</option>
+        <option value="pending">🔔 Kirjautumattomat (uudet käyttäjät)</option>
         <option value="interest:lammitys">🔥 Lämmityksestä kiinnostuneet</option>
         <option value="interest:kamera">📷 Kamerasta kiinnostuneet</option>
         <option value="interest:sahko">⚡ Sähköstä kiinnostuneet</option>
@@ -370,6 +371,10 @@ textarea.inp{resize:vertical;min-height:72px}
       <input class="inp" id="sm-cottages" placeholder="484, 12, 305" oninput="smUpdateCount()">
     </div>
     <div id="sm-count" style="font-size:13px;color:var(--green);font-weight:600;margin-bottom:12px">Vastaanottajia: …</div>
+    <div class="field">
+      <label>POHJA <span style="font-size:10px;color:var(--muted);font-weight:400;">(valinnainen — lataa valmis viesti)</span></label>
+      <select class="inp" id="sm-template" onchange="smLoadTemplate()"><option value="">— Kirjoita uusi viesti —</option></select>
+    </div>
     <div class="field"><label>AIHE</label><input class="inp" id="sm-subject" maxlength="150" placeholder="esim. Lämmitysremontti-info"></div>
     <div class="field"><label>VIESTI <span style="font-size:10px;color:var(--muted);font-weight:400;">(tyhjä rivi = uusi kappale)</span></label>
       <textarea class="inp" id="sm-message" rows="8" placeholder="Hei,&#10;&#10;..."></textarea>
@@ -2302,6 +2307,7 @@ const MOKKI_SECTIONS = [
   {key:'hallitus', label:'🏛️ Hallitus'},
   {key:'ilmoitus', label:'📢 Ilmoitukset'},
   {key:'listings', label:'🏡 Osto/myynti'},
+  {key:'uutiset', label:'📰 Media & uutiset'},
   // 2026-07-11: 'camera' (Kamera) ja 'sensor' (Mökki Live-tila) EIVÄT ole
   // tässä listassa tarkoituksella — ne ovat data-mokki="484"-rajattua
   // laitteistoa (Pekan omat kotiautomaatioanturit), eivät yhdistyksen
@@ -2675,6 +2681,25 @@ function smUpdateCount(){
     }catch(e){ el.textContent='Vastaanottajia: (virhe)'; el.style.color='var(--red)'; }
   }, 300);
 }
+function smPopulateTemplates(){
+  const sel=document.getElementById('sm-template');
+  if(!sel) return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— Kirjoita uusi viesti —</option>'
+    + (_data.templates||[]).map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  if(cur) sel.value=cur;
+}
+function smLoadTemplate(){
+  const id=document.getElementById('sm-template').value;
+  if(!id) return;
+  const t=(_data.templates||[]).find(x=>String(x.id)===String(id));
+  if(!t) return;
+  if(t.subject) document.getElementById('sm-subject').value=t.subject.replace('{number}','').trim();
+  let body=(t.intro_html||'');
+  // yksinkertainen HTML → teksti (pohjat voivat olla HTML:ää tai pelkkää tekstiä)
+  body=body.replace(/<\/p>\s*<p[^>]*>/gi,'\n\n').replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').trim();
+  document.getElementById('sm-message').value=body;
+}
 async function sendMessage(test){
   const subject = document.getElementById('sm-subject').value.trim();
   const message = document.getElementById('sm-message').value.trim();
@@ -2703,6 +2728,7 @@ async function loadTemplates() {
     _data.templates = await fetch(API_BASE + '/api/hkl/admin/templates', {headers: ah()}).then(r=>r.json());
     populateTemplateSelect('mass-template');
     populateTemplateSelect('invite-template');
+    smPopulateTemplates();
     renderTemplates();
   } catch(e) {}
 }

@@ -1106,6 +1106,7 @@ async function loadNews() {
     const newsCard = a => {
       const dateStr = a.date ? new Date(a.date).toLocaleDateString('fi-FI',{day:'numeric',month:'short',year:'numeric'}) : '';
       return `<a href="${a.url}" target="_blank" rel="noopener" class="news-card">`
+        + (a.image ? `<img src="${a.image}" alt="" loading="lazy" style="width:38px;height:38px;object-fit:cover;border-radius:7px;flex-shrink:0;background:#eef3ef;" onerror="this.style.display='none'">` : '')
         + `<span class="news-card-source">${a.source || 'Uutinen'}</span>`
         + `<span class="news-card-title">${a.title}</span>`
         + (dateStr ? `<span class="news-card-date">${dateStr}</span>` : '')
