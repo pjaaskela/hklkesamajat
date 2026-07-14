@@ -808,7 +808,8 @@ body { padding-top: 48px; }
           <div style="font-size:0.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">Kosteus</div>
           <canvas id="trend-hum" height="100" style="width:100%;border-radius:8px;background:var(--sand)"></canvas>
           <div style="display:flex;gap:14px;font-size:0.68rem;color:var(--text-muted);margin-top:4px">
-            <span><span style="display:inline-block;width:10px;height:3px;background:#10b981;border-radius:2px;vertical-align:middle"></span> Ulkokosteus</span>
+            <span><span style="display:inline-block;width:10px;height:3px;background:#f59e0b;border-radius:2px;vertical-align:middle"></span> Sisä</span>
+            <span><span style="display:inline-block;width:10px;height:3px;background:#10b981;border-radius:2px;vertical-align:middle"></span> Ulko</span>
             <span id="trend-hum-stats" style="margin-left:auto"></span>
           </div>
         </div>
@@ -2585,6 +2586,7 @@ async function loadSensorTrend() {
     const indoor = parse(d.indoor_temp || []);
     const outdoor = parse(d.outdoor_temp || []);
     const humidity = parse(d.outdoor_humidity || []);
+    const indoorHum = parse(d.indoor_humidity || []);
     if (indoor.length || outdoor.length) {
       const allTemp = [...indoor, ...outdoor];
       const stats = {};
@@ -2607,15 +2609,25 @@ async function loadSensorTrend() {
         {pts: outdoor, color: '#3b82f6', width: 2},
       ], '°C');
     }
-    if (humidity.length > 2) {
-      const vals = humidity.map(p => p.v);
-      document.getElementById('trend-hum-stats').textContent = `${Math.min(...vals).toFixed(0)}–${Math.max(...vals).toFixed(0)} %`;
-      _drawTrend('trend-hum', humidity, [
-        {pts: humidity, color: '#10b981', width: 2},
-      ], '%');
+    const allHum = [...indoorHum, ...humidity];
+    if (allHum.length > 2) {
+      const humStats = [];
+      if (indoorHum.length > 2) {
+        const v = indoorHum.map(p => p.v);
+        humStats.push(`Sisä ${Math.min(...v).toFixed(0)}–${Math.max(...v).toFixed(0)}%`);
+      }
+      if (humidity.length > 2) {
+        const v = humidity.map(p => p.v);
+        humStats.push(`Ulko ${Math.min(...v).toFixed(0)}–${Math.max(...v).toFixed(0)}%`);
+      }
+      document.getElementById('trend-hum-stats').textContent = humStats.join(' · ');
+      const series = [];
+      if (indoorHum.length > 2) series.push({pts: indoorHum, color: '#f59e0b', width: 2});
+      if (humidity.length > 2) series.push({pts: humidity, color: '#10b981', width: 2});
+      _drawTrend('trend-hum', allHum, series, '%');
     }
     if (indoor.length || outdoor.length) {
-      const all = [...indoor, ...outdoor, ...humidity];
+      const all = [...indoor, ...outdoor, ...humidity, ...indoorHum];
       const t0 = new Date(Math.min(...all.map(p=>p.t)));
       const t1 = new Date(Math.max(...all.map(p=>p.t)));
       const fmt = d => d.toLocaleDateString('fi-FI',{day:'numeric',month:'numeric'});
