@@ -376,7 +376,17 @@ textarea.inp{resize:vertical;min-height:72px}
       <label>MÖKKIEN NUMEROT <span style="font-size:10px;color:var(--muted);font-weight:400;">(pilkulla erotettuna, esim. 484, 12, 305)</span></label>
       <input class="inp" id="sm-cottages" placeholder="484, 12, 305" oninput="smUpdateCount()">
     </div>
-    <div id="sm-count" style="font-size:13px;color:var(--green);font-weight:600;margin-bottom:12px">Vastaanottajia: …</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <div id="sm-count" style="font-size:13px;color:var(--green);font-weight:600">Vastaanottajia: …</div>
+      <button class="btn btn-ghost btn-sm" onclick="smShowEmails()" style="font-size:11px;padding:3px 10px">📋 Näytä sähköpostit</button>
+    </div>
+    <div id="sm-email-list" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;font-family:var(--mono);max-height:180px;overflow-y:auto;line-height:1.8">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em" id="sm-email-header">Sähköpostilista</span>
+        <button class="btn btn-ghost btn-sm" onclick="smCopyEmails()" style="font-size:10px;padding:2px 8px">📋 Kopioi</button>
+      </div>
+      <div id="sm-email-content"></div>
+    </div>
     <div class="field">
       <label>POHJA <span style="font-size:10px;color:var(--muted);font-weight:400;">(valinnainen — lataa valmis viesti)</span></label>
       <select class="inp" id="sm-template" onchange="smLoadTemplate()"><option value="">— Kirjoita uusi viesti —</option></select>
@@ -2689,7 +2699,32 @@ function smUpdateCount(){
       el.textContent = `Vastaanottajia: ${d.count}`;
       el.style.color = d.count>0 ? 'var(--green)' : 'var(--red)';
     }catch(e){ el.textContent='Vastaanottajia: (virhe)'; el.style.color='var(--red)'; }
+    document.getElementById('sm-email-list').style.display='none';
   }, 300);
+}
+async function smShowEmails(){
+  const t = smParseTarget();
+  const box = document.getElementById('sm-email-list');
+  const content = document.getElementById('sm-email-content');
+  const header = document.getElementById('sm-email-header');
+  content.textContent = 'Ladataan…';
+  box.style.display = '';
+  try{
+    const r = await fetch(`${API_BASE}/api/hkl/send-message/recipients?target_type=${t.type}&target_value=${encodeURIComponent(t.value)}&show_email=true`,{headers:ah()});
+    const d = await r.json();
+    if(!d.recipients||!d.recipients.length){ content.textContent='Ei vastaanottajia'; return; }
+    header.textContent = `Sähköpostilista (${d.count} kpl)`;
+    content.innerHTML = d.recipients.map(r=>`<div>${r.email} <span style="color:var(--muted);font-size:10px">(${r.number} ${r.name})</span></div>`).join('');
+  }catch(e){ content.textContent='Virhe: '+e.message; }
+}
+function smCopyEmails(){
+  const content = document.getElementById('sm-email-content');
+  const emails = Array.from(content.querySelectorAll('div')).map(d=>d.textContent.split(' (')[0].trim()).join(', ');
+  navigator.clipboard.writeText(emails).then(()=>{
+    const btn = content.parentElement.querySelector('button:last-child');
+    btn.textContent='✅ Kopioitu!';
+    setTimeout(()=>{btn.textContent='📋 Kopioi';},2000);
+  });
 }
 function smPopulateTemplates(){
   const sel=document.getElementById('sm-template');
