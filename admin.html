@@ -154,7 +154,7 @@ textarea.inp{resize:vertical;min-height:72px}
     <a href="#" onclick="return nav('tiedotteet')" data-sec="tiedotteet">📢 Tiedotteet</a>
     <a href="#" onclick="return nav('laituri')" data-sec="laituri">🌊 Laituri-kirjaukset</a>
     <a href="#" onclick="return nav('mokkit')" data-sec="mokkit">🏠 Mökit</a>
-    <a href="#" onclick="return nav('viestit')" data-sec="viestit">✉️ Viestipohjat</a>
+    <a href="#" onclick="return nav('viestit')" data-sec="viestit">✉️ Viestit</a>
     <a href="#" onclick="return nav('ilmoitukset')" data-sec="ilmoitukset">🏡 Ilmoitukset</a>
     <a href="#" onclick="return nav('dokumentit')" data-sec="dokumentit">📄 Dokumentit</a>
     <a href="#" onclick="return nav('kartta')" data-sec="kartta">🗺️ Kartta & pisteet</a>
@@ -323,12 +323,7 @@ textarea.inp{resize:vertical;min-height:72px}
       <option value="int:sahko">⚡ Sähkö</option>
       <option value="int:sensorit">📡 Sensorit</option>
     </select>
-    <select class="inp" id="mass-template" style="width:auto;min-width:180px;"></select>
-    <button class="btn btn-primary btn-sm" onclick="massInvite('all')">📨 Lähetä kaikille</button>
-    <button class="btn btn-ghost btn-sm" onclick="massInvite('hallitus')">📨 Hallitukselle</button>
-    <button class="btn btn-ghost btn-sm" onclick="massInvite('pending')">📨 Odottaville</button>
   </div>
-  <div id="mass-msg" style="font-size:12px;min-height:1.2em;margin-bottom:8px;"></div>
   <div style="display:flex;gap:4px;margin-bottom:14px;">
     <div class="tab active" id="mokki-view-kortit" onclick="setMokkiView('kortit',this)">🗂️ Kortit</div>
     <div class="tab" id="mokki-view-login" onclick="setMokkiView('kirjautuminen',this)">🕒 Kirjautumistilanne</div>
@@ -349,65 +344,101 @@ textarea.inp{resize:vertical;min-height:72px}
 <div id="sec-viestit" class="sec-page">
   <div class="page-title">✉️ Viestit</div>
 
-  <!-- LÄHETÄ VIESTI (kohdennettu, 2026-07-13) -->
-  <div class="card" style="border:2px solid var(--green);margin-bottom:24px;">
-    <div class="card-title">📨 Lähetä viesti mökkiläisille</div>
-    <p style="color:var(--muted);font-size:12px;margin:0 0 12px">Valitse vastaanottajat, kirjoita viesti ja lähetä. Lähetä ensin testi itsellesi.</p>
-    <div class="field">
-      <label>VASTAANOTTAJAT</label>
-      <select class="inp" id="sm-target" onchange="smTargetChanged()">
-        <option value="all">👥 Kaikki mökkiläiset</option>
-        <option value="pending">🔔 Ei rekisteröityneet (kutsu lähettämättä/avaamatta)</option>
-        <option value="registered_no_login">📋 Rekisteröityneet, eivät kirjautuneet</option>
-        <option value="logged_in">✅ Kirjautuneet käyttäjät</option>
-        <option value="role:hallitus">🏛️ Hallitus</option>
-        <option value="role:asukas">🏠 Asukkaat</option>
-        <option value="role:venevastaava">⚓ Venevastaavat</option>
-        <option value="role:huolto">🔧 Huolto</option>
-        <option value="interest:lammitys">🔥 Lämmityksestä kiinnostuneet</option>
-        <option value="interest:kamera">📷 Kamerasta kiinnostuneet</option>
-        <option value="interest:sahko">⚡ Sähköstä kiinnostuneet</option>
-        <option value="interest:aurinkopaneeli">☀️ Aurinkopaneelista kiinnostuneet</option>
-        <option value="interest:sensorit">📡 Sensoreista kiinnostuneet</option>
-        <option value="cottage">🏠 Yksittäiset mökit (numerot)</option>
-      </select>
-    </div>
-    <div class="field" id="sm-cottage-field" style="display:none">
-      <label>MÖKKIEN NUMEROT <span style="font-size:10px;color:var(--muted);font-weight:400;">(pilkulla erotettuna, esim. 484, 12, 305)</span></label>
-      <input class="inp" id="sm-cottages" placeholder="484, 12, 305" oninput="smUpdateCount()">
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-      <div id="sm-count" style="font-size:13px;color:var(--green);font-weight:600">Vastaanottajia: …</div>
-      <button class="btn btn-ghost btn-sm" onclick="smShowEmails()" style="font-size:11px;padding:3px 10px">📋 Näytä sähköpostit</button>
-    </div>
-    <div id="sm-email-list" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;font-family:var(--mono);max-height:180px;overflow-y:auto;line-height:1.8">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em" id="sm-email-header">Sähköpostilista</span>
-        <button class="btn btn-ghost btn-sm" onclick="smCopyEmails()" style="font-size:10px;padding:2px 8px">📋 Kopioi</button>
+  <div style="display:flex;gap:4px;margin-bottom:18px;">
+    <div class="tab active" id="msg-tab-send" onclick="setMsgTab('send',this)">📨 Lähetä viesti</div>
+    <div class="tab" id="msg-tab-invite" onclick="setMsgTab('invite',this)">🔗 Kutsulinkit</div>
+    <div class="tab" id="msg-tab-templates" onclick="setMsgTab('templates',this)">📋 Viestipohjat</div>
+  </div>
+
+  <!-- TAB: Lähetä viesti -->
+  <div id="msg-panel-send">
+    <div class="card" style="border:2px solid var(--green);">
+      <div class="card-title">📨 Lähetä viesti mökkiläisille</div>
+      <p style="color:var(--muted);font-size:12px;margin:0 0 12px">Valitse vastaanottajat, kirjoita viesti ja lähetä. Lähetä ensin testi itsellesi.</p>
+      <div class="field">
+        <label>VASTAANOTTAJAT</label>
+        <select class="inp" id="sm-target" onchange="smTargetChanged()">
+          <option value="all">👥 Kaikki mökkiläiset</option>
+          <option value="pending">🔔 Ei rekisteröityneet (kutsu lähettämättä/avaamatta)</option>
+          <option value="registered_no_login">📋 Rekisteröityneet, eivät kirjautuneet</option>
+          <option value="logged_in">✅ Kirjautuneet käyttäjät</option>
+          <option value="role:hallitus">🏛️ Hallitus</option>
+          <option value="role:asukas">🏠 Asukkaat</option>
+          <option value="role:venevastaava">⚓ Venevastaavat</option>
+          <option value="role:huolto">🔧 Huolto</option>
+          <option value="interest:lammitys">🔥 Lämmityksestä kiinnostuneet</option>
+          <option value="interest:kamera">📷 Kamerasta kiinnostuneet</option>
+          <option value="interest:sahko">⚡ Sähköstä kiinnostuneet</option>
+          <option value="interest:aurinkopaneeli">☀️ Aurinkopaneelista kiinnostuneet</option>
+          <option value="interest:sensorit">📡 Sensoreista kiinnostuneet</option>
+          <option value="cottage">🏠 Yksittäiset mökit (numerot)</option>
+        </select>
       </div>
-      <div id="sm-email-content"></div>
-    </div>
-    <div class="field">
-      <label>POHJA <span style="font-size:10px;color:var(--muted);font-weight:400;">(valinnainen — lataa valmis viesti)</span></label>
-      <select class="inp" id="sm-template" onchange="smLoadTemplate()"><option value="">— Kirjoita uusi viesti —</option></select>
-    </div>
-    <div class="field"><label>AIHE</label><input class="inp" id="sm-subject" maxlength="150" placeholder="esim. Lämmitysremontti-info"></div>
-    <div class="field"><label>VIESTI <span style="font-size:10px;color:var(--muted);font-weight:400;">(tyhjä rivi = uusi kappale)</span></label>
-      <textarea class="inp" id="sm-message" rows="8" placeholder="Hei,&#10;&#10;..."></textarea>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-      <button class="btn btn-ghost btn-sm" onclick="sendMessage(true)">✉️ Lähetä testi itselleni</button>
-      <button class="btn btn-primary" onclick="sendMessage(false)">📨 Lähetä viesti</button>
-      <span class="msg" id="sm-msg" style="margin-left:6px"></span>
+      <div class="field" id="sm-cottage-field" style="display:none">
+        <label>MÖKKIEN NUMEROT <span style="font-size:10px;color:var(--muted);font-weight:400;">(pilkulla erotettuna, esim. 484, 12, 305)</span></label>
+        <input class="inp" id="sm-cottages" placeholder="484, 12, 305" oninput="smUpdateCount()">
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div id="sm-count" style="font-size:13px;color:var(--green);font-weight:600">Vastaanottajia: …</div>
+        <button class="btn btn-ghost btn-sm" onclick="smShowEmails()" style="font-size:11px;padding:3px 10px">📋 Näytä sähköpostit</button>
+      </div>
+      <div id="sm-email-list" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;font-family:var(--mono);max-height:180px;overflow-y:auto;line-height:1.8">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em" id="sm-email-header">Sähköpostilista</span>
+          <button class="btn btn-ghost btn-sm" onclick="smCopyEmails()" style="font-size:10px;padding:2px 8px">📋 Kopioi</button>
+        </div>
+        <div id="sm-email-content"></div>
+      </div>
+      <div class="field">
+        <label>POHJA <span style="font-size:10px;color:var(--muted);font-weight:400;">(valinnainen — lataa valmis viesti)</span></label>
+        <select class="inp" id="sm-template" onchange="smLoadTemplate()"><option value="">— Kirjoita uusi viesti —</option></select>
+      </div>
+      <div class="field"><label>AIHE</label><input class="inp" id="sm-subject" maxlength="150" placeholder="esim. Lämmitysremontti-info"></div>
+      <div class="field"><label>VIESTI <span style="font-size:10px;color:var(--muted);font-weight:400;">(tyhjä rivi = uusi kappale)</span></label>
+        <textarea class="inp" id="sm-message" rows="8" placeholder="Hei,&#10;&#10;..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-ghost btn-sm" onclick="sendMessage(true)">✉️ Lähetä testi itselleni</button>
+        <button class="btn btn-primary" onclick="sendMessage(false)">📨 Lähetä viesti</button>
+        <span class="msg" id="sm-msg" style="margin-left:6px"></span>
+      </div>
     </div>
   </div>
 
-  <div class="card-title" style="margin-top:8px;">Viestipohjat (kutsut & muistutukset)</div>
-  <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Kutsu- ja muistutusviestien pohjat. Näkyvät valittavina Mökit-sivun kutsu- ja joukkolähetystoiminnoissa. Aihe ja alkuteksti ovat muokattavissa, muu sisältö (mökin numero, ominaisuudet, nappi, allekirjoitus) pysyy samana kaikissa pohjissa.</p>
-  <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
-    <button class="btn btn-primary btn-sm" onclick="openTemplateEdit(null)">➕ Uusi viestipohja</button>
+  <!-- TAB: Kutsulinkit -->
+  <div id="msg-panel-invite" style="display:none">
+    <div class="card" style="border:2px solid var(--amber);">
+      <div class="card-title">🔗 Lähetä kutsulinkit sähköpostilla</div>
+      <p style="color:var(--muted);font-size:12px;margin:0 0 12px">Lähettää henkilökohtaisen kutsulinkin (72h voimassa) jokaiselle vastaanottajalle valitulla viestipohjalla.</p>
+      <div class="form-row" style="align-items:flex-end;">
+        <div class="field" style="flex:1">
+          <label>KOHDERYHMÄ</label>
+          <select class="inp" id="invite-target">
+            <option value="all">👥 Kaikki (joilla sähköposti)</option>
+            <option value="hallitus">🏛️ Hallitus</option>
+            <option value="pending">🔔 Ei rekisteröityneet</option>
+          </select>
+        </div>
+        <div class="field" style="flex:1">
+          <label>VIESTIPOHJA</label>
+          <select class="inp" id="invite-template"></select>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-primary" onclick="massInvite()">📨 Lähetä kutsulinkit</button>
+        <span class="msg" id="mass-msg" style="margin-left:6px"></span>
+      </div>
+    </div>
   </div>
-  <div id="template-list" style="display:grid;gap:12px;"></div>
+
+  <!-- TAB: Viestipohjat -->
+  <div id="msg-panel-templates" style="display:none">
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Kutsu- ja muistutusviestien pohjat. Valittavissa kutsulinkkien ja viestien lähetyksessä.</p>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+      <button class="btn btn-primary btn-sm" onclick="openTemplateEdit(null)">➕ Uusi viestipohja</button>
+    </div>
+    <div id="template-list" style="display:grid;gap:12px;"></div>
+  </div>
 </div>
 
 <!-- VIESTIPOHJA-MODAL -->
@@ -2640,15 +2671,25 @@ async function loadAdminEvents() {
   } catch(e) { el.innerHTML='<div class="tbl-empty">Virhe ladattaessa</div>'; }
 }
 
-async function massInvite(target) {
+function setMsgTab(tab, el){
+  ['send','invite','templates'].forEach(t=>{
+    const panel=document.getElementById('msg-panel-'+t);
+    const tabEl=document.getElementById('msg-tab-'+t);
+    if(panel) panel.style.display = t===tab ? '' : 'none';
+    if(tabEl) tabEl.className = t===tab ? 'tab active' : 'tab';
+  });
+}
+
+async function massInvite() {
+  const target = document.getElementById('invite-target').value;
   let cottages = _data.mokkit.filter(c => (c.rooli||'asukas') !== 'ulkopuolinen');
   if (target === 'hallitus') cottages = cottages.filter(c => (c.rooli||'asukas') === 'hallitus');
   else if (target === 'pending') cottages = cottages.filter(c => !c.password_changed);
   const withEmail = cottages.filter(c => c.email);
-  if (!withEmail.length) { document.getElementById('mass-msg').textContent = '❌ Ei mökkejä joilla on sähköposti'; return; }
-  const templateId = document.getElementById('mass-template').value || null;
-  const label = target === 'hallitus' ? 'hallituksen jäsenille' : target === 'pending' ? 'odottaville' : 'kaikille';
-  if (!confirm(`Lähetetään kutsulinkki ${withEmail.length} mökkiläiselle (${label})?\n\nSähköposti lähetetään osoitteesta webmaster@hklkesamajat.fi.`)) return;
+  if (!withEmail.length) { showMsg('mass-msg','❌ Ei mökkejä joilla on sähköposti', false); return; }
+  const templateId = document.getElementById('invite-template').value || null;
+  const labels = {'hallitus':'hallituksen jäsenille','pending':'odottaville','all':'kaikille'};
+  if (!confirm(`Lähetetään kutsulinkki ${withEmail.length} mökkiläiselle (${labels[target]||target})?\n\nSähköposti lähetetään osoitteesta webmaster@hklkesamajat.fi.`)) return;
   const msg = document.getElementById('mass-msg');
   msg.textContent = `Lähetetään... 0/${withEmail.length}`;
   msg.style.color = 'var(--amber)';
@@ -2771,7 +2812,6 @@ async function sendMessage(test){
 async function loadTemplates() {
   try {
     _data.templates = await fetch(API_BASE + '/api/hkl/admin/templates', {headers: ah()}).then(r=>r.json());
-    populateTemplateSelect('mass-template');
     populateTemplateSelect('invite-template');
     smPopulateTemplates();
     renderTemplates();
