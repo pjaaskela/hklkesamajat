@@ -357,7 +357,13 @@ textarea.inp{resize:vertical;min-height:72px}
       <label>VASTAANOTTAJAT</label>
       <select class="inp" id="sm-target" onchange="smTargetChanged()">
         <option value="all">👥 Kaikki mökkiläiset</option>
-        <option value="pending">🔔 Kirjautumattomat (uudet käyttäjät)</option>
+        <option value="pending">🔔 Ei rekisteröityneet (kutsu lähettämättä/avaamatta)</option>
+        <option value="registered_no_login">📋 Rekisteröityneet, eivät kirjautuneet</option>
+        <option value="logged_in">✅ Kirjautuneet käyttäjät</option>
+        <option value="role:hallitus">🏛️ Hallitus</option>
+        <option value="role:asukas">🏠 Asukkaat</option>
+        <option value="role:venevastaava">⚓ Venevastaavat</option>
+        <option value="role:huolto">🔧 Huolto</option>
         <option value="interest:lammitys">🔥 Lämmityksestä kiinnostuneet</option>
         <option value="interest:kamera">📷 Kamerasta kiinnostuneet</option>
         <option value="interest:sahko">⚡ Sähköstä kiinnostuneet</option>
@@ -2655,8 +2661,12 @@ async function massInvite(target) {
 function smParseTarget(){
   const v = document.getElementById('sm-target').value;
   if(v==='all') return {type:'all', value:''};
+  if(v==='pending') return {type:'pending', value:''};
+  if(v==='registered_no_login') return {type:'registered_no_login', value:''};
+  if(v==='logged_in') return {type:'logged_in', value:''};
   if(v==='cottage') return {type:'cottage', value:(document.getElementById('sm-cottages').value||'').trim()};
   if(v.startsWith('interest:')) return {type:'interest', value:v.slice(9)};
+  if(v.startsWith('role:')) return {type:'role', value:v.slice(5)};
   return {type:'all', value:''};
 }
 function smTargetChanged(){

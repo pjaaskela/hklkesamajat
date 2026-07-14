@@ -788,6 +788,33 @@ body { padding-top: 48px; }
       </div>
     </div>
 
+    <!-- 1b. SENSOR TREND (7 days) -->
+    <div class="card" id="trend-card" style="display:none">
+      <div class="card-header">
+        <div class="card-title">📈 7 päivän trendi</div>
+        <span style="font-size:0.72rem;color:var(--text-muted);" id="trend-range"></span>
+      </div>
+      <div class="card-body" style="padding:8px 12px 12px">
+        <div style="margin-bottom:6px">
+          <div style="font-size:0.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">Lämpötila</div>
+          <canvas id="trend-temp" height="120" style="width:100%;border-radius:8px;background:var(--sand)"></canvas>
+          <div style="display:flex;gap:14px;font-size:0.68rem;color:var(--text-muted);margin-top:4px">
+            <span><span style="display:inline-block;width:10px;height:3px;background:#ef4444;border-radius:2px;vertical-align:middle"></span> Sisä</span>
+            <span><span style="display:inline-block;width:10px;height:3px;background:#3b82f6;border-radius:2px;vertical-align:middle"></span> Ulko</span>
+            <span id="trend-temp-stats" style="margin-left:auto"></span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:0.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px">Kosteus</div>
+          <canvas id="trend-hum" height="100" style="width:100%;border-radius:8px;background:var(--sand)"></canvas>
+          <div style="display:flex;gap:14px;font-size:0.68rem;color:var(--text-muted);margin-top:4px">
+            <span><span style="display:inline-block;width:10px;height:3px;background:#10b981;border-radius:2px;vertical-align:middle"></span> Ulkokosteus</span>
+            <span id="trend-hum-stats" style="margin-left:auto"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 2. SÄHKÖNKULUTUS CARD -->
     <div class="card" id="elec-card" data-mokki="484">
       <div class="card-header">
@@ -2470,6 +2497,7 @@ function showDashboard(num) {
 
   loadPhotos(num);
   if (num === '484') { loadSensorData(); loadAvocado(); }
+  if (_hklToken) loadSensorTrend();
   renderSaunaCard();
   setInterval(renderSaunaCard, 60000);
   loadCamera();
@@ -2541,6 +2569,126 @@ async function loadSensorData() {
     if (camMot) camMot.textContent = motion ? '🟢 Liikettä' : '⚪ Ei liikettä';
   } catch(e) {
     document.getElementById('motion-text').textContent = 'Ei yhteyttä';
+  }
+}
+
+// ========== SENSOR TREND (7 days) ==========
+async function loadSensorTrend() {
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/cottage-sensors/history?days=7', {headers: {'X-Hkl-Token': _hklToken}});
+    if (!r.ok) return;
+    const d = await r.json();
+    const hasData = (d.indoor_temp && d.indoor_temp.length > 2) || (d.outdoor_temp && d.outdoor_temp.length > 2);
+    if (!hasData) return;
+    document.getElementById('trend-card').style.display = '';
+    const parse = pts => pts.map(p => ({t: new Date(p.t).getTime(), v: p.v})).sort((a,b) => a.t - b.t);
+    const indoor = parse(d.indoor_temp || []);
+    const outdoor = parse(d.outdoor_temp || []);
+    const humidity = parse(d.outdoor_humidity || []);
+    if (indoor.length || outdoor.length) {
+      const allTemp = [...indoor, ...outdoor];
+      const stats = {};
+      if (outdoor.length) {
+        const vals = outdoor.map(p => p.v);
+        stats.outMin = Math.min(...vals).toFixed(1);
+        stats.outMax = Math.max(...vals).toFixed(1);
+      }
+      if (indoor.length) {
+        const vals = indoor.map(p => p.v);
+        stats.inMin = Math.min(...vals).toFixed(1);
+        stats.inMax = Math.max(...vals).toFixed(1);
+      }
+      const statParts = [];
+      if (stats.inMin) statParts.push(`Sisä ${stats.inMin}–${stats.inMax}°C`);
+      if (stats.outMin) statParts.push(`Ulko ${stats.outMin}–${stats.outMax}°C`);
+      document.getElementById('trend-temp-stats').textContent = statParts.join(' · ');
+      _drawTrend('trend-temp', allTemp, [
+        {pts: indoor, color: '#ef4444', width: 2},
+        {pts: outdoor, color: '#3b82f6', width: 2},
+      ], '°C');
+    }
+    if (humidity.length > 2) {
+      const vals = humidity.map(p => p.v);
+      document.getElementById('trend-hum-stats').textContent = `${Math.min(...vals).toFixed(0)}–${Math.max(...vals).toFixed(0)} %`;
+      _drawTrend('trend-hum', humidity, [
+        {pts: humidity, color: '#10b981', width: 2},
+      ], '%');
+    }
+    if (indoor.length || outdoor.length) {
+      const all = [...indoor, ...outdoor, ...humidity];
+      const t0 = new Date(Math.min(...all.map(p=>p.t)));
+      const t1 = new Date(Math.max(...all.map(p=>p.t)));
+      const fmt = d => d.toLocaleDateString('fi-FI',{day:'numeric',month:'numeric'});
+      document.getElementById('trend-range').textContent = `${fmt(t0)} – ${fmt(t1)}`;
+    }
+  } catch(e) {}
+}
+
+function _drawTrend(canvasId, allPts, series, unit) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = rect.width, H = rect.height;
+  const pad = {t: 18, b: 22, l: 36, r: 12};
+  const cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
+  const tMin = Math.min(...allPts.map(p=>p.t));
+  const tMax = Math.max(...allPts.map(p=>p.t));
+  const vMin = Math.min(...allPts.map(p=>p.v));
+  const vMax = Math.max(...allPts.map(p=>p.v));
+  const vPad = Math.max((vMax - vMin) * 0.1, 1);
+  const yMin = vMin - vPad, yMax = vMax + vPad;
+  const tx = t => pad.l + (t - tMin) / (tMax - tMin || 1) * cw;
+  const ty = v => pad.t + (1 - (v - yMin) / (yMax - yMin || 1)) * ch;
+  // grid
+  ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+  ctx.lineWidth = 0.5;
+  const ySteps = 4;
+  ctx.font = '10px system-ui';
+  ctx.fillStyle = '#999';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= ySteps; i++) {
+    const v = yMin + (yMax - yMin) * i / ySteps;
+    const y = ty(v);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+    ctx.fillText(v.toFixed(unit === '%' ? 0 : 1), pad.l - 4, y + 3);
+  }
+  // time labels
+  ctx.textAlign = 'center';
+  const dayMs = 86400000;
+  const d0 = new Date(tMin); d0.setHours(0,0,0,0);
+  for (let dt = d0.getTime() + dayMs; dt < tMax; dt += dayMs) {
+    const x = tx(dt);
+    if (x > pad.l + 10 && x < W - pad.r - 10) {
+      ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, H - pad.b); ctx.stroke();
+      const dd = new Date(dt);
+      ctx.fillText(dd.toLocaleDateString('fi-FI',{weekday:'short'}).replace('.',''), x, H - pad.b + 12);
+    }
+  }
+  // lines
+  for (const s of series) {
+    if (s.pts.length < 2) continue;
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = s.width;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    s.pts.forEach((p, i) => {
+      const x = tx(p.t), y = ty(p.v);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    // fill under
+    ctx.globalAlpha = 0.08;
+    ctx.fillStyle = s.color;
+    ctx.lineTo(tx(s.pts[s.pts.length-1].t), H - pad.b);
+    ctx.lineTo(tx(s.pts[0].t), H - pad.b);
+    ctx.closePath();
+    ctx.fill();
+    ctx.globalAlpha = 1;
   }
 }
 
