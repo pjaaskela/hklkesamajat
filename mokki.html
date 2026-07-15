@@ -2508,7 +2508,7 @@ async function showDashboard(num) {
 
   loadPhotos(num);
   if (num === '484') { loadSensorData(); loadAvocado(); }
-  if (_hklToken) loadSensorTrend();
+  if (num === '484' && _hklToken) loadSensorTrend();
   renderSaunaCard();
   setInterval(renderSaunaCard, 60000);
   loadCamera();
