@@ -162,6 +162,7 @@ textarea.inp{resize:vertical;min-height:72px}
     <a href="#" onclick="return nav('vesiverkko')" data-sec="vesiverkko">🔧 Vesiverkko</a>
     <div class="sidenav-section">Järjestelmä</div>
     <a href="#" onclick="return nav('asetukset')" data-sec="asetukset">⚙️ Sivuston asetukset</a>
+    <a href="#" onclick="return nav('versiot')" data-sec="versiot">📋 Versiohistoria</a>
     <a href="#" onclick="return nav('omatili')" data-sec="omatili">🔑 Oma tili</a>
     <a href="#" onclick="return nav('dokumentaatio')" data-sec="dokumentaatio">📖 Dokumentaatio</a>
     <div class="sidenav-section">Sivusto</div>
@@ -865,6 +866,19 @@ textarea.inp{resize:vertical;min-height:72px}
       </div>
     </div>
 
+    <!-- VERSIOHISTORIA -->
+    <div id="sec-versiot" class="sec-page">
+      <div class="page-title">📋 Versiohistoria</div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">Nykyinen versio</div>
+        <div id="ver-current" style="font-size:13px;color:var(--muted);">Ladataan...</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Viimeisimmät muutokset</div>
+        <div id="ver-history" style="font-size:13px;color:var(--muted);">Ladataan...</div>
+      </div>
+    </div>
+
     <!-- DOKUMENTAATIO -->
     <div id="sec-dokumentaatio" class="sec-page">
       <div class="page-title">📖 Järjestelmädokumentaatio</div>
@@ -1115,6 +1129,7 @@ textarea.inp{resize:vertical;min-height:72px}
   </div>
 </div>
 
+<script src="version.js"></script>
 <script>
 const API_BASE='https://api.hklkesamajat.fi';
 let _token='',_data={asukkaat:[],vikat:[],tiedotteet:[],vesipisteet:[],mokkit:[],docs:[],templates:[],loginStatus:[]},_vikaFilter='kaikki',_vesiMap=null,_vesiMarkers=[],_mokkiView='kortit';
@@ -1145,6 +1160,7 @@ function nav(sec){
   if(sec==='palautteet')loadFeedback();
   if(sec==='venepaikat')initVeneMap();
   if(sec==='kartta')initKartMap();
+  if(sec==='versiot')loadVersionHistory();
   document.getElementById('sidenav').classList.remove('open');
   document.getElementById('sidenav-overlay').classList.remove('open');
   return false;
@@ -3039,6 +3055,34 @@ async function loadAnalytics(){
     </div>`).join('')||'<div style="color:var(--muted);font-size:12px;">Ei dataa</div>';
 
   }catch(e){console.warn('analytics',e);}
+}
+
+async function loadVersionHistory(){
+  const v=window.HKL_VERSION||{};
+  document.getElementById('ver-current').innerHTML=v.label
+    ?`<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+        <span style="font-size:1.5rem;font-weight:900;color:var(--green);">${v.label}</span>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--muted);">${v.hash}</span>
+        <span style="font-size:12px;color:var(--muted);">${v.branch} · ${v.date} ${v.time}</span>
+      </div>`
+    :'<span style="color:var(--red);">version.js ei ladattu</span>';
+  try{
+    const r=await fetch('version-history.json?_='+Date.now());
+    if(!r.ok)throw new Error(r.status);
+    const hist=await r.json();
+    if(!hist.length){document.getElementById('ver-history').textContent='Ei historiaa.';return;}
+    document.getElementById('ver-history').innerHTML=hist.map((c,i)=>{
+      const isCurrent=v.hash&&c.hash===v.hash;
+      return`<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+        <div style="font-family:var(--mono);font-size:11px;color:${isCurrent?'var(--green)':'var(--blue)'};min-width:60px;font-weight:${isCurrent?'900':'400'};">${c.hash}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;color:var(--text);word-break:break-word;">${c.msg}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;">${c.date}${c.author?' · '+c.author:''}</div>
+        </div>
+        ${isCurrent?'<span style="font-size:10px;background:var(--green);color:var(--bg);padding:2px 8px;border-radius:9px;font-weight:700;white-space:nowrap;">LIVE</span>':''}
+      </div>`;
+    }).join('');
+  }catch(e){document.getElementById('ver-history').innerHTML='<span style="color:var(--red);">Versiohistoriaa ei voitu ladata.</span>';}
 }
 
 function activateAdmin(tok, label) {

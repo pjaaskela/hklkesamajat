@@ -533,16 +533,23 @@ body { padding-top: 48px; }
   font-size: 1.1rem; cursor: pointer; color: var(--text-muted);
   display: flex; align-items: center; justify-content: center;
 }
-.section-toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.section-toggles { display: flex; flex-direction: column; gap: 4px; }
 .section-toggle-item {
   display: flex; align-items: center; gap: 8px;
   padding: 10px 12px; border-radius: 10px;
-  background: var(--sand); cursor: pointer; transition: background .15s;
+  background: var(--sand); cursor: pointer; transition: background .15s, transform .15s;
   user-select: none;
 }
+.section-toggle-item.dragging { opacity: 0.5; transform: scale(0.97); }
+.section-toggle-item.drag-over { border-top: 2px solid var(--green); }
 .section-toggle-item:hover { background: var(--green-pale); }
 .section-toggle-item input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--green); flex-shrink: 0; cursor: pointer; }
-.section-toggle-item span { font-size: 0.75rem; font-weight: 600; color: var(--text); cursor: pointer; }
+.section-toggle-item span.sec-label { font-size: 0.75rem; font-weight: 600; color: var(--text); cursor: pointer; flex: 1; }
+.sec-drag-handle { cursor: grab; font-size: 0.9rem; color: var(--text-muted); padding: 2px 4px; touch-action: none; }
+.sec-drag-handle:active { cursor: grabbing; }
+.sec-move-btns { display: flex; gap: 2px; margin-left: auto; }
+.sec-move-btn { background: none; border: none; font-size: 0.8rem; cursor: pointer; color: var(--text-muted); padding: 2px 5px; border-radius: 4px; }
+.sec-move-btn:hover { background: var(--green-pale); color: var(--green); }
 .dash-settings-btn {
   background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
   color: rgba(255,255,255,0.7); font-size: 1rem; width: 32px; height: 32px;
@@ -748,6 +755,8 @@ body { padding-top: 48px; }
     </div>
 
 
+    <div id="mokki-cards">
+
     <!-- 1. MÖKKI STATUS CARD -->
     <div class="card" id="sensor-card" data-mokki="484">
       <div class="card-header">
@@ -853,7 +862,7 @@ body { padding-top: 48px; }
     </div>
 
     <!-- 3+5b. LÄMPÖTILA & AVOKADO (compact 2-col) -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" data-mokki="484">
+    <div id="thermo-avocado-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" data-mokki="484">
       <!-- Lämpötilasäätö -->
       <div class="card" id="thermo-card" style="margin:0;">
         <div class="card-body" style="padding:14px;">
@@ -904,12 +913,7 @@ body { padding-top: 48px; }
       </div>
     </div>
 
-    <div id="mokki-cards">
-    <!-- TIEDOTTEET BANNER (piilossa oletuksena, näytetään vain jos tiedotteita löytyy — 2026-07-07.
-         2026-07-11: siirretty #mokki-cards-säiliön sisään jotta admin-paneelin
-         osiojärjestely/piilotus toimii sen kohdalla, samoin kuin aluekartalle
-         aiemmin — pysyy rakenteellisesti aina mökkifiiliksen ja AI-kuvauksen
-         alapuolella koska ne ovat säiliön ulkopuolella/ennen sitä.) -->
+    <!-- TIEDOTTEET BANNER -->
     <div id="tiedotteet-card" style="display:none;background:#1a3522;border-bottom:2px solid #52b788;border-radius:10px;margin:0 16px 12px;padding:12px 16px;">
       <div style="font-size:0.7rem;font-weight:700;color:#52b788;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">📢 Tiedotteet</div>
       <div id="ann-mokki-items" style="display:flex;flex-direction:column;gap:6px;color:rgba(255,255,255,0.5);font-size:0.8rem;"></div>
@@ -1608,6 +1612,10 @@ body { padding-top: 48px; }
       <button class="section-panel-close" onclick="toggleSectionPanel()">✕</button>
     </div>
     <div class="section-toggles" id="section-toggles"></div>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;">
+      <span id="section-version" style="font-size:0.68rem;color:#9ca3af;"></span>
+      <button onclick="resetSectionOrder()" style="font-size:0.68rem;color:#9ca3af;background:none;border:none;cursor:pointer;text-decoration:underline;">Palauta oletusjärjestys</button>
+    </div>
   </div>
 </div>
 
@@ -4197,11 +4205,10 @@ function renderFlagDays() {
 const SECTION_DEFS = [
   { key: 'mokkiday', label: '🚌 Mökkipäivä', sel: '#mokki-day-card' },
   { key: 'sensor', label: '📡 Live-tila', sel: '#sensor-card', mokki: true },
+  { key: 'trend', label: '📈 7pv trendi', sel: '#trend-card', mokki: true },
   { key: 'elec', label: '⚡ Sähkö', sel: '#elec-card', mokki: true },
-  { key: 'thermo', label: '🌡️ Lämpötila', sel: '#thermo-card', mokki: true },
+  { key: 'thermo', label: '🌡️ Lämpö+Avokado', sel: '#thermo-avocado-grid', mokki: true },
   { key: 'away', label: '🌙 Poissa-tila', sel: '#away-card', mokki: true },
-  // solar always visible — removed from toggles
-  { key: 'avocado', label: '🥑 Avokado', sel: '#avocado-card', mokki: true },
   { key: 'sauna', label: '🛁 Sauna', sel: '#sauna-card' },
   { key: 'siivous', label: '🧹 Siivous', sel: '#siivous-card' },
   { key: 'waste', label: '♻️ Jätteet', sel: '#waste-card' },
@@ -4230,14 +4237,42 @@ function saveSectionPrefs(prefs) {
   localStorage.setItem('hkl_sections_' + _currentMokki, JSON.stringify(prefs));
 }
 
+function getSectionOrder() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('hkl_order_' + _currentMokki) || 'null');
+    if (Array.isArray(saved) && saved.length > 0) return saved;
+  } catch(e) {}
+  return SECTION_DEFS.map(s => s.key);
+}
+
+function saveSectionOrder(order) {
+  localStorage.setItem('hkl_order_' + _currentMokki, JSON.stringify(order));
+}
+
+function getOrderedSections() {
+  const order = getSectionOrder();
+  const byKey = {};
+  SECTION_DEFS.forEach(s => byKey[s.key] = s);
+  const ordered = [];
+  for (const k of order) { if (byKey[k]) { ordered.push(byKey[k]); delete byKey[k]; } }
+  for (const s of SECTION_DEFS) { if (byKey[s.key]) ordered.push(s); }
+  return ordered;
+}
+
 function applySectionVisibility() {
   const prefs = getSectionPrefs();
-  SECTION_DEFS.forEach(s => {
+  const ordered = getOrderedSections();
+  const container = document.getElementById('mokki-cards');
+  if (!container) return;
+  ordered.forEach(s => {
     const el = document.querySelector(s.sel);
     if (!el) return;
-    if (s.mokki && _currentMokki !== s.mokki) { el.style.display = 'none'; return; }
+    if (s.mokki === true && !_currentMokki) { el.style.display = 'none'; return; }
     const visible = prefs[s.key] !== false;
     el.style.display = visible ? '' : 'none';
+    if (el.parentElement === container || el.closest('#mokki-cards') === container) {
+      container.appendChild(el);
+    }
   });
 }
 
@@ -4245,14 +4280,69 @@ function renderSectionToggles() {
   const container = document.getElementById('section-toggles');
   if (!container) return;
   const prefs = getSectionPrefs();
-  const visibleSections = SECTION_DEFS.filter(s => !s.mokki || _currentMokki === '484');
-  container.innerHTML = visibleSections.map(s => {
+  const ordered = getOrderedSections().filter(s => !s.mokki || !!_currentMokki);
+  container.innerHTML = ordered.map((s, i) => {
     const checked = prefs[s.key] !== false ? 'checked' : '';
-    return `<label class="section-toggle-item">
+    return `<div class="section-toggle-item" draggable="true" data-sec-key="${s.key}">
+      <span class="sec-drag-handle" title="Raahaa järjestääksesi">☰</span>
       <input type="checkbox" ${checked} onchange="onSectionToggle('${s.key}', this.checked)">
-      <span>${s.label}</span>
-    </label>`;
+      <span class="sec-label">${s.label}</span>
+      <div class="sec-move-btns">
+        <button class="sec-move-btn" onclick="moveSection('${s.key}',-1)" title="Ylös" ${i===0?'disabled':''}>▲</button>
+        <button class="sec-move-btn" onclick="moveSection('${s.key}',1)" title="Alas" ${i===ordered.length-1?'disabled':''}>▼</button>
+      </div>
+    </div>`;
   }).join('');
+  initSectionDrag(container);
+}
+
+function moveSection(key, dir) {
+  const order = getSectionOrder();
+  const idx = order.indexOf(key);
+  if (idx < 0) return;
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= order.length) return;
+  [order[idx], order[newIdx]] = [order[newIdx], order[idx]];
+  saveSectionOrder(order);
+  applySectionVisibility();
+  renderSectionToggles();
+}
+
+function initSectionDrag(container) {
+  let dragKey = null;
+  container.querySelectorAll('.section-toggle-item').forEach(item => {
+    item.addEventListener('dragstart', e => {
+      dragKey = item.dataset.secKey;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      container.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      dragKey = null;
+    });
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      item.classList.add('drag-over');
+    });
+    item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      item.classList.remove('drag-over');
+      const targetKey = item.dataset.secKey;
+      if (!dragKey || dragKey === targetKey) return;
+      const order = getSectionOrder();
+      const fromIdx = order.indexOf(dragKey);
+      const toIdx = order.indexOf(targetKey);
+      if (fromIdx < 0 || toIdx < 0) return;
+      order.splice(fromIdx, 1);
+      order.splice(toIdx, 0, dragKey);
+      saveSectionOrder(order);
+      applySectionVisibility();
+      renderSectionToggles();
+    });
+  });
 }
 
 function onSectionToggle(key, checked) {
@@ -4262,6 +4352,12 @@ function onSectionToggle(key, checked) {
   applySectionVisibility();
 }
 
+function resetSectionOrder() {
+  localStorage.removeItem('hkl_order_' + _currentMokki);
+  applySectionVisibility();
+  renderSectionToggles();
+}
+
 function toggleSectionPanel() {
   const overlay = document.getElementById('section-panel-overlay');
   const active = overlay.classList.contains('active');
@@ -4269,6 +4365,8 @@ function toggleSectionPanel() {
     overlay.classList.remove('active');
   } else {
     renderSectionToggles();
+    const vEl = document.getElementById('section-version');
+    if (vEl && window.HKL_VERSION) vEl.textContent = `${HKL_VERSION.label} (${HKL_VERSION.date})`;
     overlay.classList.add('active');
   }
 }
@@ -4528,6 +4626,7 @@ if ('serviceWorker' in navigator) {
   }).catch(() => { navigator.serviceWorker.register('sw.js?v=5').catch(()=>{}); });
 }
 </script>
+<script src="version.js"></script>
 <script src="https://jaaskel.com/hkl-search.js" defer></script>
 <script src="https://jaaskel.com/hkl-analytics.js?v=20260703" defer></script>
 </body>
