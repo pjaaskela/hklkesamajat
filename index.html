@@ -150,6 +150,11 @@ footer a { color: rgba(82,183,136,0.55); }
         <div class="glass-pill-value" style="font-size:1.1rem;" id="h-sun-rise">–</div>
         <div class="glass-pill-sub" id="h-sun-set">–</div>
       </div>
+      <div class="glass-pill">
+        <div class="glass-pill-label">🌡️ Hellepäivät</div>
+        <div class="glass-pill-value" id="h-heat-count">–</div>
+        <div class="glass-pill-sub" id="h-heat-sub">2026</div>
+      </div>
     </div>
 
     <!-- KARTTA -->
@@ -411,12 +416,23 @@ async function loadRoleLiveData() {
 
 loadRoleLiveData();
 
+async function loadHeatDaysHero() {
+  try {
+    const d = await fetch(API_BASE + '/api/hkl/heat-days').then(r => r.json());
+    document.getElementById('h-heat-count').textContent = d.count;
+    const last = d.days.length ? d.days[d.days.length - 1] : null;
+    const sub = last ? `Viimeisin ${last.date.slice(5)} (${last.max_temp}°C)` : `${d.year} — ei vielä`;
+    document.getElementById('h-heat-sub').textContent = sub;
+  } catch(e) {}
+}
+
 loadAnnouncementsBanner();
 loadWeatherHero();
 loadWaterHero();
 loadLocalSensorHero();
 loadSunHero();
 loadAirQualityHero();
+loadHeatDaysHero();
 
 setTimeout(() => {
   document.querySelectorAll('.glass-pill-value').forEach(el => {
