@@ -304,7 +304,7 @@ textarea.inp{resize:vertical;min-height:72px}
     </div>
     <div class="field"><label>KUVAUS</label><input class="inp" id="m-kuvaus" placeholder="Mökin kuvaus, erityistiedot..."></div>
     <div class="field"><label>MÖKIN KUVA</label><input type="file" id="m-photo" accept="image/jpeg,image/png,image/webp" style="font-size:12px;color:var(--muted)"></div>
-    <div class="field"><label>OMISTAJAN KUVA</label><input type="file" id="m-owner-photo" accept="image/jpeg,image/png,image/webp" style="font-size:12px;color:var(--muted)"></div>
+    <div class="field"><label>PROFIILIKUVA</label><input type="file" id="m-owner-photo" accept="image/jpeg,image/png,image/webp" style="font-size:12px;color:var(--muted)"></div>
     <div style="margin-top:12px"><button class="btn btn-primary" onclick="saveMokki()">💾 Tallenna</button></div>
     <div class="msg" id="m-msg"></div>
   </div>
@@ -876,6 +876,28 @@ textarea.inp{resize:vertical;min-height:72px}
         <div id="gallery-admin-empty" style="display:none;font-size:13px;color:var(--muted);text-align:center;padding:24px 0;">Ei kuvia vielä.</div>
         <div style="margin-top:12px;">
           <button class="btn" onclick="loadGalleryAdmin()" style="font-size:12px;">↻ Päivitä lista</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-head">📖 Kesämajalaisen opas — sisällönhallinta</div>
+        <p style="font-size:12px;color:var(--muted);margin:8px 0 10px;">Muokkaa oppaan osioita. Muutokset näkyvät mökkiläisille heti tallennuksen jälkeen.</p>
+        <div id="guide-opas-editor" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-primary" onclick="saveGuide('opas')">💾 Tallenna opas</button>
+          <button class="btn" onclick="addGuideSection('opas')" style="border:1px solid var(--border);">+ Lisää osio</button>
+          <span id="guide-opas-msg" style="font-size:12px;"></span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-head">⚓ Venepaikan ohje — sisällönhallinta</div>
+        <p style="font-size:12px;color:var(--muted);margin:8px 0 10px;">Muokkaa veneohjeen osioita. Muutokset näkyvät mökkiläisille heti tallennuksen jälkeen.</p>
+        <div id="guide-veneohje-editor" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-primary" onclick="saveGuide('veneohje')">💾 Tallenna veneohje</button>
+          <button class="btn" onclick="addGuideSection('veneohje')" style="border:1px solid var(--border);">+ Lisää osio</button>
+          <span id="guide-veneohje-msg" style="font-size:12px;"></span>
         </div>
       </div>
     </div>
@@ -2519,6 +2541,7 @@ async function loadSiteSettings() {
   } catch(e) { _siteSettings = {}; }
   loadWhatsNew();
   loadGalleryAdmin();
+  loadGuides();
   document.getElementById('set-hinta-asukas').value = _siteSettings.venepaikka_asukas ?? 300;
   document.getElementById('set-hinta-ulkopuolinen').value = _siteSettings.venepaikka_ulkopuolinen ?? 330;
   document.getElementById('set-saunamaksu').value = _siteSettings.saunamaksu ?? 3;
@@ -3144,6 +3167,60 @@ async function confirmReset(){
       document.getElementById('reset-card').style.display='none';
     }else{const d=await r.json().catch(()=>({}));msg.textContent='❌ '+(d.detail||'Virhe');msg.style.color='var(--red)';}
   }catch(e){msg.textContent='❌ Verkkovirhe';msg.style.color='var(--red)';}
+}
+
+// ========== OPPAAN & VENEOHJEEN EDITORI ==========
+const _guideData = { opas: [], veneohje: [] };
+
+function renderGuideEditor(key) {
+  const el = document.getElementById('guide-' + key + '-editor');
+  if (!el) return;
+  el.innerHTML = _guideData[key].map((s, i) => `
+    <div style="background:var(--bg3);border-radius:8px;padding:12px;border:1px solid var(--border);" data-guide-idx="${i}">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <input class="inp" value="${(s.icon||'').replace(/"/g,'&quot;')}" placeholder="Emoji" style="width:48px;text-align:center;font-size:1.2rem;" onchange="_guideData['${key}'][${i}].icon=this.value">
+        <input class="inp" value="${(s.t||'').replace(/"/g,'&quot;')}" placeholder="Otsikko" style="flex:1;" onchange="_guideData['${key}'][${i}].t=this.value">
+        <button class="btn btn-danger btn-sm" onclick="_guideData['${key}'].splice(${i},1);renderGuideEditor('${key}')">🗑</button>
+        ${i > 0 ? `<button class="btn btn-sm" onclick="_guideData['${key}'].splice(${i-1},0,..._guideData['${key}'].splice(${i},1));renderGuideEditor('${key}')" style="border:1px solid var(--border);">↑</button>` : ''}
+        ${i < _guideData[key].length - 1 ? `<button class="btn btn-sm" onclick="_guideData['${key}'].splice(${i+1},0,..._guideData['${key}'].splice(${i},1));renderGuideEditor('${key}')" style="border:1px solid var(--border);">↓</button>` : ''}
+      </div>
+      <textarea class="inp" rows="4" placeholder="Sisältö (HTML sallittu)" style="font-size:12px;font-family:var(--mono);resize:vertical;width:100%;" onchange="_guideData['${key}'][${i}].body=this.value">${(s.body||'').replace(/</g,'&lt;')}</textarea>
+    </div>`).join('');
+}
+
+function addGuideSection(key) {
+  _guideData[key].push({ t: '', icon: '📌', body: '' });
+  renderGuideEditor(key);
+}
+
+async function saveGuide(key) {
+  const msg = document.getElementById('guide-' + key + '-msg');
+  try {
+    const r = await fetch(API_BASE + '/api/hkl/guide-content/' + key, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Api-Key': _adminToken },
+      body: JSON.stringify({ sections: _guideData[key] }),
+    });
+    if (!r.ok) throw new Error('Tallennus epäonnistui');
+    msg.textContent = '✅ Tallennettu!';
+    msg.style.color = 'var(--green)';
+  } catch(e) {
+    msg.textContent = '❌ ' + e.message;
+    msg.style.color = '#dc2626';
+  }
+  setTimeout(() => msg.textContent = '', 3000);
+}
+
+async function loadGuides() {
+  for (const key of ['opas', 'veneohje']) {
+    try {
+      const d = await fetch(API_BASE + '/api/hkl/guide-content/' + key).then(r => r.json());
+      if (d.sections && d.sections.length) {
+        _guideData[key] = d.sections;
+      }
+    } catch(e) {}
+    renderGuideEditor(key);
+  }
 }
 
 const resetToken=new URLSearchParams(window.location.search).get('reset');

@@ -3136,20 +3136,29 @@ function getOpasData() { return [
   { t: '22. Sovellus puhelimeen', icon: '📱', body: `Tämän palvelun voi asentaa sovelluksena puhelimen tai tietokoneen työpöydälle.\n\n<b>iPhone / iPad (Safari):</b>\n1. Avaa hklkesamajat.fi/mokki.html Safarissa\n2. Paina jakamispainiketta (⬆️) alhaalla\n3. Valitse <i>"Lisää Koti-valikkoon"</i>\n4. Paina <i>Lisää</i>\n\n<b>Android (Chrome):</b>\n1. Avaa hklkesamajat.fi/mokki.html Chromessa\n2. Paina kolmea pistettä (⋮) oikealla ylhäällä\n3. Valitse <i>"Asenna sovellus"</i> tai <i>"Lisää aloitusnäytölle"</i>\n\n<b>Tietokone (Chrome/Edge):</b>\n1. Avaa hklkesamajat.fi/mokki.html\n2. Klikkaa osoitepalkin oikeassa reunassa olevaa asennuskuvaketta (⊕)\n3. Valitse <i>Asenna</i>\n\nSovellus avautuu ilman selaimen osoitepalkkia ja pysyy kirjautuneena.` },
 ]; }
 
-function renderOpas() {
-  const el = document.getElementById('opas-sections');
-  if (!el) return;
-  el.innerHTML = getOpasData().map((s, i) => `
+function _renderGuideItems(el, items, chevClass) {
+  el.innerHTML = items.map(s => `
     <div style="border-bottom:1px solid #f0f0f0;">
-      <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.opas-chev').textContent=this.nextElementSibling.style.display==='none'?'▸':'▾'"
+      <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.${chevClass}').textContent=this.nextElementSibling.style.display==='none'?'▸':'▾'"
            style="display:flex;align-items:center;gap:10px;padding:11px 4px;cursor:pointer;transition:background .15s;border-radius:6px;"
            onmouseover="this.style.background='var(--sand)'" onmouseout="this.style.background=''">
         <span style="font-size:1.2rem;width:28px;text-align:center;">${s.icon}</span>
         <span style="flex:1;font-size:0.85rem;font-weight:700;color:var(--text);">${s.t}</span>
-        <span class="opas-chev" style="font-size:0.75rem;color:var(--text-muted);width:16px;text-align:center;">▸</span>
+        <span class="${chevClass}" style="font-size:0.75rem;color:var(--text-muted);width:16px;text-align:center;">▸</span>
       </div>
       <div style="display:none;padding:4px 4px 14px 42px;font-size:0.84rem;color:var(--text-muted);line-height:1.7;white-space:pre-line;">${s.body}</div>
     </div>`).join('');
+}
+
+async function renderOpas() {
+  const el = document.getElementById('opas-sections');
+  if (!el) return;
+  let items = getOpasData();
+  try {
+    const d = await fetch(API_BASE + '/api/hkl/guide-content/opas').then(r => r.json());
+    if (d.sections && d.sections.length) items = d.sections;
+  } catch(e) {}
+  _renderGuideItems(el, items, 'opas-chev');
 }
 renderOpas();
 
@@ -3167,20 +3176,15 @@ function getVeneohjeData() { return [
 ]; }
 
 let _veneohjeRendered = false;
-function renderVeneohje() {
+async function renderVeneohje() {
   const el = document.getElementById('veneohje-sections');
   if (!el) return;
-  el.innerHTML = getVeneohjeData().map(s => `
-    <div style="border-bottom:1px solid #f0f0f0;">
-      <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.vo-chev').textContent=this.nextElementSibling.style.display==='none'?'▸':'▾'"
-           style="display:flex;align-items:center;gap:10px;padding:11px 4px;cursor:pointer;transition:background .15s;border-radius:6px;"
-           onmouseover="this.style.background='var(--sand)'" onmouseout="this.style.background=''">
-        <span style="font-size:1.2rem;width:28px;text-align:center;">${s.icon}</span>
-        <span style="flex:1;font-size:0.85rem;font-weight:700;color:var(--text);">${s.t}</span>
-        <span class="vo-chev" style="font-size:0.75rem;color:var(--text-muted);width:16px;text-align:center;">▸</span>
-      </div>
-      <div style="display:none;padding:4px 4px 14px 42px;font-size:0.84rem;color:var(--text-muted);line-height:1.7;white-space:pre-line;">${s.body}</div>
-    </div>`).join('');
+  let items = getVeneohjeData();
+  try {
+    const d = await fetch(API_BASE + '/api/hkl/guide-content/veneohje').then(r => r.json());
+    if (d.sections && d.sections.length) items = d.sections;
+  } catch(e) {}
+  _renderGuideItems(el, items, 'vo-chev');
   _veneohjeRendered = true;
 }
 
