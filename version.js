@@ -1,8 +1,8 @@
 window.HKL_VERSION = {
-  hash: "a080aca",
-  build: 324,
+  hash: "c55a6c1",
+  build: 325,
   date: "2026-07-15",
-  time: "21:18",
+  time: "21:30",
   branch: "main",
-  label: "v1.324"
+  label: "v1.325"
 };
