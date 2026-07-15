@@ -2306,8 +2306,9 @@ async function applySiteSettings() {
       });
     }
     if (s.hidden_sections && s.hidden_sections.length) {
+      const altIds = {thermo:'thermo-avocado-grid', interests:'interests-section'};
       s.hidden_sections.forEach(key => {
-        const card = document.getElementById(key + '-card');
+        const card = document.getElementById(altIds[key] || key + '-card');
         if (card) card.style.display = 'none';
       });
     }
@@ -2316,6 +2317,10 @@ async function applySiteSettings() {
       if (container) {
         const cards = {};
         container.querySelectorAll('[id$="-card"]').forEach(c => { cards[c.id.replace('-card','')] = c; });
+        const grid = document.getElementById('thermo-avocado-grid');
+        if (grid) cards['thermo'] = grid;
+        const intSec = document.getElementById('interests-section');
+        if (intSec) cards['interests'] = intSec;
         s.section_order.forEach(key => { if (cards[key]) container.appendChild(cards[key]); });
       }
     }
