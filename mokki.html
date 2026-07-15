@@ -842,7 +842,7 @@ body { padding-top: 48px; }
     </div>
 
     <!-- 1b. SENSOR TREND (7 days) -->
-    <div class="card" id="trend-card" style="display:none" data-mokki="484">
+    <div class="card" id="trend-card" style="display:none" data-needs-data>
       <div class="card-header">
         <div class="card-title">📈 7 päivän trendi</div>
         <span style="font-size:0.72rem;color:var(--text-muted);" id="trend-range"></span>
@@ -2508,7 +2508,7 @@ async function showDashboard(num) {
 
   loadPhotos(num);
   if (num === '484') { loadSensorData(); loadAvocado(); }
-  if (num === '484' && _hklToken) loadSensorTrend();
+  if (_hklToken) loadSensorTrend();
   renderSaunaCard();
   setInterval(renderSaunaCard, 60000);
   loadCamera();
@@ -2591,7 +2591,9 @@ async function loadSensorTrend() {
     const d = await r.json();
     const hasData = (d.indoor_temp && d.indoor_temp.length > 2) || (d.outdoor_temp && d.outdoor_temp.length > 2);
     if (!hasData) return;
-    document.getElementById('trend-card').style.display = '';
+    const tc = document.getElementById('trend-card');
+    delete tc.dataset.needsData;
+    tc.style.display = '';
     const parse = pts => pts.map(p => ({t: new Date(p.t).getTime(), v: p.v})).sort((a,b) => a.t - b.t);
     const indoor = parse(d.indoor_temp || []);
     const outdoor = parse(d.outdoor_temp || []);
@@ -4209,7 +4211,7 @@ const SECTION_DEFS = [
   { key: 'tiedotteet', label: '📢 Tiedotteet', sel: '#tiedotteet-card' },
   { key: 'areaphoto', label: '📸 Jaa kuva', sel: '#areaphoto-card' },
   { key: 'events', label: '📅 Tapahtumat', sel: '#events-card' },
-  { key: 'trend', label: '📈 7pv trendi', sel: '#trend-card', mokki: true },
+  { key: 'trend', label: '📈 7pv trendi', sel: '#trend-card' },
   { key: 'elec', label: '⚡ Sähkö', sel: '#elec-card', mokki: true },
   { key: 'thermo', label: '🌡️ Lämpö+Avokado', sel: '#thermo-avocado-grid', mokki: true },
   { key: 'away', label: '🌙 Poissa-tila', sel: '#away-card', mokki: true },
@@ -4279,6 +4281,7 @@ function applySectionVisibility() {
       el.style.display = 'none';
       return;
     }
+    if ('needsData' in el.dataset && el.style.display === 'none') return;
     const visible = prefs[s.key] !== false;
     el.style.display = visible ? '' : 'none';
     if (hasCustomOrder && (el.parentElement === container || el.closest('#mokki-cards') === container)) {
