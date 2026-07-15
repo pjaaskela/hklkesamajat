@@ -2366,17 +2366,27 @@ async function loadFeedback(){
     const empty=document.getElementById('feedback-empty');
     if(!items.length){list.innerHTML='';empty.style.display='';return;}
     empty.style.display='none';
-    list.innerHTML=items.map(f=>`<div class="card" style="padding:14px 18px;">
+    list.innerHTML=items.map(f=>{
+      const done=f.handled;
+      return `<div class="card" style="padding:14px 18px;${done?'opacity:0.55;':''}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
         <div><span style="font-size:11px;color:var(--muted);font-family:var(--mono);">${f.created_at}</span>
         <span style="font-size:11px;color:var(--blue);margin-left:8px;">${f.page||'?'}</span>
-        ${f.contact?'<span style="font-size:11px;color:var(--amber);margin-left:8px;">'+f.contact+'</span>':''}</div>
-        <button class="btn btn-sm btn-danger" onclick="deleteFeedback(${f.id})">Poista</button>
+        ${f.contact?'<span style="font-size:11px;color:var(--amber);margin-left:8px;">'+f.contact+'</span>':''}
+        ${done?'<span style="font-size:11px;color:var(--green);margin-left:8px;font-weight:700;">✓ Käsitelty</span>':''}</div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm" onclick="toggleHandled(${f.id},${done?0:1})" style="border:1px solid ${done?'var(--amber)':'var(--green)'};color:${done?'var(--amber)':'var(--green)'};">${done?'↩ Avaa':'✓ Käsitelty'}</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteFeedback(${f.id})">Poista</button>
+        </div>
       </div>
       <div style="font-size:13px;line-height:1.6;white-space:pre-wrap;">${f.message.replace(/</g,'&lt;')}</div>
       <div style="font-size:10px;color:var(--muted);margin-top:6px;">IP: ${f.ip}</div>
-    </div>`).join('');
+    </div>`;}).join('');
   }catch(e){}
+}
+async function toggleHandled(id, val){
+  await fetch(API_BASE+'/api/hkl/feedback/'+id,{method:'PATCH',headers:{'Content-Type':'application/json','X-Api-Key':_token},body:JSON.stringify({handled:val})});
+  loadFeedback();
 }
 async function deleteFeedback(id){
   if(!confirm('Poistetaanko palaute?'))return;
