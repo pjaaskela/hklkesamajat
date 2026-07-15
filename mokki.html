@@ -2446,7 +2446,7 @@ async function loadMokkiAnnouncements() {
   }
 }
 
-function showDashboard(num) {
+async function showDashboard(num) {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   // Kutsutaan heti alussa (2026-07-07): jos joku MYÖHEMPI rivi tässä funktiossa
@@ -2483,7 +2483,7 @@ function showDashboard(num) {
   loadOmatIlmoitukset();
   initHidePast();
   loadEvents();
-  applySiteSettings();
+  await applySiteSettings();
 
   // Background preview
   const bgPreview = document.getElementById('set-bg-preview');
@@ -4203,27 +4203,32 @@ function renderFlagDays() {
 
 // ========== SECTION VISIBILITY ==========
 const SECTION_DEFS = [
-  { key: 'mokkiday', label: '🚌 Mökkipäivä', sel: '#mokki-day-card' },
   { key: 'sensor', label: '📡 Live-tila', sel: '#sensor-card', mokki: true },
   { key: 'trend', label: '📈 7pv trendi', sel: '#trend-card', mokki: true },
   { key: 'elec', label: '⚡ Sähkö', sel: '#elec-card', mokki: true },
   { key: 'thermo', label: '🌡️ Lämpö+Avokado', sel: '#thermo-avocado-grid', mokki: true },
   { key: 'away', label: '🌙 Poissa-tila', sel: '#away-card', mokki: true },
-  { key: 'sauna', label: '🛁 Sauna', sel: '#sauna-card' },
+  { key: 'tiedotteet', label: '📢 Tiedotteet', sel: '#tiedotteet-card' },
+  { key: 'areaphoto', label: '📸 Jaa kuva', sel: '#areaphoto-card' },
+  { key: 'events', label: '📅 Tapahtumat', sel: '#events-card' },
+  { key: 'sauna', label: '🛁 Yhteissauna', sel: '#sauna-card' },
   { key: 'siivous', label: '🧹 Siivous', sel: '#siivous-card' },
   { key: 'waste', label: '♻️ Jätteet', sel: '#waste-card' },
-  { key: 'flags', label: '🇫🇮 Liputus', sel: '#flag-card' },
-  { key: 'beaches', label: '🏖️ Rannat', sel: '#beaches-card' },
+  { key: 'flag', label: '🇫🇮 Liputuspäivät', sel: '#flag-card' },
+  { key: 'beaches', label: '🏖️ Lähirannat', sel: '#beaches-card' },
   { key: 'photos', label: '📷 Kuvat', sel: '#photos-card' },
-  { key: 'laituri', label: '🌊 Laituri', sel: '#laituri-card' },
-  { key: 'profile', label: '👤 Profiili', sel: '#profile-card' },
+  { key: 'laituri', label: '🌊 Laiturilämpötila', sel: '#laituri-card' },
+  { key: 'camera', label: '📹 Kamera', sel: '#camera-card', mokki: true },
+  { key: 'solar', label: '☀️ Aurinkopaneeli', sel: '#solar-card' },
+  { key: 'profile', label: '👤 Oma profiili', sel: '#profile-card' },
   { key: 'aluekartta', label: '🗺️ Aluekartta', sel: '#aluekartta-card' },
-  { key: 'opas', label: '📖 Opas', sel: '#opas-card' },
-  { key: 'veneohje', label: '⚓ Veneohje', sel: '#veneohje-card' },
-  { key: 'docs', label: '📄 Dokumentit', sel: '#docs-card' },
-  { key: 'ilmoitus', label: '📢 Ilmoitukset', sel: '#ilmoitus-card' },
+  { key: 'opas', label: '📖 Kesämajalaisen opas', sel: '#opas-card' },
+  { key: 'veneohje', label: '⚓ Venepaikan ohje', sel: '#veneohje-card' },
+  { key: 'docs', label: '📄 Dokumentit & ohjeet', sel: '#docs-card' },
   { key: 'hallitus', label: '🏛️ Hallitus', sel: '#hallitus-card' },
-  { key: 'listings', label: '🏡 Ilmoitukset', sel: '#listings-card' },
+  { key: 'ilmoitus', label: '📢 Ilmoitukset', sel: '#ilmoitus-card' },
+  { key: 'listings', label: '🏡 Osto/myynti', sel: '#listings-card' },
+  { key: 'uutiset', label: '📰 Media & uutiset', sel: '#uutiset-card' },
   { key: 'interests', label: '💡 Lisäpalvelut', sel: '#interests-section' },
 ];
 
@@ -4264,13 +4269,14 @@ function applySectionVisibility() {
   const ordered = getOrderedSections();
   const container = document.getElementById('mokki-cards');
   if (!container) return;
+  const hasCustomOrder = !!localStorage.getItem('hkl_order_' + _currentMokki);
   ordered.forEach(s => {
     const el = document.querySelector(s.sel);
     if (!el) return;
     if (s.mokki === true && !_currentMokki) { el.style.display = 'none'; return; }
     const visible = prefs[s.key] !== false;
     el.style.display = visible ? '' : 'none';
-    if (el.parentElement === container || el.closest('#mokki-cards') === container) {
+    if (hasCustomOrder && (el.parentElement === container || el.closest('#mokki-cards') === container)) {
       container.appendChild(el);
     }
   });
