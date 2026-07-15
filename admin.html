@@ -348,7 +348,7 @@ textarea.inp{resize:vertical;min-height:72px}
   <div style="display:flex;gap:4px;margin-bottom:18px;">
     <div class="tab active" id="msg-tab-send" onclick="setMsgTab('send',this)">📨 Lähetä viesti</div>
     <div class="tab" id="msg-tab-invite" onclick="setMsgTab('invite',this)">🔗 Kutsulinkit</div>
-    <div class="tab" id="msg-tab-templates" onclick="setMsgTab('templates',this)">📋 Viestipohjat</div>
+    <div class="tab" id="msg-tab-templates" onclick="setMsgTab('templates',this)">📋 Viestit</div>
   </div>
 
   <!-- TAB: Lähetä viesti -->
@@ -397,6 +397,20 @@ textarea.inp{resize:vertical;min-height:72px}
       <div class="field"><label>AIHE</label><input class="inp" id="sm-subject" maxlength="150" placeholder="esim. Lämmitysremontti-info"></div>
       <div class="field"><label>VIESTI <span style="font-size:10px;color:var(--muted);font-weight:400;">(tyhjä rivi = uusi kappale)</span></label>
         <textarea class="inp" id="sm-message" rows="8" placeholder="Hei,&#10;&#10;..."></textarea>
+      </div>
+      <div class="field">
+        <label>LIITE <span style="font-size:10px;color:var(--muted);font-weight:400;">(kuva, max 5 MB)</span></label>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <label style="cursor:pointer;padding:8px 16px;border-radius:8px;border:1px dashed var(--border2);background:var(--bg2);font-size:12px;color:var(--muted);">
+            📎 Valitse kuva
+            <input type="file" id="sm-attachment" accept="image/*" onchange="smPreviewAttachment(this)" style="display:none;">
+          </label>
+          <span id="sm-attach-name" style="font-size:12px;color:var(--muted);"></span>
+          <button id="sm-attach-remove" class="btn btn-ghost btn-sm" onclick="smRemoveAttachment()" style="display:none;font-size:11px;color:var(--red);">✕ Poista</button>
+        </div>
+        <div id="sm-attach-preview" style="display:none;margin-top:8px;">
+          <img id="sm-attach-img" style="max-width:200px;max-height:150px;border-radius:8px;border:1px solid var(--border);">
+        </div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <button class="btn btn-ghost btn-sm" onclick="sendMessage(true)">✉️ Lähetä testi itselleni</button>
@@ -2800,6 +2814,28 @@ function smLoadTemplate(){
   body=body.replace(/<\/p>\s*<p[^>]*>/gi,'\n\n').replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').trim();
   document.getElementById('sm-message').value=body;
 }
+let _smAttachData = null;
+function smPreviewAttachment(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showMsg('sm-msg', '❌ Kuva liian suuri (max 5 MB)', false); input.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    _smAttachData = { name: file.name, type: file.type, data: e.target.result };
+    document.getElementById('sm-attach-img').src = e.target.result;
+    document.getElementById('sm-attach-preview').style.display = '';
+    document.getElementById('sm-attach-name').textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + ' kB)';
+    document.getElementById('sm-attach-remove').style.display = '';
+  };
+  reader.readAsDataURL(file);
+}
+function smRemoveAttachment() {
+  _smAttachData = null;
+  document.getElementById('sm-attachment').value = '';
+  document.getElementById('sm-attach-preview').style.display = 'none';
+  document.getElementById('sm-attach-name').textContent = '';
+  document.getElementById('sm-attach-remove').style.display = 'none';
+}
 async function sendMessage(test){
   const subject = document.getElementById('sm-subject').value.trim();
   const message = document.getElementById('sm-message').value.trim();
@@ -2814,8 +2850,10 @@ async function sendMessage(test){
   }
   const msg=document.getElementById('sm-msg');
   msg.style.color='var(--amber)'; msg.textContent = test ? 'Lähetetään testi…' : 'Lähetetään…';
+  const payload = {subject, message, target_type:t.type, target_value:t.value, test};
+  if (_smAttachData) payload.attachment = {name: _smAttachData.name, type: _smAttachData.type, data: _smAttachData.data};
   try{
-    const r = await fetch(`${API_BASE}/api/hkl/send-message`, {method:'POST', headers:ah(), body:JSON.stringify({subject, message, target_type:t.type, target_value:t.value, test})});
+    const r = await fetch(`${API_BASE}/api/hkl/send-message`, {method:'POST', headers:ah(), body:JSON.stringify(payload)});
     const d = await r.json().catch(()=>({}));
     if(r.ok && d.ok){ showMsg('sm-msg', test ? `✅ Testi lähetetty webmasterille (${d.sent} kpl)` : `✅ Lähetetty ${d.sent} vastaanottajalle!`, true); }
     else { showMsg('sm-msg', '❌ Virhe: '+(d.detail||('HTTP '+r.status)), false); }
