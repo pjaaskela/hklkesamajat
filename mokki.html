@@ -817,6 +817,7 @@ body { padding-top: 48px; }
             <input type="checkbox" id="ev-hide-past" onchange="saveHidePast();loadEvents()" style="cursor:pointer;">
             Piilota menneet
           </label>
+          <button onclick="subscribeCalendar()" style="padding:5px 10px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:var(--text-muted);font-weight:600;font-size:0.72rem;cursor:pointer;" title="Lisää puhelimen kalenteriin">📲 iCal</button>
           <button onclick="openEventForm()" style="padding:5px 12px;border-radius:8px;border:1px solid var(--green);background:var(--green-pale);color:var(--green);font-weight:700;font-size:0.75rem;cursor:pointer;">+ Luo tapahtuma</button>
         </div>
       </div>
@@ -2986,6 +2987,19 @@ async function loadOmatIlmoitukset() {
 
 // ========== TAPAHTUMAT ==========
 let _editingEventId = '';
+
+function subscribeCalendar() {
+  const icalUrl = API_BASE + '/api/hkl/calendar.ics';
+  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  if (isIos) {
+    window.location.href = icalUrl;
+  } else if (isAndroid) {
+    window.open('https://www.google.com/calendar/render?cid=' + encodeURIComponent(icalUrl.replace('https://','webcal://')), '_blank');
+  } else {
+    window.location.href = icalUrl.replace('https://','webcal://').replace('http://','webcal://');
+  }
+}
 
 function openEventForm(editEvent) {
   const f = document.getElementById('event-form');
