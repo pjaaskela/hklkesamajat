@@ -1314,6 +1314,7 @@ body { padding-top: 48px; }
             <div style="font-size:0.8rem;color:var(--text-muted);" id="prof-email"></div>
             <div style="font-size:0.8rem;color:var(--text-muted);" id="prof-puh"></div>
             <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;font-style:italic;" id="prof-kuvaus"></div>
+            <div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px;" id="prof-building-year"></div>
           </div>
         </div>
         <div id="profile-edit" style="display:none;margin-top:14px;">
@@ -1332,6 +1333,10 @@ body { padding-top: 48px; }
           <div class="settings-field">
             <label>Mökin kuvaus</label>
             <input type="text" id="set-kuvaus" class="settings-input" maxlength="500" placeholder="Kerro mökistäsi...">
+          </div>
+          <div class="settings-field">
+            <label>Kesämajan rakennusvuosi</label>
+            <input type="number" id="set-building-year" class="settings-input" min="1900" max="2099" placeholder="esim. 1952">
           </div>
           <div class="settings-field">
             <label>Mökin kuva</label>
@@ -1425,15 +1430,19 @@ body { padding-top: 48px; }
           <div style="font-size:0.68rem;color:var(--text-muted);margin-top:4px;">Klikkaa isommaksi · L1=0-15 · L2=16-31 · L3=32-47</div>
         </div>
         <div id="veneohje-sections" style="display:flex;flex-direction:column;gap:2px;"></div>
-        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;">
-          <div onclick="toggleVenepaikkaMap()" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 0;">
-            <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">⚓ Venepaikat kartalla</span>
-            <span id="vp-map-chev" style="font-size:0.75rem;color:var(--text-muted);transition:transform .2s;">▸</span>
-          </div>
-          <div id="vp-map-wrap" style="display:none;margin-top:8px;">
-            <div id="vp-leaflet-map" style="height:280px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);"></div>
-            <div id="venepaikka-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
-          </div>
+      </div>
+    </div>
+
+    <!-- VENEPAIKAT (oma osio — hallittavissa administa + näytettävät osiot) -->
+    <div class="card" id="venepaikat-card" data-collapse="true">
+      <div class="card-header" onclick="toggleCardCollapse('venepaikat-card')" style="cursor:pointer;">
+        <div class="card-title">⚓ Venepaikat</div>
+        <span class="collapse-chevron" style="font-size:0.82rem;color:var(--text-muted);transition:transform .2s;">▸</span>
+      </div>
+      <div class="card-body card-collapse-body" style="display:none;">
+        <div id="vp-map-wrap" style="margin-top:4px;">
+          <div id="vp-leaflet-map" style="height:280px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);"></div>
+          <div id="venepaikka-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
         </div>
       </div>
     </div>
@@ -1906,10 +1915,12 @@ async function loadProfile() {
     document.getElementById('prof-email').textContent = p.email ? '📧 ' + p.email : '';
     document.getElementById('prof-puh').textContent = '';
     document.getElementById('prof-kuvaus').textContent = p.kuvaus || '';
+    document.getElementById('prof-building-year').textContent = p.building_year ? '🏗️ Rakennettu ' + p.building_year : '';
     document.getElementById('set-name').value = p.name || '';
     document.getElementById('set-email').value = p.email || '';
     document.getElementById('set-phone').value = p.puh || '';
     document.getElementById('set-kuvaus').value = p.kuvaus || '';
+    document.getElementById('set-building-year').value = p.building_year || '';
     const photoWrap = document.getElementById('profile-photo-wrap');
     const photoUrl = API_BASE + '/api/hkl/cottage-photo/' + p.number;
     photoWrap.innerHTML = `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentNode.innerHTML='🏡'">`;
@@ -1930,7 +1941,8 @@ async function saveProfile() {
     name: document.getElementById('set-name').value.trim(),
     email: document.getElementById('set-email').value.trim(),
     puh: document.getElementById('set-phone').value.trim(),
-    kuvaus: document.getElementById('set-kuvaus').value.trim()
+    kuvaus: document.getElementById('set-kuvaus').value.trim(),
+    building_year: document.getElementById('set-building-year').value.trim() || null
   };
   const msg = document.getElementById('profile-msg');
   try {
@@ -3338,10 +3350,11 @@ async function loadLaituriLast() {
     const d = await fetch(API_BASE + '/api/hkl/laituri').then(r => r.json());
     const el = document.getElementById('laituri-last');
     if (!el) return;
-    if (d.temp == null) { el.textContent = 'Ei aikaisempia mittauksia.'; return; }
-    const t = d.time ? new Date(d.time).toLocaleString('fi-FI', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
-    const by = d.name ? ` · ${d.name}` : '';
-    el.innerHTML = `Edellinen: <strong>${d.temp.toFixed(1)}°C</strong>${by}${t ? ' · ' + t : ''}`;
+    if (d.source === 'none' && d.temp == null) { el.textContent = 'Ei aikaisempia mittauksia.'; return; }
+    const manTemp = d.manual_temp != null ? d.manual_temp : d.temp;
+    const manTime = d.manual_time || d.time;
+    const t = manTime ? new Date(manTime).toLocaleString('fi-FI', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+    el.innerHTML = `Edellinen: <strong>${Number(manTemp).toFixed(1)}°C</strong>${t ? ' · ' + t : ''}`;
   } catch(e) {}
 }
 
@@ -3565,15 +3578,6 @@ function _initVVPinch(el) {
 }
 
 let _vpMapLoaded = false;
-function toggleVenepaikkaMap() {
-  const wrap = document.getElementById('vp-map-wrap');
-  const chev = document.getElementById('vp-map-chev');
-  if (!wrap) return;
-  const open = wrap.style.display === 'none';
-  wrap.style.display = open ? 'block' : 'none';
-  if (chev) chev.textContent = open ? '▾' : '▸';
-  if (open && !_vpMapLoaded) { _vpMapLoaded = true; loadVenepaikkaMap(); }
-}
 
 async function loadVenepaikkaMap() {
   const mapEl = document.getElementById('vp-leaflet-map');
@@ -4206,6 +4210,7 @@ function toggleCardCollapse(id) {
     setTimeout(loadAluekartta, 100);
   }
   if (!open && id === 'veneohje-card' && !_veneohjeRendered) renderVeneohje();
+  if (!open && id === 'venepaikat-card' && !_vpMapLoaded) { _vpMapLoaded = true; loadVenepaikkaMap(); }
   if (!open && id === 'uutiset-card') loadMokkiNews();
 }
 
@@ -4334,6 +4339,7 @@ const SECTION_DEFS = [
   { key: 'profile', label: '👤 Oma profiili', sel: '#profile-card' },
   { key: 'aluekartta', label: '🗺️ Aluekartta', sel: '#aluekartta-card' },
   { key: 'opas', label: '📖 Kesämajalaisen opas', sel: '#opas-card' },
+  { key: 'venepaikat', label: '⚓ Venepaikat', sel: '#venepaikat-card' },
   { key: 'veneohje', label: '⚓ Venepaikan ohje', sel: '#veneohje-card' },
   { key: 'docs', label: '📄 Dokumentit & ohjeet', sel: '#docs-card' },
   { key: 'hallitus', label: '🏛️ Hallitus', sel: '#hallitus-card' },
