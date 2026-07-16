@@ -670,7 +670,7 @@ body { padding-top: 48px; }
       </div>
     </div>
     <div class="profile-photo-actions">
-      <button class="profile-photo-btn" onclick="document.getElementById('owner-photo-file').click()">📷 Omistajan kuva</button>
+      <button class="profile-photo-btn" onclick="document.getElementById('owner-photo-file').click()">📷 Profiilikuva</button>
       <button class="profile-photo-btn" onclick="document.getElementById('cabin-photo-file').click()">🏠 Mökin kuva</button>
       <input type="file" id="owner-photo-file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadOwnerPhoto(this)">
       <input type="file" id="cabin-photo-file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadCabinPhoto(this)">
@@ -1222,6 +1222,7 @@ body { padding-top: 48px; }
           <button onclick="submitLaituri()" style="background:var(--green);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-weight:700;font-size:0.78rem;cursor:pointer;white-space:nowrap;">Tallenna</button>
         </div>
         <div id="laituri-msg" style="margin-top:4px;font-size:0.72rem;text-align:center;min-height:14px;"></div>
+        <div id="laituri-chart" style="margin-top:10px;"></div>
       </div>
     </div>
 
@@ -1393,8 +1394,7 @@ body { padding-top: 48px; }
           <div style="font-size:1.6rem;margin-bottom:8px;">🗺️</div>
           <div style="font-weight:600;margin-bottom:4px;">Ladataan karttaa...</div>
         </div>
-        <div id="venepaikka-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
-        <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;padding:0 2px;">🔵 Vesijohdot · 🟠 Linjasulku · ⭐ Aluesulku · 🟤 Linjakatko · 🔴 Pääsulku · 🚰 Vesihana — ⚓ klikkaa laiturimerkkiä</div>
+        <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;padding:0 2px;">🔵 Vesijohdot · 🟠 Linjasulku · ⭐ Aluesulku · 🟤 Linjakatko · 🔴 Pääsulku · 🚰 Vesihana</div>
       </div>
     </div>
 
@@ -1425,6 +1425,16 @@ body { padding-top: 48px; }
           <div style="font-size:0.68rem;color:var(--text-muted);margin-top:4px;">Klikkaa isommaksi · L1=0-15 · L2=16-31 · L3=32-47</div>
         </div>
         <div id="veneohje-sections" style="display:flex;flex-direction:column;gap:2px;"></div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;">
+          <div onclick="toggleVenepaikkaMap()" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 0;">
+            <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">⚓ Venepaikat kartalla</span>
+            <span id="vp-map-chev" style="font-size:0.75rem;color:var(--text-muted);transition:transform .2s;">▸</span>
+          </div>
+          <div id="vp-map-wrap" style="display:none;margin-top:8px;">
+            <div id="vp-leaflet-map" style="height:280px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);"></div>
+            <div id="venepaikka-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2513,6 +2523,7 @@ async function showDashboard(num) {
   setInterval(renderSaunaCard, 60000);
   loadCamera();
   loadLaituriLast();
+  loadLaituriChart();
   loadSolar();
   // loadAirQuality called globally at page load
   loadWasteSchedule();
@@ -3315,6 +3326,7 @@ async function submitLaituri() {
       msg.innerHTML = '<span style="color:#38a169">✅ Tallennettu!</span>';
       document.getElementById('laituri-temp').value = '';
       loadLaituriLast();
+      loadLaituriChart();
       setTimeout(() => { msg.textContent = ''; }, 3000);
     } else {
       msg.innerHTML = '<span style="color:#e53e3e">❌ Virhe ' + r.status + '</span>';
@@ -3330,6 +3342,51 @@ async function loadLaituriLast() {
     const t = d.time ? new Date(d.time).toLocaleString('fi-FI', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
     const by = d.name ? ` · ${d.name}` : '';
     el.innerHTML = `Edellinen: <strong>${d.temp.toFixed(1)}°C</strong>${by}${t ? ' · ' + t : ''}`;
+  } catch(e) {}
+}
+
+async function loadLaituriChart() {
+  const el = document.getElementById('laituri-chart');
+  if (!el) return;
+  try {
+    const data = await fetch(API_BASE + '/api/hkl/laituri-history').then(r => r.json());
+    if (!data.length) { el.innerHTML = '<div style="font-size:0.72rem;color:var(--text-muted);text-align:center;padding:8px 0;">Ei mittaushistoriaa</div>'; return; }
+    const pts = data.map(d => ({ t: new Date(d.time), v: d.temp })).reverse();
+    const W = 300, H = 100, P = 28, PR = 8, PT = 12, PB = 20;
+    const minV = Math.floor(Math.min(...pts.map(p=>p.v)) - 1);
+    const maxV = Math.ceil(Math.max(...pts.map(p=>p.v)) + 1);
+    const rangeV = maxV - minV || 1;
+    const t0 = pts[0].t.getTime(), t1 = pts[pts.length-1].t.getTime();
+    const rangeT = t1 - t0 || 1;
+    const x = p => P + (p.t.getTime() - t0) / rangeT * (W - P - PR);
+    const y = p => PT + (1 - (p.v - minV) / rangeV) * (H - PT - PB);
+    const line = pts.map((p,i) => `${i===0?'M':'L'}${x(p).toFixed(1)},${y(p).toFixed(1)}`).join(' ');
+    const area = line + ` L${x(pts[pts.length-1]).toFixed(1)},${H-PB} L${x(pts[0]).toFixed(1)},${H-PB} Z`;
+    let gridLines = '';
+    const step = rangeV <= 6 ? 1 : rangeV <= 12 ? 2 : 5;
+    for (let v = Math.ceil(minV/step)*step; v <= maxV; v += step) {
+      const yy = PT + (1 - (v - minV) / rangeV) * (H - PT - PB);
+      gridLines += `<line x1="${P}" y1="${yy}" x2="${W-PR}" y2="${yy}" stroke="#e0e7ef" stroke-width="0.5"/>`;
+      gridLines += `<text x="${P-4}" y="${yy+3}" fill="#94a3b8" font-size="7" text-anchor="end">${v}°</text>`;
+    }
+    const dots = pts.map(p => `<circle cx="${x(p).toFixed(1)}" cy="${y(p).toFixed(1)}" r="3" fill="#0e7490" stroke="#fff" stroke-width="1"><title>${p.v.toFixed(1)}°C · ${p.t.toLocaleDateString('fi-FI',{day:'numeric',month:'short'})}</title></circle>`).join('');
+    const shown = new Set();
+    let dateLabels = '';
+    pts.forEach(p => {
+      const key = p.t.getFullYear()+'-'+p.t.getMonth()+'-'+p.t.getDate();
+      if (!shown.has(key) && shown.size < 8) {
+        shown.add(key);
+        dateLabels += `<text x="${x(p).toFixed(1)}" y="${H-PB+12}" fill="#94a3b8" font-size="6.5" text-anchor="middle">${p.t.toLocaleDateString('fi-FI',{day:'numeric',month:'short'})}</text>`;
+      }
+    });
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;">
+      ${gridLines}
+      <path d="${area}" fill="url(#lgrad)" opacity="0.3"/>
+      <path d="${line}" fill="none" stroke="#0e7490" stroke-width="1.5" stroke-linejoin="round"/>
+      ${dots}
+      ${dateLabels}
+      <defs><linearGradient id="lgrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0e7490"/><stop offset="100%" stop-color="#0e7490" stop-opacity="0"/></linearGradient></defs>
+    </svg>`;
   } catch(e) {}
 }
 
@@ -3507,6 +3564,79 @@ function _initVVPinch(el) {
   }, {passive: false});
 }
 
+let _vpMapLoaded = false;
+function toggleVenepaikkaMap() {
+  const wrap = document.getElementById('vp-map-wrap');
+  const chev = document.getElementById('vp-map-chev');
+  if (!wrap) return;
+  const open = wrap.style.display === 'none';
+  wrap.style.display = open ? 'block' : 'none';
+  if (chev) chev.textContent = open ? '▾' : '▸';
+  if (open && !_vpMapLoaded) { _vpMapLoaded = true; loadVenepaikkaMap(); }
+}
+
+async function loadVenepaikkaMap() {
+  const mapEl = document.getElementById('vp-leaflet-map');
+  const listEl = document.getElementById('venepaikka-list');
+  if (!mapEl) return;
+  const _e = s => (s||'').replace(/</g,'&lt;');
+  try {
+    await _loadLeaflet();
+    const data = await fetch(API_BASE + '/api/hkl/berths').then(r => r.json());
+    const LAITURIT = new Set(['L1','L2','L3']);
+    const berths = data.filter(b => !LAITURIT.has(b.numero));
+    const laiturit = data.filter(b => LAITURIT.has(b.numero));
+    const TILA_C = {vapaa:'#22c55e', varattu:'#ef4444', vieraspaikka:'#f59e0b'};
+    const TILA_L = {vapaa:'Vapaa', varattu:'Varattu', vieraspaikka:'Vieraspaikka'};
+
+    const vpMap = L.map(mapEl, {zoomControl:true, scrollWheelZoom:true});
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution:'&copy; OSM &amp; CARTO', maxZoom:19
+    }).addTo(vpMap);
+    vpMap.setView([60.1553, 24.8555], 17);
+
+    laiturit.filter(l => l.lat && l.lon).forEach(l => {
+      L.marker([l.lat, l.lon], {
+        icon: L.divIcon({
+          html: `<div style="background:rgba(15,92,58,0.92);color:#fff;border:2px solid #fff;border-radius:8px;padding:3px 8px;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.5);">⚓ ${_e(l.numero)}</div>`,
+          className:'', iconAnchor:[20,14]
+        })
+      }).addTo(vpMap);
+    });
+
+    berths.filter(b => b.lat && b.lon).forEach(b => {
+      const col = TILA_C[b.tila] || '#6b7280';
+      L.circleMarker([b.lat, b.lon], {radius:6, fillColor:col, color:'#fff', weight:2, fillOpacity:0.9})
+        .bindPopup(`<b>#${_e(b.numero)}</b><br><span style="color:${col};font-weight:700;">${TILA_L[b.tila]||b.tila}</span>${b.kuvaus ? '<br>'+_e(b.kuvaus) : ''}`)
+        .addTo(vpMap);
+    });
+
+    const vapaat = berths.filter(b => b.tila === 'vapaa');
+    const vieraspaikat = berths.filter(b => b.tila === 'vieraspaikka');
+    if (listEl) {
+      if (vapaat.length > 0 || vieraspaikat.length > 0) {
+        const vapaatNrot = vapaat.map(b => `<span style="display:inline-block;background:#dcfce7;color:#166534;border-radius:5px;padding:1px 7px;font-size:0.78rem;font-weight:700;margin:2px 2px;">#${_e(b.numero)}</span>`).join('');
+        const vieras = vieraspaikat.length > 0 ? `<div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;">
+            <span style="font-size:0.82rem;font-weight:700;color:#92400e;">🟡 ${vieraspaikat.length} vieraspaikka${vieraspaikat.length>1?'a':''}</span>
+          </div>` : '';
+        listEl.innerHTML = `<div style="background:var(--sand);border-radius:10px;padding:12px 14px;">
+          ${vapaat.length > 0 ? `<div style="margin-bottom:4px;"><span style="font-size:0.82rem;font-weight:700;color:#166534;">🟢 ${vapaat.length} vapaa${vapaat.length>1?'ta':''} paikkaa: </span><span style="line-height:2;">${vapaatNrot}</span></div>` : ''}
+          ${vieras}
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;">Tiedustelut: <a href="tel:+358440748796" style="color:var(--green);font-weight:600;">0440 74 87 96</a></div>
+        </div>`;
+      } else {
+        listEl.innerHTML = `<div style="background:var(--sand);border-radius:10px;padding:12px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0;display:inline-block;"></span>
+            <span style="font-size:0.85rem;color:var(--text-muted);">Ei vapaita paikkoja</span>
+          </div>
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">Tiedustelut: <a href="tel:+358440748796" style="color:var(--green);font-weight:600;">0440 74 87 96</a></div>
+        </div>`;
+      }
+    }
+  } catch(e) { console.error('[vp-map]', e); }
+}
+
 async function loadVenepaikkaStatus() {
   try {
     const data = await fetch(API_BASE + '/api/hkl/berths').then(r => r.json());
@@ -3529,7 +3659,6 @@ async function loadVenepaikkaStatus() {
 async function loadAluekartta() {
   const mapEl = document.getElementById('aluekartta');
   const emptyEl = document.getElementById('aluekartta-empty');
-  const listEl = document.getElementById('venepaikka-list');
   const zoomEl = document.getElementById('aluekartta-zoom');
   if (!mapEl) return;
   const _e = s => (s||'').replace(/</g,'&lt;');
@@ -3589,7 +3718,7 @@ async function loadAluekartta() {
     _aluekarttaMap.fitBounds(vvkBounds, {padding:[5,5]});
 
     // Layer: Laiturit (L1-L3) — markerit lisätään myöhemmin skaalauksen kanssa
-    const veneLayer = L.layerGroup().addTo(_aluekarttaMap);
+    const veneLayer = L.layerGroup();
 
     // Layer: Mökit — oma korostettu, muut klikattavia, koko skaalautuu zoomin mukaan
     const mokkiCottages = cottages.filter(c => c.map_px != null && c.map_py != null);
@@ -3648,32 +3777,6 @@ async function loadAluekartta() {
       {collapsed:false, position:'topright'}
     ).addTo(_aluekarttaMap);
 
-    // Venepaikka-yhteenveto
-    const vapaat = berths.filter(b => b.tila === 'vapaa');
-    const vieraspaikat = berths.filter(b => b.tila === 'vieraspaikka');
-    if (listEl) {
-      if (vapaat.length > 0 || vieraspaikat.length > 0) {
-        const vapaatNrot = vapaat.map(b => `<span style="display:inline-block;background:#dcfce7;color:#166534;border-radius:5px;padding:1px 7px;font-size:0.78rem;font-weight:700;margin:2px 2px;">#${_e(b.numero)}</span>`).join('');
-        const vieras = vieraspaikat.length > 0 ? `<div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;">
-            <span style="font-size:0.82rem;font-weight:700;color:#92400e;">🟡 ${vieraspaikat.length} vieraspaikka${vieraspaikat.length>1?'a':''}</span>
-          </div>` : '';
-        listEl.innerHTML = `<div style="background:var(--sand);border-radius:10px;padding:12px 14px;">
-          <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">⛵ Venepaikat</div>
-          ${vapaat.length > 0 ? `<div style="margin-bottom:4px;"><span style="font-size:0.82rem;font-weight:700;color:#166534;">🟢 ${vapaat.length} vapaa${vapaat.length>1?'ta':''} paikkaa: </span><span style="line-height:2;">${vapaatNrot}</span></div>` : ''}
-          ${vieras}
-          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;">Tiedustelut: <a href="tel:+358440748796" style="color:var(--green);font-weight:600;">0440 74 87 96</a></div>
-        </div>`;
-      } else {
-        listEl.innerHTML = `<div style="background:var(--sand);border-radius:10px;padding:12px 14px;">
-          <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">⛵ Venepaikat</div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0;display:inline-block;"></span>
-            <span style="font-size:0.85rem;color:var(--text-muted);">Ei vapaita paikkoja</span>
-          </div>
-          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">Tiedustelut: <a href="tel:+358440748796" style="color:var(--green);font-weight:600;">0440 74 87 96</a></div>
-        </div>`;
-      }
-    }
   } catch(e) { console.error('[aluekartta]', e); }
 }
 
@@ -3864,7 +3967,7 @@ async function uploadOwnerPhoto(input) {
       body: JSON.stringify({photo: dataUrl})
     });
     if (r.ok) {
-      msg.textContent = '✓ Omistajan kuva päivitetty';
+      msg.textContent = '✓ Profiilikuva päivitetty';
       setTimeout(() => { msg.textContent = ''; }, 3000);
       window._photoCacheBust = Date.now();
       loadProfileHero();
