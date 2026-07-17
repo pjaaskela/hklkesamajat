@@ -2544,7 +2544,7 @@ async function showDashboard(num) {
 
   loadPhotos(num);
   if (num === '484') { loadSensorData(); loadAvocado(); }
-  if (_hklToken) loadSensorTrend();
+  loadSensorTrendSafe();
   renderSaunaCard();
   setInterval(renderSaunaCard, 60000);
   loadCamera();
@@ -2621,6 +2621,17 @@ async function loadSensorData() {
 }
 
 // ========== SENSOR TREND (7 days) ==========
+async function loadSensorTrendSafe() {
+  if (!_hklToken) return;
+  try {
+    const sr = await fetch(API_BASE + '/api/hkl/cottage-sensors', {headers: {'X-Hkl-Token': _hklToken}});
+    if (!sr.ok) return;
+    const sd = await sr.json();
+    if (sd.indoor_temp == null && sd.outdoor_temp == null) return;
+  } catch(e) { return; }
+  loadSensorTrend();
+}
+
 async function loadSensorTrend() {
   try {
     const r = await fetch(API_BASE + '/api/hkl/cottage-sensors/history?days=7', {headers: {'X-Hkl-Token': _hklToken}});
