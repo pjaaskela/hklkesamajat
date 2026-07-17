@@ -420,7 +420,18 @@ textarea.inp{resize:vertical;min-height:72px}
       </div>
       <div class="field"><label>AIHE</label><input class="inp" id="sm-subject" maxlength="150" placeholder="esim. Lämmitysremontti-info"></div>
       <div class="field"><label>VIESTI <span style="font-size:10px;color:var(--muted);font-weight:400;">(tyhjä rivi = uusi kappale)</span></label>
-        <textarea class="inp" id="sm-message" rows="8" placeholder="Hei,&#10;&#10;..."></textarea>
+        <textarea class="inp" id="sm-message" rows="8" placeholder="Hei {nimi},&#10;&#10;..."></textarea>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.6;">
+          Muuttujat: <code style="background:var(--bg2);padding:1px 5px;border-radius:3px;font-size:10px;">{nimi}</code> mökkiläisen nimi,
+          <code style="background:var(--bg2);padding:1px 5px;border-radius:3px;font-size:10px;">{mokki}</code> mökin numero,
+          <code style="background:var(--bg2);padding:1px 5px;border-radius:3px;font-size:10px;">{kirjautumislinkki}</code> henkilökohtainen kirjautumislinkki
+        </div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--fg);">
+          <input type="checkbox" id="sm-login-link" style="accent-color:var(--green);width:16px;height:16px;">
+          Sisällytä kirjautumislinkki viestin loppuun <span style="font-size:10px;color:var(--muted);">(automaattinen, ellei {kirjautumislinkki} viestissä)</span>
+        </label>
       </div>
       <div class="field">
         <label>LIITE <span style="font-size:10px;color:var(--muted);font-weight:400;">(kuva, max 5 MB)</span></label>
@@ -2941,7 +2952,8 @@ async function sendMessage(test){
   }
   const msg=document.getElementById('sm-msg');
   msg.style.color='var(--amber)'; msg.textContent = test ? 'Lähetetään testi…' : 'Lähetetään…';
-  const payload = {subject, message, target_type:t.type, target_value:t.value, test};
+  const includeLoginLink = document.getElementById('sm-login-link')?.checked || false;
+  const payload = {subject, message, target_type:t.type, target_value:t.value, test, include_login_link: includeLoginLink};
   if (_smAttachData) payload.attachment = {name: _smAttachData.name, type: _smAttachData.type, data: _smAttachData.data};
   try{
     const r = await fetch(`${API_BASE}/api/hkl/send-message`, {method:'POST', headers:ah(), body:JSON.stringify(payload)});

@@ -588,7 +588,9 @@ body { padding-top: 48px; }
       <input type="checkbox" id="login-remember" checked style="accent-color:#52b788;width:16px;height:16px;"> Muista minut
     </label>
     <button class="login-btn" onclick="doLogin()" data-i18n="mok_login_btn">Kirjaudu sisään →</button>
-    <div class="login-hint"><a href="#" onclick="showResetForm();return false;" style="color:rgba(255,255,255,0.5);text-decoration:underline;">Unohditko salasanasi?</a></div>
+    <div class="login-hint">
+      <a href="#" onclick="showMagicLinkForm();return false;" style="color:rgba(255,255,255,0.5);text-decoration:underline;">Kirjaudu ilman salasanaa →</a>
+    </div>
 
     <!-- MIKSI REKISTERÖITYÄ -->
     <div style="margin-top:24px;border-top:1px solid rgba(255,255,255,0.1);padding-top:20px;text-align:left;">
@@ -625,10 +627,12 @@ body { padding-top: 48px; }
       </div>
       <div style="margin-top:16px;text-align:center;font-size:0.72rem;color:rgba(255,255,255,0.3);">Kutsulinkki tulee sähköpostiisi webmasterilta</div>
     </div>
-    <div id="reset-form" style="display:none;margin-top:12px;">
-      <input type="email" id="reset-email" class="login-input" placeholder="Sähköpostiosoitteesi" autocomplete="email">
-      <button onclick="sendReset()" class="login-btn" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);margin-top:6px;">Lähetä nollauslinkki</button>
-      <div id="reset-msg" style="font-size:0.78rem;margin-top:6px;min-height:1em;color:rgba(255,255,255,0.7);"></div>
+    <div id="magic-link-form" style="display:none;margin-top:12px;">
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-bottom:8px;line-height:1.4;">Syötä sähköpostiosoitteesi ja saat kirjautumislinkin postiisi. Linkki on voimassa 24 tuntia.</div>
+      <input type="email" id="magic-email" class="login-input" placeholder="Sähköpostiosoitteesi" autocomplete="email"
+        onkeydown="if(event.key==='Enter')sendMagicLink()">
+      <button onclick="sendMagicLink()" class="login-btn" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);margin-top:6px;">📨 Lähetä kirjautumislinkki</button>
+      <div id="magic-msg" style="font-size:0.78rem;margin-top:6px;min-height:1em;color:rgba(255,255,255,0.7);"></div>
     </div>
   </div>
 </div>
@@ -2359,23 +2363,23 @@ async function applySiteSettings() {
   } catch(e) {}
 }
 
-// ========== PASSWORD RESET ==========
-function showResetForm() { document.getElementById('reset-form').style.display = ''; }
-let _resetThrottle=0;
-async function sendReset() {
-  if(Date.now()-_resetThrottle<5000)return;
-  _resetThrottle=Date.now();
-  const email = document.getElementById('reset-email').value.trim();
-  const msg = document.getElementById('reset-msg');
+// ========== MAGIC LINK (kertakirjautuminen) ==========
+function showMagicLinkForm() { document.getElementById('magic-link-form').style.display = ''; }
+let _magicThrottle=0;
+async function sendMagicLink() {
+  if(Date.now()-_magicThrottle<5000)return;
+  _magicThrottle=Date.now();
+  const email = document.getElementById('magic-email').value.trim();
+  const msg = document.getElementById('magic-msg');
   if (!email) { msg.textContent = 'Syötä sähköpostiosoite'; return; }
   msg.textContent = 'Lähetetään...';
   try {
-    await fetch(API_BASE + '/api/hkl/reset-password', {
+    await fetch(API_BASE + '/api/hkl/magic-link', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({email})
     });
-    msg.textContent = '✓ Jos sähköposti löytyy järjestelmästä, nollauslinkki on lähetetty.';
-    document.getElementById('reset-email').value = '';
+    msg.innerHTML = '✅ Jos sähköposti löytyy järjestelmästä, kirjautumislinkki on lähetetty.<br><span style="font-size:0.72rem;color:rgba(255,255,255,0.4);">Tarkista myös roskapostikansio.</span>';
+    document.getElementById('magic-email').value = '';
   } catch(e) { msg.textContent = 'Verkkovirhe — yritä uudelleen'; }
 }
 
