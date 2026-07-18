@@ -539,7 +539,7 @@ footer strong { color: white; }
       <a href="#buffetti" class="glass-pill" style="text-decoration:none;color:inherit;cursor:pointer;">
         <div class="glass-pill-label">☕ Buffetti</div>
         <div class="glass-pill-value" style="font-size:1rem;" id="h-buffetti-status">–</div>
-        <div class="glass-pill-sub">pe–su 11–18</div>
+        <div class="glass-pill-sub" id="h-buffetti-hours">la–su 12–17</div>
       </a>
       <div class="glass-pill">
         <div class="glass-pill-label">☀️ Aurinko</div>
@@ -866,8 +866,8 @@ footer strong { color: white; }
         <div style="font-size:1.1rem;font-weight:800;color:var(--green);margin-bottom:5px;">Kesäkahvila Buffetti</div>
         <div style="font-size:0.88rem;color:var(--text-muted);line-height:1.5;">Kotitekoisia leivonnaisia, tuoretta kahvia ja upea merinäkymä.</div>
         <div style="margin-top:7px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
-          <span id="buffetti-hours-text" style="font-size:0.82rem;background:#f5f5f5;border-radius:7px;padding:3px 10px;font-weight:600;">🕐 la–su 12–17 (kesä–elo) / pe–su 11–18 (touko)</span>
-          <span style="font-size:0.82rem;color:var(--text-muted);" id="buffetti-kausi-text">Vapusta elokuuhun</span>
+          <span id="buffetti-hours-text" style="font-size:0.82rem;background:#f5f5f5;border-radius:7px;padding:3px 10px;font-weight:600;">🕐 la–su 12–17</span>
+          <span style="font-size:0.82rem;color:var(--text-muted);" id="buffetti-kausi-text">Toukokuusta elokuuhun</span>
         </div>
         <div style="margin-top:6px;font-size:0.78rem;color:var(--green);font-weight:600;">kahvilabuffetti.fi ↗</div>
       </div>
@@ -1036,9 +1036,9 @@ const API_BASE = 'https://api.hklkesamajat.fi';
 
 let _bufSettings = {
   buf_kausi_alku:5, buf_kausi_loppu:8,
-  buf_kesa_alku:6,  buf_kesa_loppu:8,
+  buf_kesa_alku:5,  buf_kesa_loppu:8,
   buf_kesa_paivat:'6,0', buf_kesa_auki:12, buf_kesa_kiinni:17,
-  buf_paivat:'5,6,0',    buf_auki:11,      buf_kiinni:18,
+  buf_paivat:'6,0',      buf_auki:12,      buf_kiinni:17,
 };
 function _parseDays(str){ return (str||'').split(',').map(Number).filter(n=>!isNaN(n)); }
 function isBuffettiOpen() {
