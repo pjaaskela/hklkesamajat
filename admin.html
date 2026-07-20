@@ -1401,11 +1401,12 @@ function updateStats(){
 
 async function loadSensors(){
   try{
-    const[sR,lR]=await Promise.all([fetch(API_BASE+'/api/hkl/local-sensor').then(r=>r.json()).catch(()=>({})),fetch(API_BASE+'/api/hkl/laituri').then(r=>r.json()).catch(()=>({}))]);
+    const[sR,lR,camR]=await Promise.all([fetch(API_BASE+'/api/hkl/local-sensor').then(r=>r.json()).catch(()=>({})),fetch(API_BASE+'/api/hkl/laituri').then(r=>r.json()).catch(()=>({})),fetch(API_BASE+'/api/hkl/camera-status').then(r=>r.json()).catch(()=>({}))]);
     const strip=document.getElementById('sensor-strip');const cards=[];
-    if(sR.temperature!=null)cards.push(`<div class="scard"><div class="scard-label">ULKOLÄMPÖTILA</div><div class="scard-val" style="color:var(--green)">${sR.temperature.toFixed(1)} °C</div><div class="scard-sub">${sR.stale?'⚠ vanha arvo':'mökki ulkomittari'}</div></div>`);
-    if(sR.humidity!=null)cards.push(`<div class="scard"><div class="scard-label">KOSTEUS</div><div class="scard-val">${Math.round(sR.humidity)} %</div><div class="scard-sub">suhteellinen kosteus</div></div>`);
-    if(lR.temp!=null)cards.push(`<div class="scard"><div class="scard-label">LAITURIMITAUS</div><div class="scard-val" style="color:var(--blue)">${lR.temp.toFixed(1)} °C</div><div class="scard-sub">${relTime(lR.time)}${lR.note?' · '+esc(lR.note):''}</div></div>`);
+    if(sR.temperature!=null)cards.push('<div class="scard"><div class="scard-label">ULKOLÄMPÖTILA</div><div class="scard-val" style="color:var(--green)">'+sR.temperature.toFixed(1)+' °C</div><div class="scard-sub">'+(sR.stale?'⚠ vanha arvo':'mökki ulkomittari')+'</div></div>');
+    if(sR.humidity!=null)cards.push('<div class="scard"><div class="scard-label">KOSTEUS</div><div class="scard-val">'+Math.round(sR.humidity)+' %</div><div class="scard-sub">suhteellinen kosteus</div></div>');
+    if(lR.temp!=null)cards.push('<div class="scard"><div class="scard-label">LAITURIMITAUS</div><div class="scard-val" style="color:var(--blue)">'+lR.temp.toFixed(1)+' °C</div><div class="scard-sub">'+relTime(lR.time)+(lR.note?' · '+esc(lR.note):'')+'</div></div>');
+    if(camR.status){var on=camR.status==='online';var sla=camR.sla_7d!=null?'SLA 7d: '+camR.sla_7d+'%':'';var clr=on?'var(--green)':'var(--red)';cards.push('<div class="scard"><div class="scard-label">📹 GRILLIKATOS</div><div class="scard-val" style="color:'+clr+'">'+(on?'Online':'Offline')+'</div><div class="scard-sub">'+sla+(camR.updated?' · '+camR.updated.split(' ')[1]:'')+'</div></div>');}
     strip.innerHTML=cards.length?cards.join(''):'<div style="color:var(--muted);font-size:12px">Ei sensoridataa</div>';
     document.getElementById('sensor-ts').innerHTML=`<span class="ldot ldot-g"></span> päivitetty ${new Date().toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit'})}`;
   }catch(e){}
