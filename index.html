@@ -155,6 +155,11 @@ footer a { color: rgba(82,183,136,0.55); }
         <div class="glass-pill-value" id="h-heat-count">–</div>
         <div class="glass-pill-sub" id="h-heat-sub">2026</div>
       </div>
+      <div class="glass-pill">
+        <div class="glass-pill-label">🔥 Kuumin / 🥶 Viilein</div>
+        <div class="glass-pill-value" style="font-size:1.1rem;" id="h-extremes-val">–</div>
+        <div class="glass-pill-sub" id="h-extremes-sub">tässä kuussa</div>
+      </div>
     </div>
 
     <!-- KARTTA -->
@@ -433,6 +438,17 @@ loadLocalSensorHero();
 loadSunHero();
 loadAirQualityHero();
 loadHeatDaysHero();
+loadMonthExtremesHero();
+
+async function loadMonthExtremesHero() {
+  try {
+    const d = await fetch(API_BASE + '/api/hkl/month-extremes').then(r => r.json());
+    if (d.max_temp != null && d.min_temp != null) {
+      document.getElementById('h-extremes-val').textContent = d.max_temp + '° / ' + d.min_temp + '°';
+      document.getElementById('h-extremes-sub').textContent = d.month_name + ' · ' + d.max_time.split(' ')[0] + ' / ' + d.min_time.split(' ')[0];
+    }
+  } catch(e) {}
+}
 
 setTimeout(() => {
   document.querySelectorAll('.glass-pill-value').forEach(el => {
