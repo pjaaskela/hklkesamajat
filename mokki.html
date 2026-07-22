@@ -994,6 +994,7 @@ body { padding-top: 48px; }
               <th style="padding:6px 1px;">18</th>
               <th style="padding:6px 1px;">19</th>
               <th style="padding:6px 1px;">20</th>
+              <th style="padding:6px 1px;">21</th>
             </tr>
             <tr style="border-bottom:1px solid #f0f0f0;">
               <td style="padding:5px 2px;font-weight:800;text-align:left;padding-left:8px;background:#e8f5ec;font-size:0.65rem;">TIISTAI</td>
@@ -1002,6 +1003,7 @@ body { padding-top: 48px; }
               <td colspan="2" style="background:#ede9fe;color:#7c3aed;font-weight:700;">⚥</td>
               <td style="background:#dbeafe;color:#1e40af;font-weight:700;">♂</td>
               <td colspan="2" style="background:#fce7f3;color:#be185d;font-weight:700;">♀</td>
+              <td style="background:#f8fafc;"></td>
             </tr>
             <tr style="border-bottom:1px solid #f0f0f0;">
               <td style="padding:5px 2px;font-weight:800;text-align:left;padding-left:8px;background:#e8f5ec;font-size:0.65rem;">PERJANTAI</td>
@@ -1009,6 +1011,7 @@ body { padding-top: 48px; }
               <td colspan="2" style="background:#dbeafe;color:#1e40af;font-weight:700;">♂</td>
               <td colspan="2" style="background:#fce7f3;color:#be185d;font-weight:700;">♀</td>
               <td colspan="2" style="background:#dbeafe;color:#1e40af;font-weight:700;">♂</td>
+              <td style="background:#f8fafc;"></td>
             </tr>
             <tr>
               <td style="padding:5px 2px;font-weight:800;text-align:left;padding-left:8px;background:#e8f5ec;font-size:0.65rem;">LAUANTAI</td>
@@ -1016,6 +1019,7 @@ body { padding-top: 48px; }
               <td colspan="2" style="background:#fce7f3;color:#be185d;font-weight:700;">♀</td>
               <td colspan="2" style="background:#dbeafe;color:#1e40af;font-weight:700;">♂</td>
               <td colspan="2" style="background:#fce7f3;color:#be185d;font-weight:700;">♀</td>
+              <td style="background:#f8fafc;"></td>
             </tr>
           </table>
           <div style="padding:6px 10px;font-size:0.65rem;color:var(--text-muted);display:flex;flex-wrap:wrap;gap:12px;background:#fff;border:1px solid #e8ede9;border-top:0;">
@@ -3834,8 +3838,9 @@ async function loadAluekartta() {
           photoDiv.style.display = 'none';
           photoDiv.innerHTML = '';
         }
+        const byear = c.building_year ? `<div style="font-size:0.82rem;color:#64748b;margin-top:6px;">🏗️ Rakennettu ${_e(c.building_year)}</div>` : '';
         sheet.querySelector('#vv-sheet-body').innerHTML =
-          c.kuvaus ? `<p style="margin:0;">${_e(c.kuvaus)}</p>` : `<p style="margin:0;color:#94a3b8;text-align:center;">Ei kuvausta</p>`;
+          (c.kuvaus ? `<p style="margin:0;">${_e(c.kuvaus)}</p>` : `<p style="margin:0;color:#94a3b8;text-align:center;">Ei kuvausta</p>`) + byear;
         const inner = sheet.querySelector('#vv-sheet-inner');
         if (inner) { inner.style.animation = 'none'; inner.offsetHeight; inner.style.animation = ''; }
         sheet.style.display = 'flex';

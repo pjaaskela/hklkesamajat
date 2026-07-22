@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "title": "Rakennusvuoden tuominen aluekarttaan",
+    "priority": "medium",
+    "status": "open",
+    "category": "feature",
+    "file": "mokki.html",
+    "description": "Rakennusvuosi aluekarttaan popuppiin + mökin kuvaustekstin alle banneriin",
+    "created": "2026-07-22",
+    "source": "gsheet"
+  }
+]
